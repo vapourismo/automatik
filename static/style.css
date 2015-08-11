@@ -1,0 +1,40 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+body {
+	padding: 5px;
+	margin: 0;
+	background: #333;
+	color: #ffffff;
+	font-family: "Roboto", sans-serif;
+	font-size: 16px;
+	height: 100%;
+	width: 100%;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.vsplit {
+	display: inline-block;
+	float: left;
+	width: 50%;
+	height: 100%;
+}
+
+.hsplit {
+	display: block;
+	height: 50%;
+}
+
+.tile {
+	padding: 5px;
+}
+
+.content {
+	display: block;
+	background-color: #369;
+	height: 100%;
+	width: 100%;
+	padding: 15px;
+}
