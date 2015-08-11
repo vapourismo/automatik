@@ -6,20 +6,50 @@
 		<script src="/static/client.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<div class="vsplit tile">
-			<div class="content">Hello World</div>
-		</div>
 		<div class="vsplit">
-			<div class="hsplit tile">
-				<div class="content">Hello World</div>
+			<div class="hsplit has-content">
+				<div class="box">Hello World</div>
 			</div>
-			<div class="hsplit">
-				<div class="vsplit tile">
-					<div class="content">Hello World</div>
-				</div>
-				<div class="vsplit tile">
-					<div class="content">Hello World</div>
-				</div>
+			<div class="hsplit has-content">
+				<div class="box">Hello World</div>
+			</div>
+		</div>
+		<div class="vsplit container">
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
+			</div>
+			<div class="tile">
+				<div class="box">Hello World</div>
 			</div>
 		</div>
 	</body>

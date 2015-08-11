@@ -27,14 +27,34 @@ body {
 	height: 50%;
 }
 
-.tile {
+.has-content {
 	padding: 5px;
 }
 
-.content {
+.hsplit .box, .vsplit .box {
 	display: block;
 	background-color: #369;
 	height: 100%;
 	width: 100%;
+	padding: 15px;
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+	align-content: flex-start;
+}
+
+.container .tile {
+	width: 33%;
+	height: 25%;
+	padding: 5px;
+}
+
+.tile .box {
+	background-color: #369;
 	padding: 15px;
 }
