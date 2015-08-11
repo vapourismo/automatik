@@ -3,6 +3,7 @@
 		<title>{{= it.info.title }}</title>
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
 		<script src="/static/jquery.js" type="text/javascript"></script>
+		<script src="/static/jquery.color.js" type="text/javascript"></script>
 		<script src="/static/client.js" type="text/javascript"></script>
 	</head>
 	<body>

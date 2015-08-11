@@ -1,6 +1,10 @@
-function updateClock() {
-	$("#clock").html(new Data().toLocaleString());
-}
-
-window.setInterval(updateClock, 1000);
-$(document).ready(updateClock);
+$(document).ready(function() {
+	$(".box").hover(
+		function() {
+			$(this).stop().animate({backgroundColor: "#963"}, 200);
+		},
+		function() {
+			$(this).stop().animate({backgroundColor: "#369"}, 200);
+		}
+	);
+});
