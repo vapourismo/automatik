@@ -31,14 +31,6 @@ body {
 	padding: 5px;
 }
 
-.hsplit .box, .vsplit .box {
-	display: block;
-	background-color: #369;
-	height: 100%;
-	width: 100%;
-	padding: 15px;
-}
-
 .container {
 	display: flex;
 	flex-direction: row;
@@ -54,7 +46,10 @@ body {
 	padding: 5px;
 }
 
-.tile .box {
+.box {
+	display: block;
 	background-color: #369;
+	height: 100%;
+	width: 100%;
 	padding: 15px;
 }
