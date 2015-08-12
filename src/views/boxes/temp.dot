@@ -1,0 +1,4 @@
+<a class="box" {{ if (it.action) { }} href="{{= it.action }}" {{ } }}>
+	<div class="label">{{= it.label }}</div>
+	<div class="temp">{{= it.value }}</div>
+</a>
