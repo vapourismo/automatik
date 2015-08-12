@@ -17,7 +17,10 @@
 		</div>
 		<div class="vsplit container">
 			<div class="tile">
-				<div class="box">Hello World</div>
+				<div class="box">
+					<div class="label">Wohnzimmer</div>
+					<div class="temp">20°C</div>
+				</div>
 			</div>
 			<div class="tile">
 				<div class="box">Hello World</div>

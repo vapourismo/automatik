@@ -47,10 +47,23 @@ body {
 }
 
 .box {
-	display: block;
+	display: flex;
+	flex-flow: column;
 	background-color: #369;
 	height: 100%;
 	width: 100%;
 	padding: 15px;
 	cursor: pointer;
+}
+
+.box .label {
+	flex: 0 1 auto;
+	text-align: center;
+}
+
+.box .temp {
+	flex: 1 1 auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
