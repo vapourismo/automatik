@@ -15,9 +15,11 @@ web.use(route.get("/", function*() {
 	this.response.body = tpl.index({
 		info: info,
 		tiles: [
-			tpl.boxes.temp({
+			tpl.boxes.default({
+				id: "temp_living_room",
 				label: "Living room",
-				value: "20°C"
+				value: "20°C",
+				href: "/path/to/tile/contents"
 			})
 		]
 	});

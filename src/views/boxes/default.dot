@@ -1,0 +1,5 @@
+<a class="box" {{ if (it.id) { }} id="{{= it.id }}" {{ } }}
+               {{ if (it.href) { }} href="{{= it.href }}" {{ } }}>
+	<div class="label">{{= it.label }}</div>
+	<div class="value">{{= it.value }}</div>
+</a>
