@@ -14,7 +14,7 @@ const info = {
 };
 
 web.get("/", function (req, res) {
-	db.query("SELECT short_name, name FROM rooms", function (err, result) {
+	db.query("SELECT short_name, name FROM rooms ORDER BY name ASC", function (err, result) {
 		if (err) {
 			// TODO: Handle query errors
 			res.status(500).json(err);
