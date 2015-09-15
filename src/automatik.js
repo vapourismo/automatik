@@ -1,5 +1,12 @@
+var pg = require("pg");
 var web = require("express")();
 var tpl = require("./templates.js");
+
+var db = new pg.Client({
+	host: "localhost",
+	user: "ole",
+	database: "ole"
+});
 
 const info = {
 	title: "automatik",
@@ -7,22 +14,23 @@ const info = {
 };
 
 web.get("/", function (req, res) {
-	var testTile = "<div class='box'></div>";
-
-	var navTile = tpl.boxes.nav({
-		contents: "Wohnzimmer"
+	db.query("SELECT short_name, name FROM rooms", function (err, result) {
+		if (err) {
+			// TODO: Handle query errors
+			res.status(500).json(err);
+		} else {
+			res.send(tpl.overview({
+				info: info,
+				major: [],
+				minor: result.rows.map(tpl.boxes.room)
+			}));
+		}
 	});
-
-	res.send(tpl.overview({
-		info: info,
-		major: [testTile, testTile],
-		minor: [navTile, testTile, testTile,
-		        testTile, testTile, testTile,
-		        testTile, testTile, testTile,
-		        testTile, testTile, testTile]
-	}));
 });
 
-web.listen(3001);
+web.get("/rooms/:shortname", function (req, res) {
+	res.redirect("/");
+});
 
-console.log(web);
+db.connect();
+web.listen(3001);
