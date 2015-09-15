@@ -21,7 +21,7 @@ web.get("/", function (req, res) {
 		} else {
 			res.send(tpl.overview({
 				info: info,
-				major: [],
+				major: ["<div class='container box'></div>", "<div class='container box'></div>"],
 				minor: result.rows.map(tpl.boxes.room)
 			}));
 		}
@@ -29,7 +29,7 @@ web.get("/", function (req, res) {
 });
 
 web.get("/rooms/:shortname", function (req, res) {
-	res.redirect("/");
+	db.query("SELECT ")
 });
 
 db.connect();

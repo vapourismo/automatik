@@ -29,6 +29,7 @@ body {
 	flex-direction: column;
 	width: 50%;
 	height: 100%;
+	overflow: auto;
 }
 
 #major-container .tile {
@@ -41,6 +42,7 @@ body {
 	flex-direction: row;
 	width: 50%;
 	height: 100%;
+	overflow: auto;
 }
 
 #minor-container .tile {
