@@ -1,0 +1,5 @@
+<a class="box" href="/rooms/<%= data.id %>">
+	<div class="name">
+		<%= data.name %>
+	</div>
+</a>

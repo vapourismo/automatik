@@ -2,8 +2,8 @@
 
 /* General */
 body {
-	padding: 5px;
 	margin: 0;
+	padding: 0;
 	background: #333;
 	color: #fff;
 	font-family: "Roboto", sans-serif;
@@ -16,13 +16,17 @@ body {
 	box-sizing: border-box;
 }
 
-/* Containers */
 .container {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: flex-start;
 	align-content: flex-start;
+}
+
+/* Overview */
+body#overview {
+	padding: 5px;
 }
 
 #major-container {
@@ -38,6 +42,17 @@ body {
 	padding: 5px;
 }
 
+#major-container .tile .box {
+	display: flex;
+	height: 100%;
+	width: 100%;
+	background-color: #336699;
+}
+
+#major-container .tile .box:hover {
+	background-color: #339966;
+}
+
 #minor-container {
 	flex-direction: row;
 	width: 50%;
@@ -46,35 +61,87 @@ body {
 }
 
 #minor-container .tile {
-	width: 33%;
+	width: 33.3333%;
 	height: 25%;
 	padding: 5px;
 }
 
-/* Tile contents */
-.box {
+#minor-container .tile .box {
+	display: flex;
 	height: 100%;
 	width: 100%;
 	background-color: #336699;
-	padding: 10px;
 	align-items: center;
 	align-content: center;
 	text-decoration: none;
 	color: #fff;
 }
 
-.box:hover, .box:active {
+#minor-container .tile .box:hover {
 	background-color: #339966;
 }
 
-.room {
+#minor-container .tile .box .name {
+	width: 100%;
+	text-align: center;
+	font-size: 1em;
+}
+
+/* Room */
+#sidebar {
+	width: 25%;
+	height: 100%;
+	background-color: #222;
+	font-size: 1.5em;
+	align-items: flex-end;
+	align-content: flex-end;
+}
+
+#sidebar .item {
+	display: block;
 	padding: 10px;
+	width: 100%;
+	border-top: solid 1px #2f2f2f;
+	text-align: right;
+	text-decoration: none;
+	color: #fff;
+}
+
+#sidebar .item:hover {
+	color: #336699;
+	background-color: #2f2f2f;
+}
+
+#room-container {
+	flex-direction: row;
+	width: 75%;
+	height: 100%;
+	padding: 5px;
+	overflow: auto;
+}
+
+#room-container .tile {
+	width: 25%;
+	height: 33.3333%;
+	padding: 5px;
+}
+
+#room-container .tile .box {
+	display: flex;
+	height: 100%;
+	width: 100%;
+	background-color: #336699;
 	align-items: center;
 	align-content: center;
 	text-decoration: none;
+	color: #fff;
 }
 
-.room .name {
+#room-container .tile .box:hover {
+	background-color: #339966;
+}
+
+#room-container .tile .box .name {
 	width: 100%;
 	text-align: center;
 	font-size: 1em;

@@ -4,7 +4,7 @@
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
 	</head>
 
-	<body class="container">
+	<body class="container" id="overview">
 		<%? data.major %>
 			<div class="container" id="major-container">
 				<% for (var i = 0; i < data.major.length; i++) { %>

@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<title><%= data.info.title %></title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+	</head>
+
+	<body class="container">
+		<div class="container" id="sidebar">
+			<a class="item" href="..">Back</a>
+		</div>
+
+		<div class="container" id="room-container">
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+			<div class="tile">
+				<a class="box">
+					<div class="name">Hello World</div>
+				</a>
+			</div>
+		</div>
+	</body>
+</html>
