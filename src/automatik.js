@@ -1,8 +1,5 @@
-var express = require("express");
-var dot = require("dot");
-
-var tpl = dot.process({path: "src/views"});
-var web = express();
+var web = require("express")();
+var tpl = require("./templates.js");
 
 const info = {
 	title: "automatik",
@@ -10,8 +7,15 @@ const info = {
 };
 
 web.get("/", function (req, res) {
-	res.send(tpl.index({
-		info: info
+	var testTile = "<div class='test'></div>";
+
+	res.send(tpl.overview({
+		info: info,
+		major: [testTile, testTile],
+		minor: [testTile, testTile, testTile,
+		        testTile, testTile, testTile,
+		        testTile, testTile, testTile,
+		        testTile, testTile, testTile]
 	}));
 });
 

@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<title><%= data.info.title %></title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+	</head>
+	<body class="container">
+		<% if (data.major) { %>
+			<div class="container" id="major-container">
+				<% for (var i = 0; i < data.major.length; i++) { %>
+					<div class="tile">
+						<%= data.major[i] %>
+					</div>
+				<% } %>
+			</div>
+		<% } %>
+
+		<% if (data.minor) { %>
+			<div class="container" id="minor-container">
+				<% for (var i = 0; i < data.minor.length; i++) { %>
+					<div class="tile">
+						<%= data.minor[i] %>
+					</div>
+				<% } %>
+			</div>
+		<% } %>
+	</body>
+</html>
