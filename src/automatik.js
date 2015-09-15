@@ -7,12 +7,16 @@ const info = {
 };
 
 web.get("/", function (req, res) {
-	var testTile = "<div class='test'></div>";
+	var testTile = "<div class='box'></div>";
+
+	var navTile = tpl.boxes.nav({
+		contents: "Wohnzimmer"
+	});
 
 	res.send(tpl.overview({
 		info: info,
 		major: [testTile, testTile],
-		minor: [testTile, testTile, testTile,
+		minor: [navTile, testTile, testTile,
 		        testTile, testTile, testTile,
 		        testTile, testTile, testTile,
 		        testTile, testTile, testTile]
@@ -20,3 +24,5 @@ web.get("/", function (req, res) {
 });
 
 web.listen(3001);
+
+console.log(web);
