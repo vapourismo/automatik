@@ -1,5 +1,0 @@
-<a class="container box">
-	<div class="contents">
-		<%= data.contents %>
-	</div>
-</a>

@@ -1,0 +1,5 @@
+<a class="container box room" href="/rooms/<%= data.short_name %>">
+	<div class="name">
+		<%= data.name %>
+	</div>
+</a>
