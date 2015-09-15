@@ -15,71 +15,41 @@ body {
 	box-sizing: border-box;
 }
 
-#overlay {
-	visibility: hidden;
-	opacity: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
+.test {
+	background-color: #336699;
+	color: #000;
+	height: 100%;
 	width: 100%;
-	height: 100%;
-	background-color: #333;
-}
-
-.vsplit {
-	display: inline-block;
-	float: left;
-	width: 50%;
-	height: 100%;
-}
-
-.hsplit {
-	display: block;
-	height: 50%;
-}
-
-.has-content {
-	padding: 5px;
 }
 
 .container {
 	display: flex;
-	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: flex-start;
 	align-content: flex-start;
 }
 
-.container .tile {
-	width: 33%;
-	height: 25%;
+#major-container {
+	flex-direction: column;
+	width: 50%;
+	height: 100%;
+}
+
+#major-container .tile {
+	width: 100%;
+	height: 50%;
 	padding: 5px;
 }
 
-.box {
-	display: flex;
-	flex-flow: column;
-	background-color: #369;
+#minor-container {
+	flex-direction: row;
+	width: 50%;
 	height: 100%;
-	width: 100%;
-	padding: 15px;
-	cursor: pointer;
-	text-decoration: none;
-	color: #fff;
 }
 
-.box .label {
-	flex: 0 1 auto;
-	text-align: center;
-	font-weight: bold;
-}
-
-.box .value {
-	flex: 1 1 auto;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 30px;
-	font-weight: normal;
+#minor-container .tile {
+	width: 33%;
+	height: 25%;
+	padding: 5px;
 }
