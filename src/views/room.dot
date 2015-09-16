@@ -13,7 +13,7 @@
 		<div id="scroll-area">
 			<div id="container">
 				<div class="tile">
-					<a class="room-box">
+					<a class="box temperature">
 						<div class="name">Hello World</div>
 					</a>
 				</div>

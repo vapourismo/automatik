@@ -67,12 +67,7 @@ body {
 	height: 10em;
 }
 
-.room-box {
-	display: flex;
-	align-items: center;
-	align-content: center;
-	justify-content: center;
-	text-decoration: none;
+.box {
 	width: 100%;
 	height: 100%;
 	background-color: #336699;
@@ -80,11 +75,19 @@ body {
 	padding: 10px;
 }
 
-.room-box:hover {
+.box:hover {
 	background-color: #339966;
 }
 
-.room-box .name {
+.box.room {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+	text-decoration: none;
+}
+
+.box.room .name {
 	width: 100%;
 	text-align: center;
 	font-size: 1em;
