@@ -67,7 +67,7 @@ body {
 	height: 10em;
 }
 
-#container .tile .box {
+.room-box {
 	display: flex;
 	align-items: center;
 	align-content: center;
@@ -80,11 +80,11 @@ body {
 	padding: 10px;
 }
 
-#container .tile .box:hover {
+.room-box:hover {
 	background-color: #339966;
 }
 
-#container .tile .box .name {
+.room-box .name {
 	width: 100%;
 	text-align: center;
 	font-size: 1em;

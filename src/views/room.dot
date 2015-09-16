@@ -13,32 +13,7 @@
 		<div id="scroll-area">
 			<div id="container">
 				<div class="tile">
-					<a class="box">
-						<div class="name">Hello World</div>
-					</a>
-				</div>
-				<div class="tile">
-					<a class="box">
-						<div class="name">Hello World</div>
-					</a>
-				</div>
-				<div class="tile">
-					<a class="box">
-						<div class="name">Hello World</div>
-					</a>
-				</div>
-				<div class="tile">
-					<a class="box">
-						<div class="name">Hello World</div>
-					</a>
-				</div>
-				<div class="tile">
-					<a class="box">
-						<div class="name">Hello World</div>
-					</a>
-				</div>
-				<div class="tile">
-					<a class="box">
+					<a class="room-box">
 						<div class="name">Hello World</div>
 					</a>
 				</div>

@@ -23,7 +23,7 @@ web.get("/rooms", function (req, res) {
 		} else {
 			res.send(tpl.overview({
 				info: info,
-				minor: result.rows.map(tpl.boxes.minor)
+				rooms: result.rows.map(tpl.boxes.room)
 			}));
 		}
 	});

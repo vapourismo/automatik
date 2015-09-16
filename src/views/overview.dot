@@ -11,9 +11,9 @@
 
 		<div id="scroll-area">
 			<div id="container">
-				<% for (var i = 0; i < data.minor.length; i++) { %>
+				<% for (var i = 0; i < data.rooms.length; i++) { %>
 					<div class="tile">
-						<%= data.minor[i] %>
+						<%= data.rooms[i] %>
 					</div>
 				<% } %>
 			</div>
