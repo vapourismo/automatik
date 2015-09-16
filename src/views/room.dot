@@ -13,8 +13,21 @@
 		<div id="scroll-area">
 			<div id="container">
 				<div class="tile">
-					<a class="box temperature">
-						<div class="name">Hello World</div>
+					<a class="box component">
+						<div class="label">Zieltemperatur</div>
+						<div class="value">20 °C</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box component">
+						<div class="label">Temperatur</div>
+						<div class="value">22.5 °C</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box component">
+						<div class="label">Licht</div>
+						<div class="value">an</div>
 					</a>
 				</div>
 			</div>
