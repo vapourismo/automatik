@@ -4,72 +4,44 @@
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
 	</head>
 
-	<body class="container" id="room">
-		<div class="container" id="menu">
+	<body>
+		<div id="menu">
 			<a class="item" href="/rooms">Übersicht</a>
 			<a class="item right" href="/rooms/<%= data.room.id %>/settings">Einstellungen</a>
 		</div>
 
-		<div class="container" id="room-container">
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
-			</div>
-			<div class="tile">
-				<a class="box">
-					<div class="name">Hello World</div>
-				</a>
+		<div id="scroll-area">
+			<div id="container">
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
+				<div class="tile">
+					<a class="box">
+						<div class="name">Hello World</div>
+					</a>
+				</div>
 			</div>
 		</div>
 	</body>

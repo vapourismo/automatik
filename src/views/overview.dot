@@ -4,25 +4,19 @@
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
 	</head>
 
-	<body class="container" id="overview">
-		<%? data.major %>
-			<div class="container" id="major-container">
-				<% for (var i = 0; i < data.major.length; i++) { %>
-					<div class="tile">
-						<%= data.major[i] %>
-					</div>
-				<% } %>
-			</div>
-		<%?%>
+	<body>
+		<div id="menu">
+			<a class="item right" href="/rooms/settings">Einstellungen</a>
+		</div>
 
-		<%? data.minor %>
-			<div class="container" id="minor-container">
+		<div id="scroll-area">
+			<div id="container">
 				<% for (var i = 0; i < data.minor.length; i++) { %>
 					<div class="tile">
 						<%= data.minor[i] %>
 					</div>
 				<% } %>
 			</div>
-		<%?%>
+		</div>
 	</body>
 </html>

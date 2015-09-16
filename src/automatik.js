@@ -23,12 +23,13 @@ web.get("/rooms", function (req, res) {
 		} else {
 			res.send(tpl.overview({
 				info: info,
-				major: ["<div class='box'></div>", "<div class='box'></div>"],
 				minor: result.rows.map(tpl.boxes.minor)
 			}));
 		}
 	});
 });
+
+web.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
 
 web.get("/rooms/:id", function (req, res) {
 	db.query(
@@ -51,6 +52,8 @@ web.get("/rooms/:id", function (req, res) {
 		}
 	);
 });
+
+web.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
 db.connect();
 web.listen(3001);

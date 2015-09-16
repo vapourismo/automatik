@@ -2,101 +2,29 @@
 
 /* General */
 body {
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
 	margin: 0;
 	padding: 0;
 	background: #333;
 	color: #fff;
 	font-family: "Roboto", sans-serif;
 	font-size: 16px;
-	height: 100%;
-	width: 100%;
 }
 
 * {
 	box-sizing: border-box;
 }
 
-.container {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	align-items: flex-start;
-	align-content: flex-start;
-}
-
-/* Overview */
-body#overview {
-	padding: 5px;
-}
-
-#major-container {
-	flex-direction: column;
-	width: 50%;
-	height: 100%;
-	overflow: auto;
-}
-
-#major-container .tile {
-	width: 100%;
-	height: 50%;
-	padding: 5px;
-}
-
-#major-container .tile .box {
-	display: flex;
-	height: 100%;
-	width: 100%;
-	background-color: #336699;
-}
-
-#major-container .tile .box:hover {
-	background-color: #339966;
-}
-
-#minor-container {
-	flex-direction: row;
-	width: 50%;
-	height: 100%;
-	overflow: auto;
-}
-
-#minor-container .tile {
-	width: 33.3333%;
-	height: 25%;
-	padding: 5px;
-}
-
-#minor-container .tile .box {
-	display: flex;
-	height: 100%;
-	width: 100%;
-	background-color: #336699;
-	align-items: center;
-	align-content: center;
-	text-decoration: none;
-	color: #fff;
-}
-
-#minor-container .tile .box:hover {
-	background-color: #339966;
-}
-
-#minor-container .tile .box .name {
-	width: 100%;
-	text-align: center;
-	font-size: 1em;
-}
-
-/* Room */
-body#room {
-	flex-wrap: nowrap;
-	flex-direction: column;
-}
-
+/* Menu */
 #menu {
+	display: flex;
 	width: 100%;
 	background-color: #222;
-	font-size: 1.2em;
+	font-size: 1em;
 	align-items: flex-start;
 	align-content: flex-start;
 }
@@ -118,25 +46,32 @@ body#room {
 	margin-left: auto;
 }
 
-#room-container {
+#scroll-area {
+	display: flex;
 	height: 100%;
-	padding: 5px;
 	overflow: auto;
+	padding: 5px;
+}
+
+#container {
+	display: flex;
+	flex-wrap: wrap;
 	flex-direction: row;
 	align-content: flex-start;
-	align-items: flex-start;
+	justify-content: flex-start;
 }
 
-#room-container .tile {
+#container .tile {
 	padding: 5px;
-	width: 7em;
-	height: 7em;
+	width: 10em;
+	height: 10em;
 }
 
-#room-container .tile .box {
+#container .tile .box {
 	display: flex;
 	align-items: center;
 	align-content: center;
+	justify-content: center;
 	text-decoration: none;
 	width: 100%;
 	height: 100%;
@@ -145,11 +80,11 @@ body#room {
 	padding: 10px;
 }
 
-#room-container .tile .box:hover {
+#container .tile .box:hover {
 	background-color: #339966;
 }
 
-#room-container .tile .box .name {
+#container .tile .box .name {
 	width: 100%;
 	text-align: center;
 	font-size: 1em;
