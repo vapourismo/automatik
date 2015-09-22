@@ -3,7 +3,7 @@ var db = require("./database.js");
 
 const backendPathRegex = /(.*)\.js$/;
 
-var drivers = {}
+var drivers = {};
 var instances = {};
 
 // Iterate over every file in "backends"
@@ -14,7 +14,7 @@ fs.readdir("./src/backends", function (err, files) {
 		return;
 	}
 
-	files.map(function (path) {
+	files.forEach(function (path) {
 		if (backendPathRegex.test(path) && fs.statSync("./src/backends/" + path).isFile()) {
 			var name = backendPathRegex.exec(path)[1];
 
@@ -30,14 +30,14 @@ fs.readdir("./src/backends", function (err, files) {
 			return;
 		}
 
-		result.rows.map(function (backend) {
+		result.rows.forEach(function (backend) {
 			console.log("Instantiating backend '" + backend.name + "' (" + backend.driver + "/" +
 			            backend.id + ")");
 
 			if (backend.driver in drivers) {
 				instances[backend.id] = new drivers[backend.driver](backend.config);
 			} else {
-				console.warn("Request backend driver '" + backend.driver + "' does not exist");
+				console.warn("Requested backend driver '" + backend.driver + "' does not exist");
 			}
 		});
 	});
