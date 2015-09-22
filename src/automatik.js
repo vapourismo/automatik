@@ -1,12 +1,7 @@
-var pg = require("pg");
 var web = require("express")();
+var db = require("./database.js");
 var tpl = require("./templates.js");
-
-var db = new pg.Client({
-	host: "localhost",
-	user: "ole",
-	database: "ole"
-});
+var backends = require("./backends.js");
 
 const info = {
 	title: "automatik",
@@ -33,21 +28,18 @@ web.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
 
 web.get("/rooms/:id", function (req, res) {
 	db.query(
-		"SELECT id, name FROM rooms WHERE id = $1",
+		"SELECT id, name FROM components WHERE room = $1",
 		[req.params.id],
 		function (err, result) {
 			if (err) {
 				// TODO: Handle query errors
 				res.status(500).json(err);
-			} else if (result.rows[0]) {
-				var room = result.rows[0];
-
+			} else {
 				res.send(tpl.room({
 					info: info,
-					room: room
+					roomID: req.params.id,
+					components: result.rows
 				}));
-			} else {
-				res.status(404).end();
 			}
 		}
 	);
@@ -55,5 +47,4 @@ web.get("/rooms/:id", function (req, res) {
 
 web.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
-db.connect();
 web.listen(3001);

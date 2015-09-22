@@ -11,11 +11,11 @@
 
 		<div id="scroll-area">
 			<div id="container">
-				<% for (var i = 0; i < data.rooms.length; i++) { %>
+				<%~ data.rooms: room %>
 					<div class="tile">
-						<%= data.rooms[i] %>
+						<%= room %>
 					</div>
-				<% } %>
+				<%~%>
 			</div>
 		</div>
 	</body>
