@@ -29,19 +29,23 @@ web.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
 
 web.get("/rooms/:id", function (req, res) {
 	db.query(
-		"SELECT c.id, c.name, d.id AS datapoint FROM components c, datapoints d WHERE c.room = $1 AND c.datapoint = d.id",
+		"SELECT c.id, c.name, d.id AS datapoint, c.type FROM components c, datapoints d WHERE c.room = $1 AND c.datapoint = d.id",
 		[req.params.id],
 		function (err, result) {
 			if (err) {
 				// TODO: Handle query errors
 				res.status(500).json(err);
 			} else {
-				console.log(result.rows);
 				res.send(tpl.room({
 					info: info,
 					room: req.params.id,
 					components: result.rows.map(function (component) {
-						component.value = backends.datapoints[component.datapoint].read();
+						var value = backends.datapoints[component.datapoint].read();
+
+						if (value && component.type in types) {
+							component.value = types[component.type].renderValue(value);
+						}
+
 						return component;
 					})
 				}));
