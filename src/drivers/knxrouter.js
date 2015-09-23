@@ -12,10 +12,22 @@ const DefaultPrototype = {
 		}
 
 		this.value = value;
+		this.notify();
+	},
+
+	listen: function (callback) {
+		this.hooks.push(callback);
 	},
 
 	update: function (msg) {
 		this.value = this.__unpack__(msg);
+		this.notify();
+	},
+
+	notify: function () {
+		this.hooks.forEach(function (callback) {
+			callback(this, this.value);
+		}.bind(this));
 	},
 
 	__unpack__: function (msg) {},
