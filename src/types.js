@@ -15,7 +15,7 @@ fs.readdir("./src/types", function (err, files) {
 		if (typesPathRegex.test(path) && fs.statSync("./src/types/" + path).isFile()) {
 			var name = typesPathRegex.exec(path)[1];
 
-			console.log("Loading type '" + name + "'")
+			console.log("Loading type '" + name + "'");
 			types[name] = require("./types/" + path);
 		}
 	});

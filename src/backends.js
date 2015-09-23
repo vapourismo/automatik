@@ -55,7 +55,7 @@ fs.readdir("./src/drivers", function (err, files) {
 		if (backendPathRegex.test(path) && fs.statSync("./src/drivers/" + path).isFile()) {
 			var name = backendPathRegex.exec(path)[1];
 
-			console.log("Loading backend driver '" + name + "'")
+			console.log("Loading backend driver '" + name + "'");
 			drivers[name] = require("./drivers/" + path);
 		}
 	});
