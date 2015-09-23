@@ -42,7 +42,7 @@ web.get("/rooms/:id", function (req, res) {
 					components: result.rows.map(function (component) {
 						var value = backends.datapoints[component.datapoint].read();
 
-						if (value && component.type in types) {
+						if (value != null && component.type in types) {
 							component.value = types[component.type].renderValue(value);
 						}
 
