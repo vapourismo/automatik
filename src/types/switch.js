@@ -1,4 +1,4 @@
-var tpl = require("../templates.js");
+var tpl = require("automatik/templates");
 
 module.exports = {
 	renderValue: function (value) {

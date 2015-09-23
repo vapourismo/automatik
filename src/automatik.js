@@ -1,5 +1,5 @@
 var db = require("./database.js");
-var tpl = require("./templates.js");
+var tpl = require("automatik/templates");
 var types = require("./types.js");
 var datapoints = require("./datapoints.js");
 var server = require("./server.js");
