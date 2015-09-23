@@ -3,6 +3,7 @@ var backends = require("../lib/backends");
 var classes = require("../lib/classes");
 
 var db = require("./database.js");
+var server = require("./server.js");
 
 var backendInstances = {};
 
@@ -58,11 +59,20 @@ function Entity(entity, slots) {
 	this.id = entity.id;
 	this.name = entity.name;
 	this.instance = new classes[entity.type](entity.conf, slots);
+
+	this.instance.listen(function () {
+		console.log("Updating '" + this.id + "': " + this.instance.render());
+		server.sockio.emit("update-entity", {
+			id: this.id,
+			value: this.instance.render()
+		});
+	}.bind(this));
 }
 
 Entity.prototype = {
 	renderBox: function () {
 		return tpls.boxes.entity({
+			id: this.id,
 			name: this.name,
 			value: this.instance.render()
 		});
