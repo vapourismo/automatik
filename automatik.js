@@ -4,6 +4,50 @@ var classes = require("./lib/classes");
 
 var db = require("./src/database.js");
 
+var backendInstances = {};
+
+db.query("SELECT id, name, driver, config FROM backends", function (err, result) {
+	if (err) {
+		console.error("Failed to fetch backend instances");
+		process.exit(1);
+		return;
+	}
+
+	result.rows.forEach(function (row) {
+		if (row.driver in backends) {
+			backendInstances[row.id] = new backends[row.driver](row.config);
+			console.log("Instantiated backend '" + row.name + "' (" + row.id + ")");
+		} else {
+			console.warn("Failed to instantiate backend '" + row.name + "': Backend driver '" + row.driver + "' does not exist");
+		}
+	});
+});
+
+var datapointInstances = {};
+
+db.query("SELECT id, name, backend, config, value FROM datapoints", function (err, result) {
+	if (err) {
+		console.error("Failed to fetch datapoint instances");
+		process.exit(1);
+		return;
+	}
+
+	result.rows.forEach(function (row) {
+		if (row.backend in backendInstances) {
+			var dp = backendInstances[row.backend].configureDatapoint(row.config, row.value);
+
+			if (dp) {
+				datapointInstances[row.id] = dp;
+				console.log("Instantiated datapoint '" + row.name + "' (" + row.id + ")");
+			} else {
+				console.warn("Failed to configure datapoint '" + row.name + "'");
+			}
+		} else {
+			console.warn("Failed to instantiate datapoint '" + row.name + "': Backend instance with ID " + row.backend + " does not exist");
+		}
+	});
+});
+
 // var types = require("./src/types.js");
 // var server = require("./src/server.js");
 
