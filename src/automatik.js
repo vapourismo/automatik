@@ -1,8 +1,11 @@
-var web = require("express")();
 var db = require("./database.js");
 var tpl = require("./templates.js");
 var types = require("./types.js");
 var backends = require("./backends.js");
+
+var web = require("express")();
+var http = require("http").Server(web);
+var sockio = require("socket.io")(http);
 
 const info = {
 	title: "automatik",
@@ -56,4 +59,50 @@ web.get("/rooms/:id", function (req, res) {
 
 web.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
-web.listen(3001);
+sockio.on("connection", function (client) {
+	var hooks = [];
+
+	client.on("request-component-updates", function (msg) {
+		var inStmt = []
+		for (var i = 0; i < msg.length; i++) {
+			inStmt.push("$" + (i + 1));
+		}
+
+		db.query(
+			"SELECT id, type, datapoint FROM components WHERE id IN (" + inStmt.join(", ") + ")",
+			msg,
+			function (err, result) {
+				if (err) {
+					console.error(err);
+					return;
+				}
+
+				result.rows.forEach(function (component) {
+					if (!(component.type in types) || !backends.datapoints[component.datapoint])
+						return;
+
+					var dp = backends.datapoints[component.datapoint];
+					var hook = function (dp, value) {
+						client.emit("update-component", {
+							id: component.id,
+							value: types[component.type].renderValue(value)
+						});
+					};
+
+					hooks.push({datapoint: dp, hook: hook});
+					dp.listen(hook);
+				});
+			}
+		);
+	});
+
+	client.on("disconnect", function () {
+		hooks.forEach(function (info) {
+			info.datapoint.mute(info.hook);
+		});
+
+		hooks = [];
+	});
+});
+
+http.listen(3001);

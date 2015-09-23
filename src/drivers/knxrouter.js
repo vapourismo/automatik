@@ -19,6 +19,12 @@ const DefaultPrototype = {
 		this.hooks.push(callback);
 	},
 
+	mute: function (callback) {
+		var idx = this.hooks.indexOf(callback);
+		if (idx >= 0)
+			delete this.hooks[idx];
+	},
+
 	update: function (msg) {
 		this.value = this.__unpack__(msg);
 		this.notify();
