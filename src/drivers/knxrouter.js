@@ -49,16 +49,27 @@ function KNXRouter(conf) {
 }
 
 function makeDatapoint(router, conf) {
+	var dp = {
+		router: router,
+		address: conf.address,
+		value: null,
+		hooks: []
+	};
+
 	switch (conf.type) {
 		case 1:
-			return {router: router, address: conf.address, __proto__: BoolPrototype};
+			dp.__proto__ = BoolPrototype;
+			break;
 
 		case 9:
-			return {router: router, address: conf.address, __proto__: Float16Prototype};
+			dp.__proto__ = Float16Prototype;
+			break;
 
 		default:
 			return null;
 	}
+
+	return dp;
 }
 
 KNXRouter.prototype = {
