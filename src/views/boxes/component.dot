@@ -1,0 +1,6 @@
+<a class="box component" id="component-<%= data.id %>">
+	<div class="label"><%= data.name %></div>
+	<%? data.value %>
+		<div class="value"><%= data.value %></div>
+	<%?%>
+</a>

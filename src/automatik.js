@@ -46,7 +46,7 @@ web.get("/rooms/:id", function (req, res) {
 							component.value = types[component.type].renderValue(value);
 						}
 
-						return component;
+						return tpl.boxes.component(component);
 					})
 				}));
 			}

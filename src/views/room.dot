@@ -14,12 +14,7 @@
 			<div id="container">
 				<%~ data.components: component %>
 					<div class="tile">
-						<a class="box component" id="component-<%= component.id %>">
-							<div class="label"><%= component.name %></div>
-							<%? component.value %>
-								<div class="value"><%= component.value %></div>
-							<%?%>
-						</a>
+						<%= component %>
 					</div>
 				<%~%>
 			</div>
