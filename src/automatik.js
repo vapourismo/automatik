@@ -1,7 +1,7 @@
 var db = require("./database.js");
 var tpl = require("./templates.js");
 var types = require("./types.js");
-var backends = require("./backends.js");
+var datapoints = require("./datapoints.js");
 var server = require("./server.js");
 
 const info = {
@@ -40,7 +40,7 @@ server.express.get("/rooms/:id", function (req, res) {
 					info: info,
 					room: req.params.id,
 					components: result.rows.map(function (component) {
-						var value = backends.datapoints[component.datapoint].read();
+						var value = datapoints[component.datapoint].read();
 
 						if (value != null && component.type in types) {
 							component.value = types[component.type].renderValue(value);
@@ -55,51 +55,5 @@ server.express.get("/rooms/:id", function (req, res) {
 });
 
 server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
-
-server.sockio.on("connection", function (client) {
-	var hooks = [];
-
-	client.on("request-component-updates", function (msg) {
-		var inStmt = []
-		for (var i = 0; i < msg.length; i++) {
-			inStmt.push("$" + (i + 1));
-		}
-
-		db.query(
-			"SELECT id, type, datapoint FROM components WHERE id IN (" + inStmt.join(", ") + ")",
-			msg,
-			function (err, result) {
-				if (err) {
-					console.error(err);
-					return;
-				}
-
-				result.rows.forEach(function (component) {
-					if (!(component.type in types) || !backends.datapoints[component.datapoint])
-						return;
-
-					var dp = backends.datapoints[component.datapoint];
-					var hook = function (dp, value) {
-						client.emit("update-component", {
-							id: component.id,
-							value: types[component.type].renderValue(value)
-						});
-					};
-
-					hooks.push({datapoint: dp, hook: hook});
-					dp.listen(hook);
-				});
-			}
-		);
-	});
-
-	client.on("disconnect", function () {
-		hooks.forEach(function (info) {
-			info.datapoint.mute(info.hook);
-		});
-
-		hooks = [];
-	});
-});
 
 server.http.listen(3001);

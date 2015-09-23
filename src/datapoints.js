@@ -71,8 +71,4 @@ fs.readdir("./src/drivers", function (err, files) {
 	});
 });
 
-module.exports = {
-	drivers: drivers,
-	backends: backends,
-	datapoints: datapoints
-};
+module.exports = datapoints;
