@@ -61,7 +61,6 @@ function Entity(entity, slots) {
 	this.instance = new classes[entity.type](entity.conf, slots);
 
 	this.instance.listen(function () {
-		console.log("Updating '" + this.id + "': " + this.instance.render());
 		server.sockio.emit("update-entity", {
 			id: this.id,
 			value: this.instance.render()
