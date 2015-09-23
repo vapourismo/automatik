@@ -2,19 +2,16 @@ var db = require("./database.js");
 var tpl = require("./templates.js");
 var types = require("./types.js");
 var backends = require("./backends.js");
-
-var web = require("express")();
-var http = require("http").Server(web);
-var sockio = require("socket.io")(http);
+var server = require("./server.js");
 
 const info = {
 	title: "automatik",
 	version: "0.0.0"
 };
 
-web.get("/", (req, res) => res.redirect("/rooms"));
+server.express.get("/", (req, res) => res.redirect("/rooms"));
 
-web.get("/rooms", function (req, res) {
+server.express.get("/rooms", function (req, res) {
 	db.query("SELECT id, name FROM rooms ORDER BY name ASC", function (err, result) {
 		if (err) {
 			// TODO: Handle query errors
@@ -28,9 +25,9 @@ web.get("/rooms", function (req, res) {
 	});
 });
 
-web.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
+server.express.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
 
-web.get("/rooms/:id", function (req, res) {
+server.express.get("/rooms/:id", function (req, res) {
 	db.query(
 		"SELECT c.id, c.name, d.id AS datapoint, c.type FROM components c, datapoints d WHERE c.room = $1 AND c.datapoint = d.id",
 		[req.params.id],
@@ -57,9 +54,9 @@ web.get("/rooms/:id", function (req, res) {
 	);
 });
 
-web.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
+server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
-sockio.on("connection", function (client) {
+server.sockio.on("connection", function (client) {
 	var hooks = [];
 
 	client.on("request-component-updates", function (msg) {
@@ -105,4 +102,4 @@ sockio.on("connection", function (client) {
 	});
 });
 
-http.listen(3001);
+server.http.listen(3001);
