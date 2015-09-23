@@ -1,6 +1,4 @@
 var tpls = require("./lib/templates");
-var backends = require("./lib/backends");
-var classes = require("./lib/classes");
 
 var db = require("./src/database.js");
 var instances = require("./src/instances.js");
