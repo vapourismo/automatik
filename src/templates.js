@@ -15,4 +15,5 @@ dot.templateSettings = {
 };
 
 module.exports = dot.process({path: "src/views"});
-module.exports.boxes = dot.process({path: "src/views/boxes"})
+module.exports.boxes = dot.process({path: "src/views/boxes"});
+module.exports.types = dot.process({path: "src/views/types"});

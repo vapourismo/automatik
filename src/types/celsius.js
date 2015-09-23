@@ -1,9 +1,11 @@
+var tpl = require("../templates.js");
+
 module.exports = {
 	renderValue: function (value) {
 		if (typeof(value) == "number") {
-			return (Math.round(value * 100) / 100) + "°C";
+			return tpl.types.celsius(Math.round(value * 100) / 100);
 		} else {
-			return "Invalid value";
+			return tpl.types.invalidValue(value);
 		}
 	}
 };
