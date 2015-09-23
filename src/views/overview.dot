@@ -6,7 +6,7 @@
 
 	<body>
 		<div id="menu">
-			<a class="item right" href="/rooms/settings">Einstellungen</a>
+			<a class="item right" href="/rooms/settings">Settings</a>
 		</div>
 
 		<div id="scroll-area">

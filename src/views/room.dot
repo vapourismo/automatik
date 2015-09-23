@@ -6,8 +6,8 @@
 
 	<body>
 		<div id="menu">
-			<a class="item" href="/rooms">Übersicht</a>
-			<a class="item right" href="/rooms/<%= data.room %>/settings">Einstellungen</a>
+			<a class="item" href="/rooms">Overview</a>
+			<a class="item right" href="/rooms/<%= data.room %>/settings">Settings</a>
 		</div>
 
 		<div id="scroll-area">
