@@ -1,5 +1,7 @@
+var tpls = require("../lib/templates");
 var backends = require("../lib/backends");
 var classes = require("../lib/classes");
+
 var db = require("./database.js");
 
 var backendInstances = {};
@@ -52,6 +54,21 @@ db.query("SELECT id, name, backend, config, value FROM datapoints", function (er
 
 var entityInstances = {};
 
+function Entity(entity, slots) {
+	this.id = entity.id;
+	this.name = entity.name;
+	this.instance = new classes[entity.type](entity.conf, slots);
+}
+
+Entity.prototype = {
+	renderBox: function () {
+		return tpls.boxes.entity({
+			name: this.name,
+			value: this.instance.render()
+		});
+	}
+};
+
 db.query("SELECT id, name, type, config FROM entities", function (err, result) {
 	if (err) {
 		console.error("Failed to fetch entity instances");
@@ -79,7 +96,7 @@ db.query("SELECT id, name, type, config FROM entities", function (err, result) {
 						}
 					});
 
-					entityInstances[row.id] = new classes[row.type](row.conf, slots);
+					entityInstances[row.id] = new Entity(row, slots);
 					console.log("Instantiated entity '" + row.name + "'");
 				}
 			);

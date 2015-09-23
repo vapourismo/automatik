@@ -2,61 +2,44 @@ var tpls = require("./lib/templates");
 
 var db = require("./src/database.js");
 var instances = require("./src/instances.js");
+var server = require("./src/server.js");
 
-// var types = require("./src/types.js");
-// var server = require("./src/server.js");
+const info = {
+	title: "automatik",
+	version: "0.0.0"
+};
 
+server.express.get("/", (req, res) => res.redirect("/rooms"));
 
-// const info = {
-// 	title: "automatik",
-// 	version: "0.0.0"
-// };
+server.express.get("/rooms", function (req, res) {
+	var rooms = [];
 
-// server.express.get("/", (req, res) => res.redirect("/rooms"));
+	for (var id in instances.rooms) {
+		rooms.push(tpls.boxes.room(instances.rooms[id]));
+	}
 
-// server.express.get("/rooms", function (req, res) {
-// 	db.query("SELECT id, name FROM rooms ORDER BY name ASC", function (err, result) {
-// 		if (err) {
-// 			// TODO: Handle query errors
-// 			res.status(500).json(err);
-// 		} else {
-// 			res.send(tpls.overview({
-// 				info: info,
-// 				rooms: result.rows.map(tpls.boxes.room)
-// 			}));
-// 		}
-// 	});
-// });
+	res.send(tpls.overview({
+		info: info,
+		rooms: rooms
+	}));
+});
 
-// server.express.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
+server.express.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
 
-// server.express.get("/rooms/:id", function (req, res) {
-// 	db.query(
-// 		"SELECT c.id, c.name, d.id AS datapoint, c.type FROM components c, datapoints d WHERE c.room = $1 AND c.datapoint = d.id",
-// 		[req.params.id],
-// 		function (err, result) {
-// 			if (err) {
-// 				// TODO: Handle query errors
-// 				res.status(500).json(err);
-// 			} else {
-// 				res.send(tpls.room({
-// 					info: info,
-// 					room: req.params.id,
-// 					components: result.rows.map(function (component) {
-// 						var value = datapoints[component.datapoint].read();
+server.express.get("/rooms/:id", function (req, res) {
+	if (req.params.id in instances.rooms) {
+		var room = instances.rooms[req.params.id];
 
-// 						if (value != null && component.type in types) {
-// 							component.value = types[component.type].renderValue(value);
-// 						}
+		res.send(tpls.room({
+			info: info,
+			room: room.id,
+			entities: room.entities.map(entity => entity.renderBox())
+		}));
+	} else {
+		res.status(404).send("No room with ID found");
+	}
+});
 
-// 						return tpls.boxes.component(component);
-// 					})
-// 				}));
-// 			}
-// 		}
-// 	);
-// });
+server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
-// server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
-
-// server.http.listen(3001);
+server.http.listen(3001);

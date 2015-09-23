@@ -15,9 +15,9 @@
 
 		<div id="scroll-area">
 			<div id="container">
-				<%~ data.components: component %>
+				<%~ data.entities: entity %>
 					<div class="tile">
-						<%= component %>
+						<%= entity %>
 					</div>
 				<%~%>
 			</div>
