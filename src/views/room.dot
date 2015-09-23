@@ -7,16 +7,18 @@
 	<body>
 		<div id="menu">
 			<a class="item" href="/rooms">Übersicht</a>
-			<a class="item right" href="/rooms/<%= data.roomID %>/settings">Einstellungen</a>
+			<a class="item right" href="/rooms/<%= data.room %>/settings">Einstellungen</a>
 		</div>
 
 		<div id="scroll-area">
 			<div id="container">
 				<%~ data.components: component %>
 					<div class="tile">
-						<a class="box component">
+						<a class="box component" id="component-<%= component.id %>">
 							<div class="label"><%= component.name %></div>
-							<!-- <div class="value">20 °C</div> -->
+							<%? component.value %>
+								<div class="value"><%= component.value %></div>
+							<%?%>
 						</a>
 					</div>
 				<%~%>
