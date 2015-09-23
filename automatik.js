@@ -1,8 +1,8 @@
-var db = require("./database.js");
-var tpl = require("automatik/templates");
-var types = require("./types.js");
-var datapoints = require("./datapoints.js");
-var server = require("./server.js");
+var db = require("./src/database.js");
+var tpls = require("./lib/templates");
+var types = require("./src/types.js");
+var datapoints = require("./src/datapoints.js");
+var server = require("./src/server.js");
 
 const info = {
 	title: "automatik",
@@ -17,9 +17,9 @@ server.express.get("/rooms", function (req, res) {
 			// TODO: Handle query errors
 			res.status(500).json(err);
 		} else {
-			res.send(tpl.overview({
+			res.send(tpls.overview({
 				info: info,
-				rooms: result.rows.map(tpl.boxes.room)
+				rooms: result.rows.map(tpls.boxes.room)
 			}));
 		}
 	});
@@ -36,7 +36,7 @@ server.express.get("/rooms/:id", function (req, res) {
 				// TODO: Handle query errors
 				res.status(500).json(err);
 			} else {
-				res.send(tpl.room({
+				res.send(tpls.room({
 					info: info,
 					room: req.params.id,
 					components: result.rows.map(function (component) {
@@ -46,7 +46,7 @@ server.express.get("/rooms/:id", function (req, res) {
 							component.value = types[component.type].renderValue(value);
 						}
 
-						return tpl.boxes.component(component);
+						return tpls.boxes.component(component);
 					})
 				}));
 			}
