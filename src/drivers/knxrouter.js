@@ -32,7 +32,7 @@ const DefaultPrototype = {
 
 	notify: function () {
 		this.hooks.forEach(function (callback) {
-			callback(this, this.value);
+			callback.call(this, this.value);
 		}.bind(this));
 	},
 
