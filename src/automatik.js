@@ -1,6 +1,7 @@
 var web = require("express")();
 var db = require("./database.js");
 var tpl = require("./templates.js");
+var types = require("./types.js");
 var backends = require("./backends.js");
 
 const info = {
