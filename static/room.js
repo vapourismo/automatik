@@ -1,4 +1,5 @@
-function showPopup(contents) {
+function showPopup(title, contents) {
+	$("#overlay .popup .header .title")[0].innerHTML = title;
 	$("#overlay .popup .contents")[0].innerHTML = contents;
 	$("#overlay").css({visibility: "visible"}).animate({opacity: 1});
 }
@@ -20,17 +21,18 @@ sockio.on("update-entity", function (msg) {
 	});
 });
 
-sockio.on("display-popup", showPopup);
+sockio.on("show-popup", function (msg) {
+	showPopup(msg.title, msg.contents);
+});
 
 $(document).ready(function () {
 	$(".entity").each(function (idx, elem) {
-		var entityID = elem.getAttribute("data-id");
-		if (!entityID)
+		var id = elem.getAttribute("data-id");
+		if (!id)
 			return;
 
 		$(elem).click(function () {
-			var contents = $(".entity[data-id=" + entityID + "] .label")[0].innerText;
-			showPopup(new Date().toString() + ": " + contents);
+			sockio.emit("click-entity", id);
 		});
 	});
 

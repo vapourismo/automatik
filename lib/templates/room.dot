@@ -26,7 +26,7 @@
 		<div id="overlay">
 			<div class="popup">
 				<div class="header">
-					<div class="item">Title</div>
+					<div class="item title">Title</div>
 					<a class="item close">X</a>
 				</div>
 				<div class="contents"></div>
