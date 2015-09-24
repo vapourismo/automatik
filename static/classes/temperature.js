@@ -1,7 +1,7 @@
 document.insertStyleSheet("/static/classes/temperature.css");
 
-$("#temperature-picker .picker .higher").click(function () {
-	$("#temperature-picker .picker .value").each(function (idx, elem) {
+$("#temperature-picker .higher").click(function () {
+	$("#temperature-picker .value").each(function (idx, elem) {
 		var id = elem.getAttribute("data-id");
 		var value = elem.getAttribute("data-value");
 		var metric = elem.getAttribute("data-metric");
@@ -20,8 +20,8 @@ $("#temperature-picker .picker .higher").click(function () {
 	});
 });
 
-$("#temperature-picker .picker .lower").click(function () {
-	$("#temperature-picker .picker .value").each(function (idx, elem) {
+$("#temperature-picker .lower").click(function () {
+	$("#temperature-picker .value").each(function (idx, elem) {
 		var id = elem.getAttribute("data-id");
 		var value = elem.getAttribute("data-value");
 		var metric = elem.getAttribute("data-metric");
