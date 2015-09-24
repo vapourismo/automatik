@@ -44,6 +44,7 @@ function loadInstances(db, comm) {
 
 					dp.listen(function (newValue) {
 						db.query("UPDATE datapoints SET value = $1 WHERE id = $2", [newValue, row.id]);
+						db.query("INSERT INTO datapoints_log (datapoint, value) VALUES ($1, $2)", [row.id, newValue]);
 					});
 				} else {
 					console.warn("Datapoint '" + row.name + "': Failed to configure");
