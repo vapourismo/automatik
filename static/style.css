@@ -46,6 +46,7 @@ body {
 	margin-left: auto;
 }
 
+/* Container */
 #scroll-area {
 	display: flex;
 	height: 100%;
@@ -67,6 +68,7 @@ body {
 	height: 10em;
 }
 
+/* Container contents */
 .box {
 	width: 100%;
 	height: 100%;
@@ -101,6 +103,7 @@ body {
 	justify-content: center;
 	text-decoration: none;
 	font-size: 1em;
+	cursor: pointer;
 }
 
 .box.entity .label {
@@ -109,4 +112,50 @@ body {
 
 .box.entity .value {
 	padding: 5px;
+}
+
+/* Pop up */
+#overlay {
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+}
+
+.popup {
+	width: 80%;
+	height: 80%;
+	background: rgba(0, 0, 0, 0.75);
+	padding: 15px;
+}
+
+.popup .header {
+	display: flex;
+	align-items: flex-start;
+	align-content: flex-start;
+	width: 100%;
+}
+
+.popup .header .item {
+	display: block;
+	text-align: right;
+	text-decoration: none;
+	color: #fff;
+	padding: 10px;
+}
+
+.popup .header .close {
+	cursor: pointer;
+	margin-left: auto;
+}
+
+.popup .contents {
+	padding: 10px;
 }
