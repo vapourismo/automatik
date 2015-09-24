@@ -1,4 +1,4 @@
-<a class="box component" data-id="<%= data.id %>">
+<a class="box entity" data-id="<%= data.id %>">
 	<div class="label">
 		<%= data.name %>
 	</div>
