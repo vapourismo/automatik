@@ -2,31 +2,7 @@ var tpls = require("../lib/templates");
 var backends = require("../lib/backends");
 var classes = require("../lib/classes");
 
-function Entity(entity, slots, comm) {
-	this.id = entity.id;
-	this.name = entity.name;
-	this.instance = new classes[entity.type](entity.conf, slots);
-
-	this.instance.listen(comm.updateEntity.bind(comm, this));
-}
-
-Entity.prototype = {
-	renderValue: function () {
-		return this.instance.render();
-	},
-
-	renderBox: function () {
-		return tpls.boxes.entity({
-			id: this.id,
-			name: this.name,
-			value: this.instance.render()
-		});
-	},
-
-	onClick: function (client) {
-		this.instance.click(client);
-	}
-};
+var Entity = require("../lib/entity");
 
 var backendInstances = {};
 var datapointInstances = {};
