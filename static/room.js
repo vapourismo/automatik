@@ -15,13 +15,13 @@ function hidePopup() {
 
 var sockio = io();
 
-sockio.on("update-entity", function (msg) {
+sockio.on("UpdateEntity", function (msg) {
 	$(".entity[data-id=" + msg.id + "] .value").each(function (idx, elem) {
 		elem.innerText = msg.value;
 	});
 });
 
-sockio.on("show-popup", function (msg) {
+sockio.on("ShowPopup", function (msg) {
 	showPopup(msg.title, msg.contents);
 });
 
@@ -32,7 +32,7 @@ $(document).ready(function () {
 			return;
 
 		$(elem).click(function () {
-			sockio.emit("click-entity", id);
+			sockio.emit("ClickEntity", id);
 		});
 	});
 
