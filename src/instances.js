@@ -75,6 +75,10 @@ Entity.prototype = {
 			name: this.name,
 			value: this.instance.render()
 		});
+	},
+
+	click: function (client) {
+		this.instance.click(client);
 	}
 };
 

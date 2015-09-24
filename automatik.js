@@ -42,4 +42,12 @@ server.express.get("/rooms/:id", function (req, res) {
 
 server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
 
+server.sockio.on("connection", function (client) {
+	client.on("click-entity", function (id) {
+		if (id in instances.entities) {
+			instances.entities[id].click(client);
+		}
+	});
+});
+
 server.http.listen(3001);
