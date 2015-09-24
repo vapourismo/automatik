@@ -54,7 +54,21 @@ function loadInstances(db, comm) {
 		});
 	});
 
-	db.query("SELECT id, name, type, config FROM entities", function (err, result) {
+	db.query("SELECT id, name FROM rooms", function (err, result) {
+		if (err) {
+			console.error("Failed to fetch room instances");
+			process.exit(1);
+			return;
+		}
+
+		result.rows.forEach(function (room) {
+			room.entities = [];
+			roomInstances[room.id] = room;
+			console.log("Created room '" + room.name + "'");
+		});
+	});
+
+	db.query("SELECT id, room, name, type, config FROM entities", function (err, result) {
 		if (err) {
 			console.error("Failed to fetch entity instances");
 			process.exit(1);
@@ -81,43 +95,18 @@ function loadInstances(db, comm) {
 							}
 						});
 
-						entityInstances[row.id] = new Entity(row, slots, comm);
+						var entity = new Entity(row, slots, comm);
+						entityInstances[row.id] = entity;
+
+						if (row.room in roomInstances)
+							roomInstances[row.room].entities.push(entity);
+
 						console.log("Instantiated entity '" + row.name + "'");
 					}
 				);
 			} else {
 				console.warn("Entity '" + row.name + "': Type '" + row.type + "'' does not exist");
 			}
-		});
-	});
-
-	db.query("SELECT id, name FROM rooms", function (err, result) {
-		if (err) {
-			console.error("Failed to fetch room instances");
-			process.exit(1);
-			return;
-		}
-
-		result.rows.forEach(function (room) {
-			db.query("SELECT id FROM entities WHERE room = $1", [room.id], function (err2, result2) {
-				if (err2) {
-					console.warn("Room '" + room.name + "': Failed to fetch entities");
-					return;
-				}
-
-				room.entities = [];
-
-				result2.rows.forEach(function (entity) {
-					if (entity.id in entityInstances) {
-						room.entities.push(entityInstances[entity.id]);
-					} else {
-						console.warn("Room '" + room.name + "': Entity with ID " + entity.id + " does not exist");
-					}
-				});
-
-				roomInstances[room.id] = room;
-				console.log("Created room '" + room.name + "'");
-			});
 		});
 	});
 }
