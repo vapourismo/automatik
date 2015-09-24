@@ -16,17 +16,10 @@
 }
 
 #temperature-picker .picker .button {
-	background-color: #336699;
 	padding: 15px;
 	font-size: 2em;
 	width: 2em;
 	height: 2em;
-	text-align: center;
-	cursor: pointer;
-}
-
-#temperature-picker .picker .button:hover {
-	background-color: #996633;
 }
 
 #temperature-picker .picker .value {

@@ -6,13 +6,13 @@
 
 	<body>
 		<div id="menu">
-			<a class="item right" href="/rooms/settings">Settings</a>
+			<a class="item right unselectable" href="/rooms/settings">Settings</a>
 		</div>
 
 		<div id="scroll-area">
 			<div id="container">
 				<%~ data.rooms: room %>
-					<div class="tile">
+					<div class="tile unselectable">
 						<%= room %>
 					</div>
 				<%~%>

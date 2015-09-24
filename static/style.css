@@ -66,6 +66,12 @@ body {
 	padding: 5px;
 	width: 10em;
 	height: 10em;
+
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 /* Container contents */
@@ -142,7 +148,6 @@ body {
 	align-items: flex-start;
 	align-content: flex-start;
 	width: 100%;
-	border-bottom: dotted 1px #efefef;
 }
 
 .popup .header .item {
@@ -170,13 +175,15 @@ body {
 	outline: none;
 	border: none;
 	cursor: pointer;
+	text-align: center;
+
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
 
 .button:hover {
 	background-color: #996633;
-}
-
-.button.submit {
-	margin-top: auto;
-	margin-left: auto;
 }
