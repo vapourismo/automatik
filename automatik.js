@@ -42,6 +42,4 @@ server.express.get("/rooms/:id", function (req, res) {
 	}
 });
 
-server.express.get("/rooms/:id/settings", (req, res) => res.redirect("/rooms/" + req.params.id));
-
 server.http.listen(3001);
