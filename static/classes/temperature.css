@@ -1,3 +1,35 @@
-.test {
-	color: #f00;
+#temperature-picker {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+}
+
+#temperature-picker .picker {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+}
+
+#temperature-picker .picker .button {
+	background-color: #336699;
+	padding: 15px;
+	font-size: 2em;
+	width: 2em;
+	height: 2em;
+	text-align: center;
+	cursor: pointer;
+}
+
+#temperature-picker .picker .button:hover {
+	background-color: #996633;
+}
+
+#temperature-picker .picker .value {
+	padding: 30px;
+	font-size: 5em;
 }

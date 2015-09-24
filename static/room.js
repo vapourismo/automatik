@@ -54,7 +54,7 @@ $(document).ready(function () {
 
 document.comm = {
 	informEntity: function (id, msg) {
-		sockio.emit("InformEntity", {id: id, msg: msg});
+		sockio.emit("InformEntity", {id: id, message: msg});
 	}
 };
 
