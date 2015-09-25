@@ -51,7 +51,7 @@ body {
 	display: flex;
 	height: 100%;
 	overflow: auto;
-	padding: 5px;
+	/*padding: 5px;*/
 }
 
 #container {
@@ -60,6 +60,7 @@ body {
 	flex-direction: row;
 	align-content: flex-start;
 	justify-content: flex-start;
+	padding: 5px;
 }
 
 #container .tile {
@@ -119,6 +120,38 @@ body {
 
 .box.entity .value {
 	padding: 5px;
+}
+
+/* Settings */
+#settings {
+	width: 100%;
+	display: flex;
+}
+
+#settings .submenu {
+	/*height: 100%;*/
+	background: #444;
+}
+
+#settings .submenu .item {
+	cursor: pointer;
+	color: #fff;
+	text-decoration: none;
+	display: block;
+	padding: 5px 15px 5px 15px;
+	border-bottom: solid 1px #555;
+}
+
+#settings .submenu .item:hover {
+	background-color: #333;
+	color: #336699;
+}
+
+#settings .submenu .item.level-1 { padding-left: 15px; background-color: #444444; }
+#settings .submenu .item.level-2 { padding-left: 30px; background-color: #3c3c3c; }
+
+#settings .contents {
+	padding: 15px;
 }
 
 /* Pop up */

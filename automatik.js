@@ -11,9 +11,7 @@ const info = {
 	version: "0.0.0"
 };
 
-server.express.get("/", (req, res) => res.redirect("/rooms"));
-
-server.express.get("/rooms", function (req, res) {
+server.express.get("/", function (req, res) {
 	var rooms = [];
 
 	for (var id in instances.rooms) {
@@ -26,7 +24,16 @@ server.express.get("/rooms", function (req, res) {
 	}));
 });
 
-server.express.get("/rooms/settings", (req, res) => res.redirect("/rooms"));
+server.express.get("/settings", function (req, res) {
+	res.send(tpls.settings({
+		info: info,
+		contents: ""
+	}));
+});
+
+server.express.get("/settings/rooms", function (req, res) {
+	res.send("");
+});
 
 server.express.get("/rooms/:id", function (req, res) {
 	if (req.params.id in instances.rooms) {
