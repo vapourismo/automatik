@@ -24,6 +24,8 @@ server.express.get("/", function (req, res) {
 	}));
 });
 
+server.express.get("/rooms", (req, res) => res.redirect("/"));
+
 server.express.get("/settings", function (req, res) {
 	res.send(tpls.settings({
 		info: info,
@@ -32,7 +34,10 @@ server.express.get("/settings", function (req, res) {
 });
 
 server.express.get("/settings/rooms", function (req, res) {
-	res.send("");
+	res.send(tpls.settings({
+		info: info,
+		contents: tpls.settings.rooms()
+	}));
 });
 
 server.express.get("/rooms/:id", function (req, res) {
