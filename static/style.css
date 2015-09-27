@@ -122,38 +122,6 @@ body {
 	padding: 5px;
 }
 
-/* Settings */
-#settings {
-	width: 100%;
-	display: flex;
-}
-
-#settings .submenu {
-	/*height: 100%;*/
-	background: #444;
-}
-
-#settings .submenu .item {
-	cursor: pointer;
-	color: #fff;
-	text-decoration: none;
-	display: block;
-	padding: 5px 15px 5px 15px;
-	border-bottom: solid 1px #555;
-}
-
-#settings .submenu .item:hover {
-	background-color: #333;
-	color: #336699;
-}
-
-#settings .submenu .item.level-1 { padding-left: 15px; background-color: #444444; }
-#settings .submenu .item.level-2 { padding-left: 30px; background-color: #3c3c3c; }
-
-#settings .contents {
-	padding: 15px;
-}
-
 /* Pop up */
 #overlay {
 	visibility: hidden;
@@ -209,7 +177,39 @@ body {
 }
 
 /* Forms */
-.button {
+.form {
+	display: flex;
+	flex-direction: column;
+}
+
+.form .row {
+	display: flex;
+	flex-direction: row;
+}
+
+.form .row .item {
+	width: 50%;
+	padding: 10px;
+}
+
+.form .row .item.label {
+	text-align: right;
+}
+
+.form input {
+	border: none;
+	outline: none;
+	background: transparent;
+	border-bottom: solid 1px #666;
+	width: 100%;
+	display: block;
+	color: #fff;
+	font-family: "Roboto", sans-serif;
+	font-size: 1em;
+	padding-left: 5px;
+}
+
+button, .button {
 	display: inline-block;
 	padding: 5px;
 	background-color: #336699;
@@ -217,6 +217,9 @@ body {
 	border: none;
 	cursor: pointer;
 	text-align: center;
+	color: #fff;
+	font-family: "Roboto", sans-serif;
+	font-size: 1em;
 
 	-moz-user-select: -moz-none;
 	-khtml-user-select: none;
@@ -225,6 +228,14 @@ body {
 	user-select: none;
 }
 
-.button:hover {
+button:hover, .button:hover {
 	background-color: #996633;
+}
+
+label {
+	padding-bottom: 2px;
+	display: block;
+	width: 100%;
+	border-bottom: solid 1px #666;
+	text-align: center;
 }
