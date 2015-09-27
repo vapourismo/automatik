@@ -1,6 +1,7 @@
 var tpls = require("../lib/templates");
 var backends = require("../lib/backends");
 var classes = require("../lib/classes");
+var db = require("../lib/database");
 
 var Entity = require("../lib/entity");
 
@@ -9,7 +10,7 @@ var datapointInstances = {};
 var roomInstances = {};
 var entityInstances = {};
 
-function loadInstances(db, comm) {
+function loadInstances(comm) {
 	db.query("SELECT id, name, driver, config FROM backends", function (err, result) {
 		if (err) {
 			console.error("Failed to fetch backend instances");

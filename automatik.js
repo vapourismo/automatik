@@ -1,10 +1,9 @@
 var tpls = require("./lib/templates");
 
-var db = require("./src/database.js");
 var instances = require("./src/instances.js");
 var server = require("./src/server.js");
 
-instances.loadInstances(db, server.comm);
+instances.loadInstances(server.comm);
 
 const info = {
 	title: "automatik",
