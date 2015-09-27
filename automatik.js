@@ -1,9 +1,14 @@
 var tpls = require("./lib/templates");
+var backends = require("./lib/backends");
 
 var instances = require("./src/instances.js");
 var server = require("./src/server.js");
 
-instances.loadInstances(server.comm);
+backends.loadBackends(function (backendInstances) {
+	backends.loadDatapoints(backendInstances, function (datapointInstances) {
+		instances.loadInstances(datapointInstances, server.comm);
+	});
+});
 
 const info = {
 	title: "automatik",

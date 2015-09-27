@@ -1,61 +1,13 @@
 var tpls = require("../lib/templates");
-var backends = require("../lib/backends");
 var classes = require("../lib/classes");
 var db = require("../lib/database");
 
 var Entity = require("../lib/entity");
 
-var backendInstances = {};
-var datapointInstances = {};
 var roomInstances = {};
 var entityInstances = {};
 
-function loadInstances(comm) {
-	db.query("SELECT id, name, driver, config FROM backends", function (err, result) {
-		if (err) {
-			console.error("Failed to fetch backend instances");
-			process.exit(1);
-			return;
-		}
-
-		result.rows.forEach(function (row) {
-			if (row.driver in backends) {
-				backendInstances[row.id] = new backends[row.driver](row.config);
-				console.log("Instantiated backend '" + row.name + "'");
-			} else {
-				console.warn("Backend '" + row.name + "': Driver '" + row.driver + "' does not exist");
-			}
-		});
-	});
-
-	db.query("SELECT id, name, backend, config, value FROM datapoints", function (err, result) {
-		if (err) {
-			console.error("Failed to fetch datapoint instances");
-			process.exit(1);
-			return;
-		}
-
-		result.rows.forEach(function (row) {
-			if (row.backend in backendInstances) {
-				var dp = backendInstances[row.backend].configureDatapoint(row.config, row.value);
-
-				if (dp) {
-					datapointInstances[row.id] = dp;
-					console.log("Configured datapoint '" + row.name + "'");
-
-					dp.listen(function (newValue) {
-						db.query("UPDATE datapoints SET value = $1 WHERE id = $2", [newValue, row.id]);
-						db.query("INSERT INTO datapoints_log (datapoint, value) VALUES ($1, $2)", [row.id, newValue]);
-					});
-				} else {
-					console.warn("Datapoint '" + row.name + "': Failed to configure");
-				}
-			} else {
-				console.warn("Datapoint '" + row.name + "': Backend instance with ID " + row.backend + " does not exist");
-			}
-		});
-	});
-
+function loadInstances(datapoints, comm) {
 	db.query("SELECT id, name FROM rooms", function (err, result) {
 		if (err) {
 			console.error("Failed to fetch room instances");
@@ -88,14 +40,20 @@ function loadInstances(comm) {
 							return;
 						}
 
-						var slots = {};
+						var slots = {}, foundSlots = true;
 						result2.rows.forEach(function (row2) {
-							if (row2.value in datapointInstances) {
-								slots[row2.name] = datapointInstances[row2.value];
+							if (row2.value in datapoints) {
+								slots[row2.name] = datapoints[row2.value];
 							} else {
 								console.warn("Entity '" + row.name + "': Slot '" + row2.name + "': Datapoint with ID " + row2.value + " does not exist");
+
+								// TODO: Check whether slot is mandatory
+								foundSlots = false;
 							}
 						});
+
+						if (!foundSlots)
+							return;
 
 						var entity = new Entity(row, slots, comm);
 						entityInstances[row.id] = entity;
@@ -114,8 +72,6 @@ function loadInstances(comm) {
 }
 
 module.exports = {
-	backends: backendInstances,
-	datapoints: datapointInstances,
 	entities: entityInstances,
 	rooms: roomInstances,
 	loadInstances: loadInstances
