@@ -1,9 +1,5 @@
 var pg = require("pg");
+var config = require("../lib/config");
 
-module.exports = new pg.Client({
-	host: "localhost",
-	user: "ole",
-	database: "ole"
-});
-
+module.exports = new pg.Client(config.database || {});
 module.exports.connect();
