@@ -4,10 +4,8 @@ var backends = require("./lib/backends");
 var instances = require("./src/instances.js");
 var server = require("./src/server.js");
 
-backends.loadBackends(function (backendInstances) {
-	backends.loadDatapoints(backendInstances, function (datapointInstances) {
-		instances.loadInstances(datapointInstances, server.comm);
-	});
+backends.loadAll(function (_, datapoints) {
+	instances.loadInstances(datapoints, server.comm);
 });
 
 const info = {
