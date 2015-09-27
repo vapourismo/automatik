@@ -5,9 +5,9 @@
 	</head>
 
 	<body>
-		<div id="menu">
+		<!-- <div id="menu">
 			<a class="item right unselectable" href="/settings">Settings</a>
-		</div>
+		</div> -->
 
 		<div id="scroll-area">
 			<div id="container">
