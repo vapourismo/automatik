@@ -13,7 +13,7 @@ const info = {
 
 var app = Express();
 var web = http.Server(app);
-var comm = new communication.Communication(web, entities);
+var comm = new communication.Communication(web);
 
 function setupServer() {
 	app.get("/", function (req, res) {
