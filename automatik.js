@@ -48,6 +48,6 @@ function setupServer() {
 	web.listen(3001);
 }
 
-backends.loadAll(function (_, datapoints) {
-	entities.loadAll(datapoints, comm, setupServer);
+backends.loadAll(function () {
+	entities.loadAll(comm, setupServer);
 });
