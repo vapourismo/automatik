@@ -14,11 +14,11 @@
 
 		<div id="scroll-area">
 			<div id="container">
-				<%~ data.entities: entity %>
+				<% for (var entityID in data.entities) { %>
 					<div class="tile">
-						<%= entity %>
+						<%= data.entities[entityID].renderBox() %>
 					</div>
-				<%~%>
+				<% } %>
 			</div>
 		</div>
 

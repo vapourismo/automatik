@@ -31,8 +31,7 @@ function setupServer() {
 
 			res.send(tpls.room({
 				info: info,
-				room: room.id,
-				entities: room.entities.map(entity => entity.renderBox())
+				entities: room.entities
 			}));
 		} else {
 			res.status(404).send("No room with that ID found");
