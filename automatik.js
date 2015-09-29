@@ -17,15 +17,9 @@ var comm = new communication.Communication(web);
 
 function setupServer() {
 	app.get("/", function (req, res) {
-		var rooms = [];
-
-		for (var id in entities.rooms) {
-			rooms.push(tpls.boxes.room(entities.rooms[id]));
-		}
-
 		res.send(tpls.overview({
 			info: info,
-			rooms: rooms
+			rooms: entities.rooms
 		}));
 	});
 

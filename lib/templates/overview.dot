@@ -5,17 +5,13 @@
 	</head>
 
 	<body>
-		<!-- <div id="menu">
-			<a class="item right unselectable" href="/settings">Settings</a>
-		</div> -->
-
 		<div id="scroll-area">
 			<div id="container">
-				<%~ data.rooms: room %>
+				<% for (var roomID in data.rooms) { %>
 					<div class="tile unselectable">
-						<%= room %>
+						<%= data.rooms[roomID].renderBox() %>
 					</div>
-				<%~%>
+				<% } %>
 			</div>
 		</div>
 	</body>
