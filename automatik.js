@@ -23,7 +23,7 @@ function setupServer() {
 		}));
 	});
 
-	app.get("/rooms", (req, res) => res.redirect("/"));
+	app.get("/rooms/add", (req, res) => res.redirect("/"));
 
 	app.get("/rooms/:id", function (req, res) {
 		if (req.params.id in entities.rooms) {

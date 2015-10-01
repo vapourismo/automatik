@@ -2,6 +2,7 @@
 	<head>
 		<title><%= data.info.title %></title>
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+		<link rel="stylesheet" type="text/css" href="/static/font-awesome-4.4.0/css/font-awesome.css" />
 	</head>
 
 	<body>
@@ -12,6 +13,12 @@
 						<%= data.rooms[roomID].renderBox() %>
 					</div>
 				<% } %>
+
+				<div class="tile unselectable">
+					<a class="add-tile" href="/rooms/add">
+						<i class="fa fa-plus"></i>
+					</a>
+				</div>
 			</div>
 		</div>
 	</body>

@@ -122,6 +122,26 @@ body {
 	padding: 5px;
 }
 
+.add-tile {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	color: #fff;
+	padding: 10px;
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+	text-decoration: none;
+	font-size: 3em;
+}
+
+.add-tile:hover {
+	background-color: #222;
+}
+
+.add-tile i {
+}
+
 /* Pop up */
 #overlay {
 	visibility: hidden;
