@@ -1,6 +1,6 @@
 <div id="temperature-picker">
 	<div class="button higher">+</div>
-	<div class="value" data-id="<%= data.entity.id %>" data-value="<%= data.value %>" data-metric="<%= data.metric %>">
+	<div class="value" data-id="<%= data.id %>" data-value="<%= data.value %>" data-metric="<%= data.metric %>">
 		<%= data.value %><%= data.metric %>
 	</div>
 	<div class="button lower">-</div>
