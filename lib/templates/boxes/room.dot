@@ -1,5 +1,5 @@
-<a class="box room" href="/rooms/<%= data.id %>">
+<a class="box room" href="/rooms/<%= data.info.id %>">
 	<div class="name">
-		<%= data.name %>
+		<%= data.info.name %>
 	</div>
 </a>
