@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title><%= data.info.title %></title>
+		<title>automatik</title>
 		<link rel="stylesheet" type="text/css" href="/static/style.css" />
 		<link rel="stylesheet" type="text/css" href="/static/font-awesome-4.4.0/css/font-awesome.css" />
 	</head>
