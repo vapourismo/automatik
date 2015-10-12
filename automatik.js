@@ -1,4 +1,5 @@
 var http = require("http");
+var bodyparser = require("body-parser");
 var Express = require("express");
 
 var tpls = require("./lib/templates");
@@ -15,6 +16,8 @@ var app = Express();
 var web = http.Server(app);
 var comm = new communication.Communication(web);
 
+app.use(bodyparser.urlencoded({extended: true}));
+
 function setupServer() {
 	app.get("/", function (req, res) {
 		res.send(tpls.overview({
@@ -23,7 +26,26 @@ function setupServer() {
 		}));
 	});
 
-	app.get("/rooms/add", (req, res) => res.redirect("/"));
+	app.get("/rooms/add", function (req, res) {
+		res.send(tpls.rooms.add({
+			info: info
+		}));
+	});
+
+	app.post("/rooms/add", function (req, res) {
+		var name = req.body.name;
+
+		if (typeof(name) == "string" && name.length > 0) {
+			entities.createRoom(name, function (room) {
+				res.redirect("/rooms/" + room.id);
+			});
+		} else {
+			res.send(tpls.rooms.add({
+				info: info,
+				error: true
+			}));
+		}
+	});
 
 	app.get("/rooms/:id", function (req, res) {
 		if (req.params.id in entities.rooms) {

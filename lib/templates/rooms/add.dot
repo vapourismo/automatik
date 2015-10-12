@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<title><%= data.info.title %></title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css" />
+		<link rel="stylesheet" type="text/css" href="/static/font-awesome-4.4.0/css/font-awesome.css" />
+	</head>
+
+	<body>
+		<form class="form" method="post">
+			<div class="row">
+				<div class="item label">Name</div>
+				<div class="item">
+					<% if (data.error) { %>
+						<input class="error" type="text" name="name" />
+					<% } else { %>
+						<input type="text" name="name" />
+					<% } %>
+				</div>
+			</div>
+			<div class="row">
+				<input class="button" type="submit" value="Submit" />
+			</div>
+		</form>
+	</body>
+</html>

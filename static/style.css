@@ -205,6 +205,7 @@ body {
 .form .row {
 	display: flex;
 	flex-direction: row;
+	justify-content: center;
 }
 
 .form .row .item {
@@ -216,7 +217,7 @@ body {
 	text-align: right;
 }
 
-.form input {
+.form input[type=text] {
 	border: none;
 	outline: none;
 	background: transparent;
