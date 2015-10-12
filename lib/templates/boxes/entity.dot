@@ -1,8 +1,8 @@
-<a class="box entity" data-id="<%= data.info.id %>">
+<a class="box entity" href="/entities/<%= data.info.id %>">
 	<div class="label">
 		<%= data.info.name %>
 	</div>
 	<div class="value">
-		<%= data.instance.render() %>
+		<%= data.render() %>
 	</div>
 </a>
