@@ -1,4 +1,4 @@
-<a class="box entity" href="/entities/<%= data.info.id %>">
+<a class="box entity">
 	<div class="label">
 		<%= data.info.name %>
 	</div>
