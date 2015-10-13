@@ -14,11 +14,13 @@
 					</div>
 				<% } %>
 
-				<div class="tile unselectable">
-					<a class="add-tile" href="/rooms/add">
-						<i class="fa fa-plus"></i>
-					</a>
-				</div>
+				<%? data.editable %>
+					<div class="tile unselectable">
+						<a class="add-tile" href="/rooms/add">
+							<i class="fa fa-plus"></i>
+						</a>
+					</div>
+				<%?%>
 			</div>
 		</div>
 	</body>
