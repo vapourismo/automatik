@@ -1,8 +1,0 @@
-<a class="box entity">
-	<div class="label">
-		<%= data.info.name %>
-	</div>
-	<div class="value">
-		<%= data.render() %>
-	</div>
-</a>

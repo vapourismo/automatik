@@ -1,7 +1,4 @@
-<a class="box room"
-   <%? data.href %>
-       href="<%= data.href %>"
-   <%?%>>
+<a class="box room"<%? data.href %> href="<%= data.href %>"<%?%>>
 	<div class="name">
 		<%= data.label %>
 	</div>
