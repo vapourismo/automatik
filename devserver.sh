@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PIDFILE=".devserver.pid"
-LAUNCHCMD="node --harmony automatik.js"
+LAUNCHCMD="node --harmony server/server.js"
 
 start_server() {
 	$LAUNCHCMD &
