@@ -1,8 +1,0 @@
-<a class="box entity"<%? data.href %> href="<%= data.href %>"<%?%>>
-	<div class="label">
-		<%= data.label %>
-	</div>
-	<div class="value">
-		<%= data.value%>
-	</div>
-</a>
