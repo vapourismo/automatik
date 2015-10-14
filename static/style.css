@@ -133,6 +133,7 @@ body {
 	justify-content: center;
 	text-decoration: none;
 	font-size: 3em;
+	cursor: pointer;
 }
 
 .add-tile:hover {
