@@ -5,35 +5,41 @@ function BrowserClient(server, client) {
 	this.server = server;
 	this.client = client;
 
-	this.client.on("ListRooms", this.listRooms.bind(this));
-	this.client.on("AddRoom",   this.addRoom.bind(this));
+	this.client.on("ListRooms", this.onListRooms.bind(this));
+	this.client.on("AddRoom",   this.onAddRoom.bind(this));
 }
 
 BrowserClient.prototype = {
-	listRooms: function () {
+	onListRooms: function (broadcast) {
 		var rooms = [];
 
 		for (var id in data.rooms) {
 			rooms.push(data.rooms[id].info);
 		}
 
-		this.server.emit("ListRooms", rooms);
+		this.client.emit("ListRooms", rooms);
+	},
+
+	onAddRoom: function (name) {
+		if (typeof(name) != "string" || name.length < 1)
+			return;
+
+		data.createRoom(name, function (err) {
+			if (err) {
+				this.displayError(err);
+			} else {
+				this.onListRooms();
+				this.updateRooms();
+			}
+		}.bind(this));
+	},
+
+	updateRooms: function () {
+		this.server.emit("UpdateRooms");
 	},
 
 	displayError: function (err) {
 		this.client.emit("DisplayError", err);
-	},
-
-	onCreateRoom: function (err) {
-		if (err) this.displayError(err);
-		else     this.listRooms();
-	},
-
-	addRoom: function (name) {
-		if (typeof(name) != "string" || name.length < 1)
-			return;
-
-		data.createRoom(name, this.onCreateRoom.bind(this));
 	}
 };
 

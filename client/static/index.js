@@ -103,6 +103,8 @@ var RoomContainer = React.createClass({
 			});
 		}).bind(this));
 
+		serverSocket.on("UpdateRooms", this.requestRooms);
+
 		this.requestRooms();
 	},
 
