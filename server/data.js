@@ -113,10 +113,9 @@ function configureRoom(row) {
 function createRoom(name, callback) {
 	db.query("INSERT INTO rooms (name) VALUES ($1) RETURNING *", [name], function (err, result) {
 		if (err) {
-			if (err.code == 23505)
-				callback("Room '" + name + "' already exists", null);
-			else
-				callback("Unknown error, check logs", null);
+			if (err.code == 23505)      callback("A room with that name already exists", null);
+			else if (err.code == 22001) callback("Room name is too long", null);
+			else                        callback("Unknown error, check logs", null);
 
 			return util.error("rooms", "Failed to create room", err);
 		}
