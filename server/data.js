@@ -11,38 +11,38 @@ const db = new pg.Client(config.database || {});
 db.connect();
 
 // Load plugins
-// const drivers = {};
+const drivers = {};
 // const types   = {};
 
-// const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
+const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
 
-// util.iterateFiles(pluginDirectory, function (file) {
-// 	if (path.extname(file) != ".js")
-// 		return;
+util.iterateFiles(pluginDirectory, function (file) {
+	if (path.extname(file) != ".js")
+		return;
 
-// 	const fileIdentifier = path.relative(pluginDirectory, file);
-// 	const mod = require(file);
+	const fileIdentifier = path.relative(pluginDirectory, file);
+	const mod = require(file);
 
-// 	// Has backend drivers
-// 	if (mod.drivers) {
-// 		for (var id in mod.drivers) {
-// 			const driver = mod.drivers[id];
+	// Has backend drivers
+	if (mod.drivers) {
+		for (var id in mod.drivers) {
+			const driver = mod.drivers[id];
 
-// 			util.inform("plugin: " + fileIdentifier, "Loaded driver '" + driver.meta.name + "'");
-// 			drivers[id] = driver;
-// 		}
-// 	}
+			util.inform("plugin: " + fileIdentifier, "Loaded driver '" + driver.meta.name + "'");
+			drivers[id] = driver;
+		}
+	}
 
-// 	// Has component types
-// 	if (mod.types) {
-// 		for (var id in mod.types) {
-// 			const type = mod.types[id];
+	// // Has component types
+	// if (mod.types) {
+	// 	for (var id in mod.types) {
+	// 		const type = mod.types[id];
 
-// 			util.inform("plugin: " + fileIdentifier, "Loaded type '" + type.meta.name + "'");
-// 			types[id] = type;
-// 		}
-// 	}
-// });
+	// 		util.inform("plugin: " + fileIdentifier, "Loaded type '" + type.meta.name + "'");
+	// 		types[id] = type;
+	// 	}
+	// }
+});
 
 // Setup environment
 const backends   = {};
@@ -104,14 +104,25 @@ const entities   = {};
 // 	});
 // }
 
+function configureRoom(row) {
+	var room = rooms[row.id] = new Room(row);
+	util.inform("room: " + row.id, "Created '" + row.name + "'");
+	return room;
+}
+
+function createRoom(name, callback) {
+	db.query("INSERT INTO rooms (name) VALUES ($1) RETURNING *", [name], function (err, result) {
+		if (err) return util.error("rooms", "Failed to create room", err);
+
+		callback(result.rows.map(configureRoom));
+	});
+}
+
 function loadRooms() {
 	db.query("SELECT * FROM rooms", function (err, result) {
 		if (err) return util.abort("rooms", "Failed to fetch instances", err);
 
-		result.rows.forEach(function (row) {
-			rooms[row.id] = new Room(row);
-			util.inform("room: " + row.id, "Created '" + row.name + "'");
-		});
+		result.rows.forEach(configureRoom);
 
 		// loadEntities();
 	});
@@ -149,29 +160,32 @@ function loadRooms() {
 // 	});
 // }
 
-// function configureBackend(row) {
-// 	if (row.driver in drivers) {
-// 		backends[row.id] = new drivers[row.driver](row.config);
-// 		util.inform("backend: " + row.id, "Instantiated '" + row.name + "'");
-// 	} else {
-// 		util.abort("backend: " + row.id, "Driver '" + row.driver + "' does not exist");
-// 	}
-// }
+function configureBackend(row) {
+	if (row.driver in drivers) {
+		backends[row.id] = new drivers[row.driver](row.config);
+		util.inform("backend: " + row.id, "Instantiated '" + row.name + "'");
+	} else {
+		util.abort("backend: " + row.id, "Driver '" + row.driver + "' does not exist");
+	}
+}
 
-// function loadBackends() {
-// 	db.query("SELECT * FROM backends", function (err, result) {
-// 		if (err) return util.abort("backends", "Failed to fetch instances:", err);
+function loadBackends() {
+	db.query("SELECT * FROM backends", function (err, result) {
+		if (err) return util.abort("backends", "Failed to fetch instances:", err);
 
-// 		result.rows.forEach(configureBackend);
-// 		loadDatapoints();
-// 	});
-// }
+		result.rows.forEach(configureBackend);
+		// loadDatapoints();
+		loadRooms();
+	});
+}
 
-loadRooms();
+loadBackends();
 
 module.exports = {
 	backends:   backends,
 	datapoints: datapoints,
 	rooms:      rooms,
-	entities:   entities
+	entities:   entities,
+
+	createRoom: createRoom
 };

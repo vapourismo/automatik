@@ -11,12 +11,12 @@ body {
 	padding: 0;
 	background: #333;
 	color: #fff;
-	font-family: "Roboto", sans-serif;
-	font-size: 16px;
 }
 
 * {
 	box-sizing: border-box;
+	font-family: "Roboto", sans-serif;
+	font-size: 16px;
 }
 
 /* Menu */
@@ -89,6 +89,15 @@ body {
 	background-color: #339966;
 }
 
+.box.add-room {
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+	text-decoration: none;
+	cursor: text;
+	background-color: #996633;
+}
+
 .box.room {
 	align-items: center;
 	align-content: center;
@@ -117,6 +126,15 @@ body {
 	padding: 5px;
 }
 
+.box input.name {
+	outline: none;
+	border: none;
+	background: transparent;
+	text-align: center;
+	font-family: "Roboto";
+	color: #fff;
+}
+
 .add-tile {
 	display: flex;
 	width: 100%;
@@ -133,9 +151,6 @@ body {
 
 .add-tile:hover {
 	background-color: #222;
-}
-
-.add-tile i {
 }
 
 /* Pop up */

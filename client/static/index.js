@@ -2,6 +2,34 @@
 
 var serverSocket = io();
 
+function renderCanvas(contents) {
+	ReactDOM.render(contents, document.getElementById("canvas"));
+}
+
+var Tile = React.createClass({
+	displayName: "Tile",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "tile" },
+			this.props.children
+		);
+	}
+});
+
+var Container = React.createClass({
+	displayName: "Container",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "container" },
+			this.props.children
+		);
+	}
+});
+
 var RoomTile = React.createClass({
 	displayName: "RoomTile",
 
@@ -18,11 +46,52 @@ var RoomTile = React.createClass({
 	}
 });
 
+var EditableRoomTile = React.createClass({
+	displayName: "EditableRoomTile",
+
+	onClickBox: function onClickBox() {
+		this.refs.name.focus();
+	},
+
+	onKeyPress: function onKeyPress(ev) {
+		if (ev.charCode == 13) this.props.onSubmit(this.refs.name.value);
+	},
+
+	componentDidMount: function componentDidMount() {
+		this.refs.name.focus();
+	},
+
+	render: function render() {
+		return React.createElement(
+			Tile,
+			null,
+			React.createElement(
+				"div",
+				{ className: "box add-room", onClick: this.onClickBox },
+				React.createElement("input", { className: "name", ref: "name", type: "text", onKeyPress: this.onKeyPress })
+			)
+		);
+	}
+});
+
 var RoomContainer = React.createClass({
 	displayName: "RoomContainer",
 
 	getInitialState: function getInitialState() {
-		return { rooms: [] };
+		return { rooms: [], showTempTile: false };
+	},
+
+	requestRooms: function requestRooms() {
+		serverSocket.emit("ListRooms");
+	},
+
+	onSubmitAddRoom: function onSubmitAddRoom(name) {
+		serverSocket.emit("AddRoom", name);
+		this.setState({ showTempTile: false });
+	},
+
+	onClickAddRoom: function onClickAddRoom() {
+		this.setState({ showTempTile: true });
 	},
 
 	componentDidMount: function componentDidMount() {
@@ -30,7 +99,7 @@ var RoomContainer = React.createClass({
 			this.setState({ rooms: rooms });
 		}).bind(this));
 
-		serverSocket.emit("ListRooms");
+		this.requestRooms();
 	},
 
 	render: function render() {
@@ -42,6 +111,20 @@ var RoomContainer = React.createClass({
 			);
 		});
 
+		if (this.state.showTempTile) {
+			tiles.push(React.createElement(EditableRoomTile, { onSubmit: this.onSubmitAddRoom }));
+		} else {
+			tiles.push(React.createElement(
+				Tile,
+				null,
+				React.createElement(
+					"a",
+					{ className: "add-tile", onClick: this.onClickAddRoom },
+					React.createElement("i", { className: "fa fa-plus" })
+				)
+			));
+		}
+
 		return React.createElement(
 			Container,
 			null,
@@ -50,12 +133,6 @@ var RoomContainer = React.createClass({
 	}
 });
 
-function renderCanvas(contents) {
-	ReactDOM.render(contents, document.getElementById("canvas"));
-}
-
 window.addEventListener("load", function () {
-	if (window.location.hash) {} else {
-		renderCanvas(React.createElement(RoomContainer, null));
-	}
+	renderCanvas(React.createElement(RoomContainer, null));
 });
