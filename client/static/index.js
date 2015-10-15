@@ -96,7 +96,11 @@ var RoomContainer = React.createClass({
 
 	componentDidMount: function componentDidMount() {
 		serverSocket.on("ListRooms", (function (rooms) {
-			this.setState({ rooms: rooms });
+			this.setState({
+				rooms: rooms.sort(function (a, b) {
+					return a.name.localeCompare(b.name);
+				})
+			});
 		}).bind(this));
 
 		this.requestRooms();
