@@ -1,8 +1,10 @@
 const SocketIO = require("socket.io");
 const data     = require("./data");
 
-function BrowserClient(client) {
+function BrowserClient(server, client) {
+	this.server = server;
 	this.client = client;
+
 	this.client.on("ListRooms", this.listRooms.bind(this));
 	this.client.on("AddRoom",   this.addRoom.bind(this));
 }
@@ -15,24 +17,27 @@ BrowserClient.prototype = {
 			rooms.push(data.rooms[id].info);
 		}
 
-		this.client.emit("ListRooms", rooms);
+		this.server.emit("ListRooms", rooms);
 	},
 
 	displayError: function (err) {
 		this.client.emit("DisplayError", err);
 	},
 
+	onCreateRoom: function (err) {
+		if (err) this.displayError(err);
+		else     this.listRooms();
+	},
+
 	addRoom: function (name) {
 		if (typeof(name) != "string" || name.length < 1)
 			return;
 
-		data.createRoom(name, function (err) {
-			if (err) this.displayError(err);
-			else     this.listRooms();
-		}.bind(this));
+		data.createRoom(name, this.onCreateRoom.bind(this));
 	}
 };
 
 module.exports = function (http) {
-	SocketIO(http).on("connection", client => new BrowserClient(client));
+	var server = SocketIO(http);
+	server.on("connection", client => new BrowserClient(server, client));
 };
