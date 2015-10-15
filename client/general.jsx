@@ -1,10 +1,6 @@
 var Tile = React.createClass({
 	render: function () {
-		return (
-			<div className="tile">
-				{this.props.children}
-			</div>
-		);
+		return <div className="tile">{this.props.children}</div>;
 	}
 });
 
