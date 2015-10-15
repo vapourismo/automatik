@@ -1,8 +1,5 @@
-// Express instance
-const express = require("express")();
-
 // HTTP server
-const http = require("http").Server(express);
+const http = require("http").Server();
 
 // Application
 require("./communication")(http);
