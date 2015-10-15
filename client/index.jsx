@@ -33,8 +33,9 @@ var EditableRoomTile = React.createClass({
 		this.refs.name.focus();
 	},
 
-	onKeyPress: function (ev) {
-		if (ev.charCode == 13) this.props.onSubmit(this.refs.name.value);
+	onKey: function (ev) {
+		if (ev.keyCode == 27) this.props.onCancel();
+		else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
 	},
 
 	componentDidMount: function () {
@@ -45,7 +46,7 @@ var EditableRoomTile = React.createClass({
 		return (
 			<Tile>
 				<div className="box add-room" onClick={this.onClickBox}>
-					<input className="name" ref="name" type="text" onKeyPress={this.onKeyPress} />
+					<input className="name" ref="name" type="text" onKeyUp={this.onKey}  onBlur={this.props.onCancel}/>
 				</div>
 			</Tile>
 		);
@@ -63,6 +64,10 @@ var RoomContainer = React.createClass({
 
 	onSubmitAddRoom: function (name) {
 		serverSocket.emit("AddRoom", name);
+		this.setState({showTempTile: false});
+	},
+
+	onCancelAddRoom: function (name) {
 		this.setState({showTempTile: false});
 	},
 
@@ -84,7 +89,7 @@ var RoomContainer = React.createClass({
 		});
 
 		if (this.state.showTempTile) {
-			tiles.push(<EditableRoomTile onSubmit={this.onSubmitAddRoom}/>);
+			tiles.push(<EditableRoomTile onSubmit={this.onSubmitAddRoom} onCancel={this.onCancelAddRoom}/>);
 		} else {
 			tiles.push(
 				<Tile>
