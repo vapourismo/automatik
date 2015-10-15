@@ -112,9 +112,16 @@ function configureRoom(row) {
 
 function createRoom(name, callback) {
 	db.query("INSERT INTO rooms (name) VALUES ($1) RETURNING *", [name], function (err, result) {
-		if (err) return util.error("rooms", "Failed to create room", err);
+		if (err) {
+			if (err.code == 23505)
+				callback("Room '" + name + "' already exists", null);
+			else
+				callback("Unknown error, check logs", null);
 
-		callback(result.rows.map(configureRoom));
+			return util.error("rooms", "Failed to create room", err);
+		}
+
+		callback(null, result.rows.map(configureRoom));
 	});
 }
 

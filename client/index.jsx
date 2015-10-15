@@ -1,9 +1,5 @@
 var serverSocket = io();
 
-function renderCanvas(contents) {
-	ReactDOM.render(contents, document.getElementById("canvas"));
-}
-
 var Tile = React.createClass({
 	render: function () {
 		return <div className="tile">{this.props.children}</div>;
@@ -104,6 +100,47 @@ var RoomContainer = React.createClass({
 	}
 });
 
+var Notification = React.createClass({
+	render: function () {
+		return (
+			<div className="notification">
+				{this.props.children}
+			</div>
+		);
+	}
+});
+
+var Notifier = React.createClass({
+	getInitialState: function () {
+		return {
+			notifications: []
+		};
+	},
+
+	onDecay: function () {
+		this.setState({
+			notifications: this.state.notifications.slice(1)
+		});
+	},
+
+	componentDidMount: function () {
+		serverSocket.on("DisplayError", function (err) {
+			this.setState({
+				notifications: this.state.notifications.concat([
+					<Notification>{err}</Notification>
+				])
+			});
+
+			setTimeout(this.onDecay.bind(this), 15000);
+		}.bind(this));
+	},
+
+	render: function () {
+		return <div className="notifier">{this.state.notifications}</div>;
+	}
+});
+
 window.addEventListener("load", function () {
-	renderCanvas(<RoomContainer />);
+	ReactDOM.render(<RoomContainer />, document.getElementById("canvas"));
+	ReactDOM.render(<Notifier />, document.getElementById("notifications"));
 });

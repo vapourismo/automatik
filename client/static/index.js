@@ -2,10 +2,6 @@
 
 var serverSocket = io();
 
-function renderCanvas(contents) {
-	ReactDOM.render(contents, document.getElementById("canvas"));
-}
-
 var Tile = React.createClass({
 	displayName: "Tile",
 
@@ -137,6 +133,57 @@ var RoomContainer = React.createClass({
 	}
 });
 
+var Notification = React.createClass({
+	displayName: "Notification",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "notification" },
+			this.props.children
+		);
+	}
+});
+
+var Notifier = React.createClass({
+	displayName: "Notifier",
+
+	getInitialState: function getInitialState() {
+		return {
+			notifications: []
+		};
+	},
+
+	onDecay: function onDecay() {
+		this.setState({
+			notifications: this.state.notifications.slice(1)
+		});
+	},
+
+	componentDidMount: function componentDidMount() {
+		serverSocket.on("DisplayError", (function (err) {
+			this.setState({
+				notifications: this.state.notifications.concat([React.createElement(
+					Notification,
+					null,
+					err
+				)])
+			});
+
+			setTimeout(this.onDecay.bind(this), 15000);
+		}).bind(this));
+	},
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "notifier" },
+			this.state.notifications
+		);
+	}
+});
+
 window.addEventListener("load", function () {
-	renderCanvas(React.createElement(RoomContainer, null));
+	ReactDOM.render(React.createElement(RoomContainer, null), document.getElementById("canvas"));
+	ReactDOM.render(React.createElement(Notifier, null), document.getElementById("notifications"));
 });
