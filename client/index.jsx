@@ -17,12 +17,16 @@ var RoomContainer = React.createClass({
 		return {rooms: []};
 	},
 
+	requestRooms: function () {
+		serverSocket.emit("ListRooms");
+	},
+
 	componentDidMount: function () {
 		serverSocket.on("ListRooms", function (rooms) {
 			this.setState({rooms: rooms});
 		}.bind(this));
 
-		serverSocket.emit("ListRooms");
+		this.requestRooms();
 	},
 
 	render: function () {
