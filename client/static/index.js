@@ -35,8 +35,8 @@ var RoomTile = React.createClass({
 			null,
 			React.createElement(
 				"a",
-				{ className: "box room" },
-				this.props.children
+				{ className: "box room", onContextMenu: this.props.onContextMenu },
+				this.props.info.name
 			)
 		);
 	}
@@ -110,11 +110,7 @@ var RoomContainer = React.createClass({
 
 	render: function render() {
 		var tiles = this.state.rooms.map(function (room) {
-			return React.createElement(
-				RoomTile,
-				{ roomID: room.id },
-				room.name
-			);
+			return React.createElement(RoomTile, { info: room });
 		});
 
 		if (this.state.showTempTile) {

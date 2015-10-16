@@ -16,8 +16,8 @@ var RoomTile = React.createClass({
 	render: function () {
 		return (
 			<Tile>
-				<a className="box room">
-					{this.props.children}
+				<a className="box room" onContextMenu={this.props.onContextMenu}>
+					{this.props.info.name}
 				</a>
 			</Tile>
 		);
@@ -42,7 +42,7 @@ var EditableRoomTile = React.createClass({
 		return (
 			<Tile>
 				<div className="box add-room" onClick={this.onClickBox}>
-					<input className="name" ref="name" type="text" onKeyUp={this.onKey}  onBlur={this.props.onCancel}/>
+					<input className="name" ref="name" type="text" onKeyUp={this.onKey} onBlur={this.props.onCancel}/>
 				</div>
 			</Tile>
 		);
@@ -87,7 +87,7 @@ var RoomContainer = React.createClass({
 
 	render: function () {
 		var tiles = this.state.rooms.map(function (room) {
-			return <RoomTile roomID={room.id}>{room.name}</RoomTile>;
+			return <RoomTile info={room}/>;
 		});
 
 		if (this.state.showTempTile) {
