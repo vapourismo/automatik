@@ -252,14 +252,16 @@ var Notifier = React.createClass({
 	},
 
 	componentDidMount: function () {
+		var counter = 0;
+
 		serverSocket.on("DisplayError", function (err) {
 			this.setState({
 				notifications: this.state.notifications.concat([
-					<Notification>{err}</Notification>
+					<Notification key={counter++}>{err}</Notification>
 				])
 			});
 
-			setTimeout(this.onDecay.bind(this), 15000);
+			setTimeout(this.onDecay, 15000);
 		}.bind(this));
 	},
 
