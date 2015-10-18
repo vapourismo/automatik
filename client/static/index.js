@@ -328,7 +328,5 @@ window.addEventListener("keyup", function (ev) {
 });
 
 window.addEventListener("click", function (ev) {
-	console.log(ev);
-
 	if (document.body == ev.target) window.dispatchEvent(new Event("Escape"));
 });
