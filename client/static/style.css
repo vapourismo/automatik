@@ -99,12 +99,42 @@ body {
 }
 
 .box.delete-room {
-	align-items: center;
-	align-content: center;
-	justify-content: center;
 	text-decoration: none;
-	cursor: pointer;
 	background-color: #993333;
+	flex-direction: column;
+	justify-content: center;
+	cursor: pointer;
+	text-align: center;
+}
+
+.box.delete-room:hover {
+	background-color: #aa4444;
+}
+
+.box.context {
+	text-decoration: none;
+	background-color: #993333;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.box.context li {
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	align-items: center;
+	padding: 5px;
+	border-top: dotted 1px #cc6666;
+	height: 100%;
+	cursor: pointer;
+}
+
+.box.context li.first {
+	border: none;
+}
+
+.box.context li:hover {
+	background-color: #aa4444;
 }
 
 .box.room {
@@ -113,6 +143,7 @@ body {
 	justify-content: center;
 	text-decoration: none;
 	cursor: pointer;
+	text-align: center;
 }
 
 .box.entity {
@@ -181,7 +212,7 @@ body {
 	top: 15px;
 	right: 15px;
 	color: #fff;
-	font-size: 15px;
+	font-size: 2em;
 	z-index: 9999;
 	cursor: pointer;
 }

@@ -5,12 +5,13 @@ function BrowserClient(server, client) {
 	this.server = server;
 	this.client = client;
 
-	this.client.on("ListRooms", this.onListRooms.bind(this));
-	this.client.on("AddRoom",   this.onAddRoom.bind(this));
+	this.client.on("ListRooms",  this.onListRooms.bind(this));
+	this.client.on("AddRoom",    this.onAddRoom.bind(this));
+	this.client.on("DeleteRoom", this.onDeleteRoom.bind(this));
 }
 
 BrowserClient.prototype = {
-	onListRooms: function (broadcast) {
+	onListRooms: function () {
 		var rooms = [];
 
 		for (var id in data.rooms) {
@@ -25,6 +26,20 @@ BrowserClient.prototype = {
 			return;
 
 		data.createRoom(name, function (err) {
+			if (err) {
+				this.displayError(err);
+			} else {
+				this.onListRooms();
+				this.updateRooms();
+			}
+		}.bind(this));
+	},
+
+	onDeleteRoom: function (id) {
+		if (typeof(id) != "number")
+			return;
+
+		data.deleteRoom(id, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {

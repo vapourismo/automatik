@@ -2,16 +2,6 @@
 
 var serverSocket = io();
 
-function showPopup(contents) {
-	document.getElementById("overlay").style.visibility = "visible";
-	ReactDOM.render(contents, document.getElementById("overlay-contents"));
-}
-
-function hidePopup() {
-	document.getElementById("overlay").style.visibility = "hidden";
-	ReactDOM.render(null, document.getElementById("overlay-contents"));
-}
-
 var Tile = React.createClass({
 	displayName: "Tile",
 
@@ -36,35 +26,99 @@ var Container = React.createClass({
 	}
 });
 
-var DeleteRoomPopup = React.createClass({
-	displayName: "DeleteRoomPopup",
-
-	render: function render() {
-		return React.createElement(
-			"div",
-			{ className: "popup" },
-			"Delete room?"
-		);
-	}
-});
+var RoomTileMode = {
+	Normal: 1,
+	ContextMenu: 2,
+	ConfirmDelete: 3
+};
 
 var RoomTile = React.createClass({
 	displayName: "RoomTile",
 
+	getInitialState: function getInitialState() {
+		return {
+			mode: RoomTileMode.Normal
+		};
+	},
+
 	onContextMenu: function onContextMenu(ev) {
 		ev.preventDefault();
-		showPopup(React.createElement(DeleteRoomPopup, null));
+		this.setState({ mode: RoomTileMode.ContextMenu });
+
+		var ctxEvent = new Event("OpenRoomContextMenu");
+		ctxEvent.sender = this;
+
+		window.dispatchEvent(ctxEvent);
+	},
+
+	onRequestDelete: function onRequestDelete() {
+		this.setState({ mode: RoomTileMode.ConfirmDelete });
+	},
+
+	onConfirmDelete: function onConfirmDelete() {
+		this.setState({ mode: RoomTileMode.Normal });
+		serverSocket.emit("DeleteRoom", this.props.info.id);
+	},
+
+	componentDidMount: function componentDidMount() {
+		window.addEventListener("OpenRoomContextMenu", (function (ev) {
+			if (ev.sender != this) this.setState({ mode: RoomTileMode.Normal });
+		}).bind(this));
+
+		window.addEventListener("Escape", (function () {
+			this.setState({ mode: RoomTileMode.Normal });
+		}).bind(this));
 	},
 
 	render: function render() {
+		var content;
+
+		switch (this.state.mode) {
+			case RoomTileMode.Normal:
+				content = React.createElement(
+					"a",
+					{ className: "box room", onContextMenu: this.onContextMenu },
+					this.props.info.name
+				);
+
+				break;
+
+			case RoomTileMode.ContextMenu:
+				content = React.createElement(
+					"div",
+					{ className: "box context" },
+					React.createElement(
+						"li",
+						{ onClick: this.onRequestDelete, className: "first" },
+						"Delete"
+					),
+					React.createElement(
+						"li",
+						null,
+						"Rename"
+					)
+				);
+
+				break;
+
+			case RoomTileMode.ConfirmDelete:
+				content = React.createElement(
+					"a",
+					{ className: "box delete-room", onClick: this.onConfirmDelete },
+					React.createElement(
+						"span",
+						null,
+						"Are you sure?"
+					)
+				);
+
+				break;
+		}
+
 		return React.createElement(
 			Tile,
 			null,
-			React.createElement(
-				"a",
-				{ className: "box room", onContextMenu: this.onContextMenu },
-				this.props.info.name
-			)
+			content
 		);
 	}
 });
@@ -137,15 +191,15 @@ var RoomContainer = React.createClass({
 
 	render: function render() {
 		var tiles = this.state.rooms.map(function (room) {
-			return React.createElement(RoomTile, { info: room });
+			return React.createElement(RoomTile, { key: room.id, info: room });
 		});
 
 		if (this.state.showTempTile) {
-			tiles.push(React.createElement(EditableRoomTile, { onSubmit: this.onSubmitAddRoom, onCancel: this.onCancelAddRoom }));
+			tiles.push(React.createElement(EditableRoomTile, { key: "edit-room", onSubmit: this.onSubmitAddRoom, onCancel: this.onCancelAddRoom }));
 		} else {
 			tiles.push(React.createElement(
 				Tile,
-				null,
+				{ key: "add-room" },
 				React.createElement(
 					"a",
 					{ className: "add-tile", onClick: this.onClickAddRoom },
@@ -217,6 +271,6 @@ window.addEventListener("load", function () {
 	ReactDOM.render(React.createElement(Notifier, null), document.getElementById("notifications"));
 });
 
-document.addEventListener("keypress", function (ev) {
-	console.log("key", ev);
+window.addEventListener("keyup", function (ev) {
+	if (ev.keyCode == 27) window.dispatchEvent(new Event("Escape"));
 });

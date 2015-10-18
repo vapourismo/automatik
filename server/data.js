@@ -124,6 +124,24 @@ function createRoom(name, callback) {
 	});
 }
 
+function deleteRoom(id, callback) {
+	db.query("DELETE FROM rooms WHERE id = $1 RETURNING *", [id], function (err, result) {
+		if (err) {
+			callback("Unknown error, check logs", null);
+			return util.error("rooms", "Failed to delete room", err);
+		}
+
+		callback(null, result.rows.map(function (row) {
+			if (rooms[row.id] != null) {
+				delete rooms[row.id];
+				util.inform("room: " + row.id, "Deleted '" + row.name + "'");
+			}
+
+			return row.id;
+		}));
+	});
+}
+
 function loadRooms() {
 	db.query("SELECT * FROM rooms", function (err, result) {
 		if (err) return util.abort("rooms", "Failed to fetch instances", err);
@@ -193,5 +211,6 @@ module.exports = {
 	rooms:      rooms,
 	entities:   entities,
 
-	createRoom: createRoom
+	createRoom: createRoom,
+	deleteRoom: deleteRoom
 };

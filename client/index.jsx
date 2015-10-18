@@ -1,15 +1,5 @@
 var serverSocket = io();
 
-function showPopup(contents) {
-	document.getElementById("overlay").style.visibility = "visible";
-	ReactDOM.render(contents, document.getElementById("overlay-contents"));
-}
-
-function hidePopup() {
-	document.getElementById("overlay").style.visibility = "hidden";
-	ReactDOM.render(null, document.getElementById("overlay-contents"));
-}
-
 var Tile = React.createClass({
 	render: function () {
 		return <div className="tile">{this.props.children}</div>;
@@ -22,26 +12,82 @@ var Container = React.createClass({
 	}
 });
 
-var DeleteRoomPopup = React.createClass({
-	render: function () {
-		return <div className="popup">Delete room?</div>;
-	}
-});
+var RoomTileMode = {
+	Normal:        1,
+	ContextMenu:   2,
+	ConfirmDelete: 3
+};
 
 var RoomTile = React.createClass({
+	getInitialState: function () {
+		return {
+			mode: RoomTileMode.Normal
+		};
+	},
+
 	onContextMenu: function (ev) {
 		ev.preventDefault();
-		showPopup(<DeleteRoomPopup />);
+		this.setState({mode: RoomTileMode.ContextMenu});
+
+		var ctxEvent = new Event("OpenRoomContextMenu");
+		ctxEvent.sender = this;
+
+		window.dispatchEvent(ctxEvent);
+	},
+
+	onRequestDelete: function () {
+		this.setState({mode: RoomTileMode.ConfirmDelete});
+	},
+
+	onConfirmDelete: function () {
+		this.setState({mode: RoomTileMode.Normal});
+		serverSocket.emit("DeleteRoom", this.props.info.id);
+	},
+
+	componentDidMount: function () {
+		window.addEventListener("OpenRoomContextMenu", function (ev) {
+			if (ev.sender != this) this.setState({mode: RoomTileMode.Normal});
+		}.bind(this));
+
+		window.addEventListener("Escape", function () {
+			this.setState({mode: RoomTileMode.Normal});
+		}.bind(this));
 	},
 
 	render: function () {
-		return (
-			<Tile>
-				<a className="box room" onContextMenu={this.onContextMenu}>
-					{this.props.info.name}
-				</a>
-			</Tile>
-		);
+		var content;
+
+		switch (this.state.mode) {
+			case RoomTileMode.Normal:
+				content = (
+					<a className="box room" onContextMenu={this.onContextMenu}>
+						{this.props.info.name}
+					</a>
+				);
+
+				break;
+
+			case RoomTileMode.ContextMenu:
+				content = (
+					<div className="box context">
+						<li onClick={this.onRequestDelete} className="first">Delete</li>
+						<li>Rename</li>
+					</div>
+				);
+
+				break;
+
+			case RoomTileMode.ConfirmDelete:
+				content = (
+					<a className="box delete-room" onClick={this.onConfirmDelete}>
+						<span>Are you sure?</span>
+					</a>
+				);
+
+				break;
+		}
+
+		return <Tile>{content}</Tile>;
 	}
 });
 
@@ -108,14 +154,16 @@ var RoomContainer = React.createClass({
 
 	render: function () {
 		var tiles = this.state.rooms.map(function (room) {
-			return <RoomTile info={room}/>;
+			return <RoomTile key={room.id} info={room}/>;
 		});
 
 		if (this.state.showTempTile) {
-			tiles.push(<EditableRoomTile onSubmit={this.onSubmitAddRoom} onCancel={this.onCancelAddRoom}/>);
+			tiles.push(
+				<EditableRoomTile key="edit-room" onSubmit={this.onSubmitAddRoom} onCancel={this.onCancelAddRoom}/>
+			);
 		} else {
 			tiles.push(
-				<Tile>
+				<Tile key="add-room">
 					<a className="add-tile" onClick={this.onClickAddRoom}>
 						<i className="fa fa-plus"></i>
 					</a>
@@ -172,6 +220,6 @@ window.addEventListener("load", function () {
 	ReactDOM.render(<Notifier />, document.getElementById("notifications"));
 });
 
-document.addEventListener("keypress", function (ev) {
-	console.log("key", ev);
+window.addEventListener("keyup", function (ev) {
+	if (ev.keyCode == 27) window.dispatchEvent(new Event("Escape"));
 });
