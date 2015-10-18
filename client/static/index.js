@@ -76,12 +76,12 @@ var RoomTile = React.createClass({
 		});
 
 		this.setState({ mode: RoomTileMode.Normal });
-		ev.preventDefault();
+		if (ev) ev.preventDefault();
 	},
 
-	onCancelRename: function onCancelRename() {
-		this.setState({ mode: RoomTileMode.Normal });
-	},
+	// onCancelRename: function () {
+	// 	this.setState({mode: RoomTileMode.Normal});
+	// },
 
 	componentDidMount: function componentDidMount() {
 		this.eventHandlers = {
@@ -151,7 +151,7 @@ var RoomTile = React.createClass({
 				content = React.createElement(
 					"form",
 					{ className: "box add-room", onClick: this.focusRenameInput, onSubmit: this.onSubmitRename },
-					React.createElement("input", { className: "name", ref: "name", type: "text", defaultValue: this.props.info.name, onBlur: this.onCancelRename })
+					React.createElement("input", { className: "name", ref: "name", type: "text", defaultValue: this.props.info.name, onBlur: this.onSubmitRename })
 				);
 
 				break;
