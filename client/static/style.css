@@ -19,6 +19,17 @@ body {
 	font-size: 16px;
 }
 
+/* Animations */
+@keyframes fade-out {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
 /* Menu */
 #menu {
 	display: flex;
@@ -304,6 +315,8 @@ label {
 	font-size: 14px;
 	text-align: right;
 	background-color: rgba(255, 0, 0, 0.1);
+	animation-name: fade-out;
+	animation-duration: 15s;
 }
 
 /* Popup */
