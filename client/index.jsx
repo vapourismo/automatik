@@ -271,14 +271,13 @@ var Notifier = React.createClass({
 window.addEventListener("load", function () {
 	ReactDOM.render(<RoomContainer />, document.getElementById("canvas"));
 	ReactDOM.render(<Notifier />, document.getElementById("notifications"));
+
+	document.body.addEventListener("click", function (ev) {
+		window.dispatchEvent(new Event("Escape"));
+	});
 });
 
 window.addEventListener("keyup", function (ev) {
 	if (ev.keyCode == 27)
-		window.dispatchEvent(new Event("Escape"));
-});
-
-window.addEventListener("click", function (ev) {
-	if (document.body == ev.target)
 		window.dispatchEvent(new Event("Escape"));
 });
