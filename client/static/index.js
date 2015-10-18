@@ -45,7 +45,7 @@ var RoomTile = React.createClass({
 		ev.preventDefault();
 		this.setState({ mode: RoomTileMode.ContextMenu });
 
-		var ctxEvent = new Event("OpenRoomContextMenu");
+		var ctxEvent = new Event("OpenRoomContext");
 		ctxEvent.sender = this;
 
 		window.dispatchEvent(ctxEvent);
@@ -61,13 +61,23 @@ var RoomTile = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
-		window.addEventListener("OpenRoomContextMenu", (function (ev) {
-			if (ev.sender != this) this.setState({ mode: RoomTileMode.Normal });
-		}).bind(this));
+		this.eventHandlers = {
+			openRoomContext: (function (ev) {
+				if (ev.sender != this) this.setState({ mode: RoomTileMode.Normal });
+			}).bind(this),
 
-		window.addEventListener("Escape", (function () {
-			this.setState({ mode: RoomTileMode.Normal });
-		}).bind(this));
+			escape: (function () {
+				this.setState({ mode: RoomTileMode.Normal });
+			}).bind(this)
+		};
+
+		window.addEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
+		window.addEventListener("Escape", this.eventHandlers.escape);
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		window.removeEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
+		window.removeEventListener("Escape", this.eventHandlers.escape);
 	},
 
 	render: function render() {
