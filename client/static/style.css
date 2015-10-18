@@ -165,7 +165,6 @@ body {
 /* Pop up */
 #overlay {
 	visibility: hidden;
-	opacity: 0;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -177,43 +176,14 @@ body {
 	align-content: center;
 }
 
-.popup {
-	width: 80%;
-	height: 80%;
-	background: #222;
-	padding: 15px;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	align-content: flex-start;
-}
-
-.popup .header {
-	display: flex;
-	align-items: flex-start;
-	align-content: flex-start;
-	width: 100%;
-}
-
-.popup .header .item {
-	display: block;
-	text-align: right;
-	text-decoration: none;
+#overlay .close {
+	position: absolute;
+	top: 15px;
+	right: 15px;
 	color: #fff;
-	padding: 10px;
-}
-
-.popup .header .close {
+	font-size: 15px;
+	z-index: 9999;
 	cursor: pointer;
-	margin-left: auto;
-}
-
-.popup .contents {
-	padding: 10px;
-	width: 100%;
-	height: 100%;
-	display: flex;
 }
 
 /* Forms */
@@ -303,4 +273,11 @@ label {
 	font-size: 14px;
 	text-align: right;
 	background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Popup */
+.popup {
+	margin: auto;
+	background-color: rgba(255, 255, 255, 0.1);
+	padding: 15px;
 }

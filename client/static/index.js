@@ -2,6 +2,16 @@
 
 var serverSocket = io();
 
+function showPopup(contents) {
+	document.getElementById("overlay").style.visibility = "visible";
+	ReactDOM.render(contents, document.getElementById("overlay-contents"));
+}
+
+function hidePopup() {
+	document.getElementById("overlay").style.visibility = "hidden";
+	ReactDOM.render(null, document.getElementById("overlay-contents"));
+}
+
 var Tile = React.createClass({
 	displayName: "Tile",
 
@@ -26,8 +36,25 @@ var Container = React.createClass({
 	}
 });
 
+var DeleteRoomPopup = React.createClass({
+	displayName: "DeleteRoomPopup",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "popup" },
+			"Delete room?"
+		);
+	}
+});
+
 var RoomTile = React.createClass({
 	displayName: "RoomTile",
+
+	onContextMenu: function onContextMenu(ev) {
+		ev.preventDefault();
+		showPopup(React.createElement(DeleteRoomPopup, null));
+	},
 
 	render: function render() {
 		return React.createElement(
@@ -35,7 +62,7 @@ var RoomTile = React.createClass({
 			null,
 			React.createElement(
 				"a",
-				{ className: "box room", onContextMenu: this.props.onContextMenu },
+				{ className: "box room", onContextMenu: this.onContextMenu },
 				this.props.info.name
 			)
 		);
@@ -188,4 +215,8 @@ var Notifier = React.createClass({
 window.addEventListener("load", function () {
 	ReactDOM.render(React.createElement(RoomContainer, null), document.getElementById("canvas"));
 	ReactDOM.render(React.createElement(Notifier, null), document.getElementById("notifications"));
+});
+
+document.addEventListener("keypress", function (ev) {
+	console.log("key", ev);
 });
