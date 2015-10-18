@@ -274,7 +274,7 @@ var Notification = React.createClass({
 	render: function render() {
 		return React.createElement(
 			"div",
-			{ className: "notification" },
+			{ className: "notification fade-out" },
 			this.props.children
 		);
 	}

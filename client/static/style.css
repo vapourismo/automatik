@@ -30,6 +30,11 @@ body {
 	}
 }
 
+.fade-out {
+	animation-name: fade-out;
+	animation-duration: 15s;
+}
+
 /* Menu */
 #menu {
 	display: flex;
@@ -315,8 +320,6 @@ label {
 	font-size: 14px;
 	text-align: right;
 	background-color: rgba(255, 0, 0, 0.1);
-	animation-name: fade-out;
-	animation-duration: 15s;
 }
 
 /* Popup */

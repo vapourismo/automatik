@@ -231,7 +231,7 @@ var RoomContainer = React.createClass({
 var Notification = React.createClass({
 	render: function () {
 		return (
-			<div className="notification">
+			<div className="notification fade-out">
 				{this.props.children}
 			</div>
 		);
