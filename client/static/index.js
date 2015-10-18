@@ -296,16 +296,18 @@ var Notifier = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
+		var counter = 0;
+
 		serverSocket.on("DisplayError", (function (err) {
 			this.setState({
 				notifications: this.state.notifications.concat([React.createElement(
 					Notification,
-					null,
+					{ key: counter++ },
 					err
 				)])
 			});
 
-			setTimeout(this.onDecay.bind(this), 15000);
+			setTimeout(this.onDecay, 15000);
 		}).bind(this));
 	},
 
@@ -321,12 +323,12 @@ var Notifier = React.createClass({
 window.addEventListener("load", function () {
 	ReactDOM.render(React.createElement(RoomContainer, null), document.getElementById("canvas"));
 	ReactDOM.render(React.createElement(Notifier, null), document.getElementById("notifications"));
+
+	document.body.addEventListener("click", function (ev) {
+		window.dispatchEvent(new Event("Escape"));
+	});
 });
 
 window.addEventListener("keyup", function (ev) {
 	if (ev.keyCode == 27) window.dispatchEvent(new Event("Escape"));
-});
-
-window.addEventListener("click", function (ev) {
-	if (document.body == ev.target) window.dispatchEvent(new Event("Escape"));
 });
