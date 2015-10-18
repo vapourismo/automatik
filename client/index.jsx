@@ -13,9 +13,10 @@ var Container = React.createClass({
 });
 
 var RoomTileMode = {
-	Normal:        1,
-	ContextMenu:   2,
-	ConfirmDelete: 3
+	Normal:      1,
+	ContextMenu: 2,
+	Delete:      3,
+	Rename:      4
 };
 
 var RoomTile = React.createClass({
@@ -36,12 +37,34 @@ var RoomTile = React.createClass({
 	},
 
 	onRequestDelete: function () {
-		this.setState({mode: RoomTileMode.ConfirmDelete});
+		this.setState({mode: RoomTileMode.Delete});
 	},
 
 	onConfirmDelete: function () {
-		this.setState({mode: RoomTileMode.Normal});
 		serverSocket.emit("DeleteRoom", this.props.info.id);
+		this.setState({mode: RoomTileMode.Normal});
+	},
+
+	onRequestRename: function () {
+		this.setState({mode: RoomTileMode.Rename});
+	},
+
+	focusRenameInput: function () {
+		this.refs.name.select();
+	},
+
+	onSubmitRename: function (ev) {
+		serverSocket.emit("RenameRoom", {
+			id: this.props.info.id,
+			name: this.refs.name.value
+		});
+
+		this.setState({mode: RoomTileMode.Normal});
+		ev.preventDefault();
+	},
+
+	onCancelRename: function () {
+		this.setState({mode: RoomTileMode.Normal});
 	},
 
 	componentDidMount: function () {
@@ -81,13 +104,13 @@ var RoomTile = React.createClass({
 				content = (
 					<div className="box context">
 						<li onClick={this.onRequestDelete} className="first">Delete</li>
-						<li>Rename</li>
+						<li onClick={this.onRequestRename}>Rename</li>
 					</div>
 				);
 
 				break;
 
-			case RoomTileMode.ConfirmDelete:
+			case RoomTileMode.Delete:
 				content = (
 					<a className="box delete-room" onClick={this.onConfirmDelete}>
 						<span>Are you sure?</span>
@@ -95,17 +118,27 @@ var RoomTile = React.createClass({
 				);
 
 				break;
+
+			case RoomTileMode.Rename:
+				content = (
+					<form className="box add-room" onClick={this.focusRenameInput} onSubmit={this.onSubmitRename}>
+						<input className="name" ref="name" type="text" defaultValue={this.props.info.name} onBlur={this.onCancelRename}/>
+					</form>
+				);
+
+				break;
 		}
 
 		return <Tile>{content}</Tile>;
+	},
+
+	componentDidUpdate: function () {
+		if (this.state.mode == RoomTileMode.Rename)
+			this.focusRenameInput();
 	}
 });
 
 var EditableRoomTile = React.createClass({
-	onClickBox: function () {
-		this.refs.name.focus();
-	},
-
 	onKey: function (ev) {
 		if (ev.keyCode == 27) this.props.onCancel();
 		else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
@@ -118,7 +151,7 @@ var EditableRoomTile = React.createClass({
 	render: function () {
 		return (
 			<Tile>
-				<div className="box add-room" onClick={this.onClickBox}>
+				<div className="box add-room">
 					<input className="name" ref="name" type="text" onKeyUp={this.onKey} onBlur={this.props.onCancel}/>
 				</div>
 			</Tile>

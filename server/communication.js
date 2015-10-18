@@ -8,6 +8,7 @@ function BrowserClient(server, client) {
 	this.client.on("ListRooms",  this.onListRooms.bind(this));
 	this.client.on("AddRoom",    this.onAddRoom.bind(this));
 	this.client.on("DeleteRoom", this.onDeleteRoom.bind(this));
+	this.client.on("RenameRoom", this.onRenameRoom.bind(this));
 }
 
 BrowserClient.prototype = {
@@ -40,6 +41,20 @@ BrowserClient.prototype = {
 			return;
 
 		data.deleteRoom(id, function (err) {
+			if (err) {
+				this.displayError(err);
+			} else {
+				this.onListRooms();
+				this.updateRooms();
+			}
+		}.bind(this));
+	},
+
+	onRenameRoom: function (info) {
+		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
+			return;
+
+		data.renameRoom(info.id, info.name, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {

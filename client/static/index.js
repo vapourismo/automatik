@@ -29,7 +29,8 @@ var Container = React.createClass({
 var RoomTileMode = {
 	Normal: 1,
 	ContextMenu: 2,
-	ConfirmDelete: 3
+	Delete: 3,
+	Rename: 4
 };
 
 var RoomTile = React.createClass({
@@ -52,12 +53,34 @@ var RoomTile = React.createClass({
 	},
 
 	onRequestDelete: function onRequestDelete() {
-		this.setState({ mode: RoomTileMode.ConfirmDelete });
+		this.setState({ mode: RoomTileMode.Delete });
 	},
 
 	onConfirmDelete: function onConfirmDelete() {
-		this.setState({ mode: RoomTileMode.Normal });
 		serverSocket.emit("DeleteRoom", this.props.info.id);
+		this.setState({ mode: RoomTileMode.Normal });
+	},
+
+	onRequestRename: function onRequestRename() {
+		this.setState({ mode: RoomTileMode.Rename });
+	},
+
+	focusRenameInput: function focusRenameInput() {
+		this.refs.name.select();
+	},
+
+	onSubmitRename: function onSubmitRename(ev) {
+		serverSocket.emit("RenameRoom", {
+			id: this.props.info.id,
+			name: this.refs.name.value
+		});
+
+		this.setState({ mode: RoomTileMode.Normal });
+		ev.preventDefault();
+	},
+
+	onCancelRename: function onCancelRename() {
+		this.setState({ mode: RoomTileMode.Normal });
 	},
 
 	componentDidMount: function componentDidMount() {
@@ -104,14 +127,14 @@ var RoomTile = React.createClass({
 					),
 					React.createElement(
 						"li",
-						null,
+						{ onClick: this.onRequestRename },
 						"Rename"
 					)
 				);
 
 				break;
 
-			case RoomTileMode.ConfirmDelete:
+			case RoomTileMode.Delete:
 				content = React.createElement(
 					"a",
 					{ className: "box delete-room", onClick: this.onConfirmDelete },
@@ -123,6 +146,15 @@ var RoomTile = React.createClass({
 				);
 
 				break;
+
+			case RoomTileMode.Rename:
+				content = React.createElement(
+					"form",
+					{ className: "box add-room", onClick: this.focusRenameInput, onSubmit: this.onSubmitRename },
+					React.createElement("input", { className: "name", ref: "name", type: "text", defaultValue: this.props.info.name, onBlur: this.onCancelRename })
+				);
+
+				break;
 		}
 
 		return React.createElement(
@@ -130,15 +162,15 @@ var RoomTile = React.createClass({
 			null,
 			content
 		);
+	},
+
+	componentDidUpdate: function componentDidUpdate() {
+		if (this.state.mode == RoomTileMode.Rename) this.focusRenameInput();
 	}
 });
 
 var EditableRoomTile = React.createClass({
 	displayName: "EditableRoomTile",
-
-	onClickBox: function onClickBox() {
-		this.refs.name.focus();
-	},
 
 	onKey: function onKey(ev) {
 		if (ev.keyCode == 27) this.props.onCancel();else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
@@ -154,7 +186,7 @@ var EditableRoomTile = React.createClass({
 			null,
 			React.createElement(
 				"div",
-				{ className: "box add-room", onClick: this.onClickBox },
+				{ className: "box add-room" },
 				React.createElement("input", { className: "name", ref: "name", type: "text", onKeyUp: this.onKey, onBlur: this.props.onCancel })
 			)
 		);

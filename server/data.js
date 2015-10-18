@@ -125,19 +125,47 @@ function createRoom(name, callback) {
 }
 
 function deleteRoom(id, callback) {
+	const tag = "room: " + id;
+
 	db.query("DELETE FROM rooms WHERE id = $1 RETURNING *", [id], function (err, result) {
 		if (err) {
 			callback("Unknown error, check logs", null);
-			return util.error("rooms", "Failed to delete room", err);
+			return util.error(tag, "Failed to delete room", err);
 		}
 
 		callback(null, result.rows.map(function (row) {
-			if (rooms[row.id] != null) {
+			if (row.id in rooms) {
 				delete rooms[row.id];
-				util.inform("room: " + row.id, "Deleted '" + row.name + "'");
+				util.inform(tag, "Deleted '" + row.name + "'");
 			}
 
 			return row.id;
+		}));
+	});
+}
+
+function renameRoom(id, name, callback) {
+	const tag = "room: " + id;
+
+	db.query("UPDATE rooms SET name = $1 WHERE id = $2 RETURNING *", [name, id], function (err, result) {
+		if (err) {
+			if (err.code == 23505) callback("A room with that name already exists", null);
+			else                   callback("Unknown error, check logs", null);
+
+			return util.error(tag, "Failed to rename", err);
+		}
+
+		callback(null, result.rows.map(function (row) {
+			if (row.id in rooms) {
+				var room = rooms[row.id];
+
+				var oldName = room.info.name;
+				room.info = row;
+
+				util.inform(tag, "Renamed '" + oldName + "' to '" + row.name + "'");
+			} else {
+				return configureRoom(row);
+			}
 		}));
 	});
 }
@@ -212,5 +240,6 @@ module.exports = {
 	entities:   entities,
 
 	createRoom: createRoom,
-	deleteRoom: deleteRoom
+	deleteRoom: deleteRoom,
+	renameRoom: renameRoom
 };
