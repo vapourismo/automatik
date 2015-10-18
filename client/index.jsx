@@ -274,5 +274,13 @@ window.addEventListener("load", function () {
 });
 
 window.addEventListener("keyup", function (ev) {
-	if (ev.keyCode == 27) window.dispatchEvent(new Event("Escape"));
+	if (ev.keyCode == 27)
+		window.dispatchEvent(new Event("Escape"));
+});
+
+window.addEventListener("click", function (ev) {
+	console.log(ev);
+
+	if (document.body == ev.target)
+		window.dispatchEvent(new Event("Escape"));
 });
