@@ -149,17 +149,27 @@ var RoomContainer = React.createClass({
 	},
 
 	componentDidMount: function () {
-		serverSocket.on("ListRooms", function (rooms) {
-			this.setState({
-				rooms: rooms.sort(function (a, b) {
-					return a.name.localeCompare(b.name);
-				})
-			});
-		}.bind(this));
+		this.eventHandlers = {
+			listRooms: function (rooms) {
+				this.setState({
+					rooms: rooms.sort(function (a, b) {
+						return a.name.localeCompare(b.name);
+					})
+				});
+			}.bind(this),
 
-		serverSocket.on("UpdateRooms", this.requestRooms);
+			updateRooms: this.requestRooms
+		};
+
+		serverSocket.on("ListRooms",   this.eventHandlers.listRooms);
+		serverSocket.on("UpdateRooms", this.eventHandlers.updateRooms);
 
 		this.requestRooms();
+	},
+
+	componentWillUnmount: function () {
+		serverSocket.removeListener("ListRooms",   this.eventHandlers.listRooms);
+		serverSocket.removeListener("UpdateRooms", this.eventHandlers.updateRooms);
 	},
 
 	render: function () {
