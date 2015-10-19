@@ -1,54 +1,47 @@
 const path   = require("path");
-const pg     = require("pg");
 
-const config = require("./config");
+const db     = require("./database");
 const util   = require("./utilities");
-const Group  = require("./data/group");
-// const Entity = require("./data/entity");
+const groups = require("./data/groups");
 
-// Connect database
-const db = new pg.Client(config.database || {});
-db.connect();
-
-// Load plugins
-const drivers = {};
+// // Load plugins
+// const drivers = {};
 // const types   = {};
 
-const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
+// const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
 
-util.iterateFiles(pluginDirectory, function (file) {
-	if (path.extname(file) != ".js")
-		return;
+// util.iterateFiles(pluginDirectory, function (file) {
+// 	if (path.extname(file) != ".js")
+// 		return;
 
-	const fileIdentifier = path.relative(pluginDirectory, file);
-	const mod = require(file);
+// 	const fileIdentifier = path.relative(pluginDirectory, file);
+// 	const mod = require(file);
 
-	// Has backend drivers
-	if (mod.drivers) {
-		for (var id in mod.drivers) {
-			const driver = mod.drivers[id];
+// 	// Has backend drivers
+// 	if (mod.drivers) {
+// 		for (var id in mod.drivers) {
+// 			const driver = mod.drivers[id];
 
-			util.inform("plugin: " + fileIdentifier, "Loaded driver '" + driver.meta.name + "'");
-			drivers[id] = driver;
-		}
-	}
+// 			util.inform("plugin: " + fileIdentifier, "Loaded driver '" + driver.meta.name + "'");
+// 			drivers[id] = driver;
+// 		}
+// 	}
 
-	// // Has component types
-	// if (mod.types) {
-	// 	for (var id in mod.types) {
-	// 		const type = mod.types[id];
+// 	// Has component types
+// 	if (mod.types) {
+// 		for (var id in mod.types) {
+// 			const type = mod.types[id];
 
-	// 		util.inform("plugin: " + fileIdentifier, "Loaded type '" + type.meta.name + "'");
-	// 		types[id] = type;
-	// 	}
-	// }
-});
+// 			util.inform("plugin: " + fileIdentifier, "Loaded type '" + type.meta.name + "'");
+// 			types[id] = type;
+// 		}
+// 	}
+// });
 
-// Setup environment
-const backends   = {};
-const datapoints = {};
-const groups      = {};
-const entities   = {};
+// // Setup environment
+// const backends   = {};
+// const datapoints = {};
+// const entities   = {};
 
 // function configureEntity(row) {
 // 	const tag = "entity: " + row.id;
@@ -104,80 +97,6 @@ const entities   = {};
 // 	});
 // }
 
-function configureGroup(row) {
-	var group = groups[row.id] = new Group(row);
-	util.inform("group: " + row.id, "Created '" + row.name + "'");
-	return group;
-}
-
-function createGroup(name, callback) {
-	db.query("INSERT INTO groups (name) VALUES ($1) RETURNING *", [name], function (err, result) {
-		if (err) {
-			if (err.code == 23505)      callback("A group with that name already exists", null);
-			else if (err.code == 22001) callback("Group name is too long", null);
-			else                        callback("Unknown error, check logs", null);
-
-			return util.error("groups", "Failed to create group", err);
-		}
-
-		callback(null, result.rows.map(configureGroup));
-	});
-}
-
-function deleteGroup(id, callback) {
-	const tag = "group: " + id;
-
-	db.query("DELETE FROM groups WHERE id = $1 RETURNING *", [id], function (err, result) {
-		if (err) {
-			callback("Unknown error, check logs", null);
-			return util.error(tag, "Failed to delete group", err);
-		}
-
-		callback(null, result.rows.map(function (row) {
-			if (row.id in groups) {
-				delete groups[row.id];
-				util.inform(tag, "Deleted '" + row.name + "'");
-			}
-
-			return row.id;
-		}));
-	});
-}
-
-function renameGroup(id, name, callback) {
-	const tag = "group: " + id;
-
-	db.query("UPDATE groups SET name = $1 WHERE id = $2 RETURNING *", [name, id], function (err, result) {
-		if (err) {
-			if (err.code == 23505) callback("A group with that name already exists", null);
-			else                   callback("Unknown error, check logs", null);
-
-			return util.error(tag, "Failed to rename", err);
-		}
-
-		callback(null, result.rows.map(function (row) {
-			if (row.id in groups) {
-				var group = groups[row.id];
-
-				var oldName = group.info.name;
-				group.info = row;
-
-				util.inform(tag, "Renamed '" + oldName + "' to '" + row.name + "'");
-			} else {
-				return configureGroup(row);
-			}
-		}));
-	});
-}
-
-function loadGroups() {
-	db.query("SELECT * FROM groups", function (err, result) {
-		if (err) return util.abort("groups", "Failed to fetch instances", err);
-
-		result.rows.forEach(configureGroup);
-	});
-}
-
 // function configureDatapoint(row) {
 // 	const tag = "datapoint: " + row.id;
 
@@ -210,34 +129,26 @@ function loadGroups() {
 // 	});
 // }
 
-function configureBackend(row) {
-	if (row.driver in drivers) {
-		backends[row.id] = new drivers[row.driver](row.config);
-		util.inform("backend: " + row.id, "Instantiated '" + row.name + "'");
-	} else {
-		util.abort("backend: " + row.id, "Driver '" + row.driver + "' does not exist");
-	}
-}
+// function configureBackend(row) {
+// 	if (row.driver in drivers) {
+// 		backends[row.id] = new drivers[row.driver](row.config);
+// 		util.inform("backend: " + row.id, "Instantiated '" + row.name + "'");
+// 	} else {
+// 		util.abort("backend: " + row.id, "Driver '" + row.driver + "' does not exist");
+// 	}
+// }
 
-function loadBackends() {
-	db.query("SELECT * FROM backends", function (err, result) {
-		if (err) return util.abort("backends", "Failed to fetch instances:", err);
+// function loadBackends() {
+// 	db.query("SELECT * FROM backends", function (err, result) {
+// 		if (err) return util.abort("backends", "Failed to fetch instances:", err);
 
-		result.rows.forEach(configureBackend);
-		// loadDatapoints();
-		loadGroups();
-	});
-}
+// 		result.rows.forEach(configureBackend);
+// 		groups.load();
+// 	});
+// }
 
-loadBackends();
+groups.load();
 
 module.exports = {
-	backends:   backends,
-	datapoints: datapoints,
-	groups:     groups,
-	entities:   entities,
-
-	createGroup: createGroup,
-	deleteGroup: deleteGroup,
-	renameGroup: renameGroup
+	groups: groups
 };

@@ -3,12 +3,12 @@ var GroupContainer = React.createClass({
 		return {groups: [], showTempTile: false};
 	},
 
-	requestGroups: function () {
-		serverSocket.emit("ListGroups");
+	requestSubGroups: function () {
+		serverSocket.emit("ListSubGroups", this.props.group);
 	},
 
 	onSubmitAddGroup: function (name) {
-		serverSocket.emit("AddGroup", name);
+		serverSocket.emit("CreateGroup", {name: name, parent: this.props.group});
 		this.setState({showTempTile: false});
 	},
 
@@ -22,26 +22,32 @@ var GroupContainer = React.createClass({
 
 	componentDidMount: function () {
 		this.eventHandlers = {
-			listGroups: function (groups) {
+			listSubGroups: function (info) {
+				if (info.group != this.props.group)
+					return;
+
 				this.setState({
-					groups: groups.sort(function (a, b) {
+					groups: info.subGroups.sort(function (a, b) {
 						return a.name.localeCompare(b.name);
 					})
 				});
 			}.bind(this),
 
-			updateGroups: this.requestGroups
+			updateGroup: function (group) {
+				if (group == this.props.group)
+					this.requestSubGroups();
+			}.bind(this)
 		};
 
-		serverSocket.on("ListGroups",   this.eventHandlers.listGroups);
-		serverSocket.on("UpdateGroups", this.eventHandlers.updateGroups);
+		serverSocket.on("ListSubGroups", this.eventHandlers.listSubGroups);
+		serverSocket.on("UpdateGroup",   this.eventHandlers.updateGroup);
 
-		this.requestGroups();
+		this.requestSubGroups();
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("ListGroups",   this.eventHandlers.listGroups);
-		serverSocket.removeListener("UpdateGroups", this.eventHandlers.updateGroups);
+		serverSocket.removeListener("ListSubGroups", this.eventHandlers.listSubGroups);
+		serverSocket.removeListener("UpdateGroup",   this.eventHandlers.updateGroup);
 	},
 
 	render: function () {
@@ -112,9 +118,9 @@ var Notifier = React.createClass({
 window.addEventListener("load", function () {
 	ReactDOM.render(
 		<div>
-			<GroupContainer />
+			<GroupContainer group={null}/>
 			<Notifier />
 		</div>,
-		document.body
+		document.getElementById("canvas")
 	);
 });

@@ -5,47 +5,42 @@ function BrowserClient(server, client) {
 	this.server = server;
 	this.client = client;
 
-	this.client.on("AddGroup",    this.onAddGroup.bind(this));
-	this.client.on("ListGroups",  this.onListGroups.bind(this));
-	this.client.on("DeleteGroup", this.onDeleteGroup.bind(this));
-	this.client.on("RenameGroup", this.onRenameGroup.bind(this));
+	this.client.on("ListSubGroups", this.onListSubGroups.bind(this));
+	this.client.on("GetGroupInfo",  this.onGetGroupInfo.bind(this));
+	this.client.on("CreateGroup",   this.onCreateGroup.bind(this));
+	this.client.on("RenameGroup",   this.onRenameGroup.bind(this));
+	this.client.on("DeleteGroup",   this.onDeleteGroup.bind(this));
+}
+
+function flattenGroup(grp) {
+	return {id: grp.id, name: grp.name};
 }
 
 BrowserClient.prototype = {
-	onListGroups: function () {
-		var groups = [];
+	onListSubGroups: function (id) {
+		const grp = data.groups.find(id);
 
-		for (var id in data.groups) {
-			groups.push(data.groups[id].info);
-		}
-
-		this.client.emit("ListGroups", groups);
+		if (grp)
+			this.client.emit("ListSubGroups", {
+				group: id,
+				subGroups: grp.subGroups.map(g => ({id: g.id, name: g.name}))
+			});
 	},
 
-	onAddGroup: function (name) {
-		if (typeof(name) != "string" || name.length < 1)
-			return;
+	onGetGroupInfo: function (id) {
+		const grp = data.groups.find(id);
+		if (grp) this.client.emit("GetGroupInfo", {id: grp.id, name: grp.name});
+	},
 
-		data.createGroup(name, function (err) {
+	onCreateGroup: function (info) {
+		if (typeof(info) != "object" || typeof(info.name) != "string" || info.name.length < 1 || (typeof(info.parent) != "number" && info.parent != null))
+			return util.error("communication", "Invalid parameter to 'CreateGroup' directive");
+
+		data.groups.create(info.name, info.parent, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {
-				this.onListGroups();
-				this.updateGroup();
-			}
-		}.bind(this));
-	},
-
-	onDeleteGroup: function (id) {
-		if (typeof(id) != "number")
-			return;
-
-		data.deleteGroup(id, function (err) {
-			if (err) {
-				this.displayError(err);
-			} else {
-				this.onListGroups();
-				this.updateGroup();
+				this.updateGroup(info.parent);
 			}
 		}.bind(this));
 	},
@@ -54,18 +49,42 @@ BrowserClient.prototype = {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
 			return;
 
-		data.renameGroup(info.id, info.name, function (err) {
-			if (err) {
-				this.displayError(err);
-			} else {
-				this.onListGroups();
-				this.updateGroup();
-			}
-		}.bind(this));
+		const grp = data.groups.find(info.id);
+
+		if (grp)
+			grp.rename(info.name, function (err) {
+				if (err) {
+					this.displayError(err);
+				} else {
+					this.updateGroup(grp.id);
+					this.updateGroup(grp.parent);
+				}
+			}.bind(this));
+		else
+			this.displayError("Cannot find group #" + info.id);
 	},
 
-	updateGroup: function () {
-		this.server.emit("UpdateGroup");
+	onDeleteGroup: function (id) {
+		if (typeof(id) != "number")
+			return;
+
+		const grp = data.groups.find(id);
+
+		if (grp)
+			grp.delete(function (err) {
+				if (err) {
+					this.displayError(err);
+				} else {
+					this.onListSubGroups();
+					this.updateGroup(grp.parent);
+				}
+			}.bind(this));
+		else
+			this.displayError("Cannot find group #" + id);
+	},
+
+	updateGroup: function (group) {
+		this.server.emit("UpdateGroup", group);
 	},
 
 	displayError: function (err) {
