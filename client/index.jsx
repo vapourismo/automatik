@@ -13,10 +13,10 @@ var Container = React.createClass({
 });
 
 var RoomTileMode = {
-	Normal:      1,
-	ContextMenu: 2,
-	Delete:      3,
-	Rename:      4
+	Normal:  1,
+	Context: 2,
+	Delete:  3,
+	Rename:  4
 };
 
 var RoomTile = React.createClass({
@@ -28,7 +28,7 @@ var RoomTile = React.createClass({
 
 	onContextMenu: function (ev) {
 		ev.preventDefault();
-		this.setState({mode: RoomTileMode.ContextMenu});
+		this.setState({mode: RoomTileMode.Context});
 
 		var ctxEvent = new Event("OpenRoomContext");
 		ctxEvent.sender = this;
@@ -100,7 +100,7 @@ var RoomTile = React.createClass({
 
 				break;
 
-			case RoomTileMode.ContextMenu:
+			case RoomTileMode.Context:
 				content = (
 					<div className="box context">
 						<li onClick={this.onRequestDelete} className="first">Delete</li>
