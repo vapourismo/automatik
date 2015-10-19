@@ -59,7 +59,7 @@ var GroupTile = React.createClass({
 	},
 
 	onEscape: function onEscape() {
-		if (this.mode > GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
+		if (this.state.mode > GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
 	},
 
 	componentDidMount: function componentDidMount() {
