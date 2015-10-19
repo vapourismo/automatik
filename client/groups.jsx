@@ -1,8 +1,9 @@
 var GroupTileMode = {
 	Normal:  1,
-	Context: 2,
-	Delete:  3,
-	Rename:  4
+	Waiting: 2,
+	Context: 3,
+	Delete:  4,
+	Rename:  5
 };
 
 var GroupTile = React.createClass({
@@ -27,8 +28,8 @@ var GroupTile = React.createClass({
 	},
 
 	onConfirmDelete: function () {
+		this.setState({mode: GroupTileMode.Waiting});
 		serverSocket.emit("DeleteGroup", this.props.info.id);
-		this.setState({mode: GroupTileMode.Normal});
 	},
 
 	onRequestRename: function () {
@@ -40,33 +41,32 @@ var GroupTile = React.createClass({
 	},
 
 	onSubmitRename: function (ev) {
+		this.setState({mode: GroupTileMode.Waiting});
 		serverSocket.emit("RenameGroup", {
 			id: this.props.info.id,
 			name: this.refs.name.value
 		});
 
-		this.setState({mode: GroupTileMode.Normal});
 		if (ev) ev.preventDefault();
 	},
 
+	onOpenGroupContext: function (ev) {
+		if (ev.sender != this) this.setState({mode: GroupTileMode.Normal});
+	},
+
+	onEscape: function () {
+		if (this.mode > GroupTileMode.Waiting)
+			this.setState({mode: GroupTileMode.Normal});
+	},
+
 	componentDidMount: function () {
-		this.eventHandlers = {
-			openGroupContext: function (ev) {
-				if (ev.sender != this) this.setState({mode: GroupTileMode.Normal});
-			}.bind(this),
-
-			escape: function () {
-				this.setState({mode: GroupTileMode.Normal});
-			}.bind(this)
-		};
-
-		window.addEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
-		window.addEventListener("Escape",           this.eventHandlers.escape);
+		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
+		window.addEventListener("Escape",           this.onEscape);
 	},
 
 	componentWillUnmount: function () {
-		window.removeEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
-		window.removeEventListener("Escape",           this.eventHandlers.escape);
+		window.removeEventListener("OpenGroupContext", this.onOpenGroupContext);
+		window.removeEventListener("Escape",           this.onEscape);
 	},
 
 	render: function () {
@@ -106,6 +106,15 @@ var GroupTile = React.createClass({
 					<form className="box add-group" onClick={this.focusRenameInput} onSubmit={this.onSubmitRename}>
 						<input className="name" ref="name" type="text" defaultValue={this.props.info.name} onBlur={this.onSubmitRename}/>
 					</form>
+				);
+
+				break;
+
+			case GroupTileMode.Waiting:
+				content = (
+					<div className="box group">
+						<i className="fa fa-refresh rotate"></i>
+					</div>
 				);
 
 				break;

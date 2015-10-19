@@ -20,40 +20,39 @@ var GroupContainer = React.createClass({
 		this.setState({showTempTile: true});
 	},
 
+	onListSubGroups: function (info) {
+		if (info.group != this.props.group)
+			return;
+
+		this.setState({
+			groups: info.subGroups.sort(function (a, b) {
+				return a.name.localeCompare(b.name);
+			})
+		});
+	},
+
+	onUpdateGroup: function (group) {
+		if (group == this.props.group)
+			this.requestSubGroups();
+	},
+
 	componentDidMount: function () {
-		this.eventHandlers = {
-			listSubGroups: function (info) {
-				if (info.group != this.props.group)
-					return;
+		serverSocket.on("ListSubGroups", this.onListSubGroups);
+		serverSocket.on("UpdateGroup",   this.onUpdateGroup);
 
-				this.setState({
-					groups: info.subGroups.sort(function (a, b) {
-						return a.name.localeCompare(b.name);
-					})
-				});
-			}.bind(this),
-
-			updateGroup: function (group) {
-				if (group == this.props.group)
-					this.requestSubGroups();
-			}.bind(this)
-		};
-
-		serverSocket.on("ListSubGroups", this.eventHandlers.listSubGroups);
-		serverSocket.on("UpdateGroup",   this.eventHandlers.updateGroup);
-
+		this.counter = 0;
 		this.requestSubGroups();
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("ListSubGroups", this.eventHandlers.listSubGroups);
-		serverSocket.removeListener("UpdateGroup",   this.eventHandlers.updateGroup);
+		serverSocket.removeListener("ListSubGroups", this.onListSubGroups);
+		serverSocket.removeListener("UpdateGroup",   this.onUpdateGroup);
 	},
 
 	render: function () {
 		var tiles = this.state.groups.map(function (group) {
-			return <GroupTile key={group.id} info={group}/>;
-		});
+			return <GroupTile key={this.counter++} info={group}/>;
+		}.bind(this));
 
 		if (this.state.showTempTile) {
 			tiles.push(
