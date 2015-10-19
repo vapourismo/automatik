@@ -142,7 +142,8 @@ ALTER SEQUENCE entities_id_seq OWNED BY entities.id;
 
 CREATE TABLE groups (
     id integer NOT NULL,
-    name character varying(255) NOT NULL
+    name character varying(255) NOT NULL,
+    parent integer
 );
 
 
@@ -333,6 +334,14 @@ ALTER TABLE ONLY datapoints
 
 ALTER TABLE ONLY entities
     ADD CONSTRAINT entities_room_fkey FOREIGN KEY (room) REFERENCES groups(id);
+
+
+--
+-- Name: groups_parent_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
+--
+
+ALTER TABLE ONLY groups
+    ADD CONSTRAINT groups_parent_fkey FOREIGN KEY (parent) REFERENCES groups(id);
 
 
 --
