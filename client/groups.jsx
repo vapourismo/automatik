@@ -48,6 +48,7 @@ var GroupTile = React.createClass({
 		});
 
 		if (ev) ev.preventDefault();
+		return false;
 	},
 
 	onOpenGroupContext: function (ev) {
@@ -129,23 +130,60 @@ var GroupTile = React.createClass({
 	}
 });
 
-var EditableGroupTile = React.createClass({
-	onKey: function (ev) {
-		if (ev.keyCode == 27) this.props.onCancel();
-		else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
+var AddGroupTile = React.createClass({
+	getInitialState: function () {
+		return {
+			editing: false
+		};
+	},
+
+	onRequestEditing: function () {
+		this.setState({editing: true});
+	},
+
+	onSubmit: function (ev) {
+		serverSocket.emit("CreateGroup", {name: this.refs.name.value, parent: this.props.group});
+		this.setState({editing: false});
+
+		if (ev) ev.preventDefault();
+		return false;
+	},
+
+	onCancel: function () {
+		this.setState({editing: false});
 	},
 
 	componentDidMount: function () {
-		this.refs.name.focus();
+		window.addEventListener("OpenGroupContext", this.onCancel);
+		window.addEventListener("Escape",           this.onCancel);
+	},
+
+	componentWillUnmount: function () {
+		window.removeEventListener("OpenGroupContext", this.onCancel);
+		window.removeEventListener("Escape",           this.onCancel);
 	},
 
 	render: function () {
-		return (
-			<Tile>
-				<div className="box add-group">
-					<input className="name" ref="name" type="text" onKeyUp={this.onKey} onBlur={this.props.onCancel}/>
-				</div>
-			</Tile>
-		);
+		if (this.state.editing) {
+			return (
+				<Tile>
+					<form className="box add-group" onSubmit={this.onSubmit}>
+						<input className="name" ref="name" type="text" onBlur={this.onCancel}/>
+					</form>
+				</Tile>
+			);
+		} else {
+			return (
+				<Tile>
+					<a className="add-tile" onClick={this.onRequestEditing}>
+						<i className="fa fa-plus"></i>
+					</a>
+				</Tile>
+			);
+		}
+	},
+
+	componentDidUpdate: function () {
+		if (this.state.editing) this.refs.name.focus();
 	}
 });

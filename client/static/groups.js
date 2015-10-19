@@ -52,6 +52,7 @@ var GroupTile = React.createClass({
 		});
 
 		if (ev) ev.preventDefault();
+		return false;
 	},
 
 	onOpenGroupContext: function onOpenGroupContext(ev) {
@@ -147,26 +148,66 @@ var GroupTile = React.createClass({
 	}
 });
 
-var EditableGroupTile = React.createClass({
-	displayName: "EditableGroupTile",
+var AddGroupTile = React.createClass({
+	displayName: "AddGroupTile",
 
-	onKey: function onKey(ev) {
-		if (ev.keyCode == 27) this.props.onCancel();else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
+	getInitialState: function getInitialState() {
+		return {
+			editing: false
+		};
+	},
+
+	onRequestEditing: function onRequestEditing() {
+		this.setState({ editing: true });
+	},
+
+	onSubmit: function onSubmit(ev) {
+		serverSocket.emit("CreateGroup", { name: this.refs.name.value, parent: this.props.group });
+		this.setState({ editing: false });
+
+		if (ev) ev.preventDefault();
+		return false;
+	},
+
+	onCancel: function onCancel() {
+		this.setState({ editing: false });
 	},
 
 	componentDidMount: function componentDidMount() {
-		this.refs.name.focus();
+		window.addEventListener("OpenGroupContext", this.onCancel);
+		window.addEventListener("Escape", this.onCancel);
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		window.removeEventListener("OpenGroupContext", this.onCancel);
+		window.removeEventListener("Escape", this.onCancel);
 	},
 
 	render: function render() {
-		return React.createElement(
-			Tile,
-			null,
-			React.createElement(
-				"div",
-				{ className: "box add-group" },
-				React.createElement("input", { className: "name", ref: "name", type: "text", onKeyUp: this.onKey, onBlur: this.props.onCancel })
-			)
-		);
+		if (this.state.editing) {
+			return React.createElement(
+				Tile,
+				null,
+				React.createElement(
+					"form",
+					{ className: "box add-group", onSubmit: this.onSubmit },
+					React.createElement("input", { className: "name", ref: "name", type: "text", onBlur: this.onCancel })
+				)
+			);
+		} else {
+			return React.createElement(
+				Tile,
+				null,
+				React.createElement(
+					"a",
+					{ className: "add-tile", onClick: this.onRequestEditing },
+					React.createElement("i", { className: "fa fa-plus" })
+				)
+			);
+		}
+	},
+
+	componentDidUpdate: function componentDidUpdate() {
+		if (this.state.editing) this.refs.name.focus();
 	}
 });

@@ -1,5 +1,6 @@
 const SocketIO = require("socket.io");
 const data     = require("./data");
+const util     = require("./utilities");
 
 function BrowserClient(server, client) {
 	this.server = server;
@@ -34,7 +35,7 @@ BrowserClient.prototype = {
 
 	onCreateGroup: function (info) {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || info.name.length < 1 || (typeof(info.parent) != "number" && info.parent != null))
-			return util.error("communication", "Invalid parameter to 'CreateGroup' directive");
+			return util.error("communication", "Invalid parameter to 'CreateGroup' directive", info);
 
 		data.groups.create(info.name, info.parent, function (err) {
 			if (err) {
@@ -47,7 +48,7 @@ BrowserClient.prototype = {
 
 	onRenameGroup: function (info) {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
-			return;
+			return util.error("communication", "Invalid parameter to 'RenameGroup' directive");
 
 		const grp = data.groups.find(info.id);
 
@@ -66,7 +67,7 @@ BrowserClient.prototype = {
 
 	onDeleteGroup: function (id) {
 		if (typeof(id) != "number")
-			return;
+			return util.error("communication", "Invalid parameter to 'DeleteGroup' directive");
 
 		const grp = data.groups.find(id);
 

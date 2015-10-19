@@ -7,19 +7,6 @@ var GroupContainer = React.createClass({
 		serverSocket.emit("ListSubGroups", this.props.group);
 	},
 
-	onSubmitAddGroup: function (name) {
-		serverSocket.emit("CreateGroup", {name: name, parent: this.props.group});
-		this.setState({showTempTile: false});
-	},
-
-	onCancelAddGroup: function (name) {
-		this.setState({showTempTile: false});
-	},
-
-	onClickAddGroup: function () {
-		this.setState({showTempTile: true});
-	},
-
 	onListSubGroups: function (info) {
 		if (info.group != this.props.group)
 			return;
@@ -54,19 +41,7 @@ var GroupContainer = React.createClass({
 			return <GroupTile key={this.counter++} info={group}/>;
 		}.bind(this));
 
-		if (this.state.showTempTile) {
-			tiles.push(
-				<EditableGroupTile key="edit-group" onSubmit={this.onSubmitAddGroup} onCancel={this.onCancelAddGroup}/>
-			);
-		} else {
-			tiles.push(
-				<Tile key="add-group">
-					<a className="add-tile" onClick={this.onClickAddGroup}>
-						<i className="fa fa-plus"></i>
-					</a>
-				</Tile>
-			);
-		}
+		tiles.push(<AddGroupTile key="add-group" group={this.props.group}/>);
 
 		return <Container>{tiles}</Container>;
 	}
