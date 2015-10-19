@@ -83,9 +83,9 @@ var AddGroupTile = React.createClass({
 		} else {
 			return (
 				<Tile>
-					<a className="box add-group" onClick={this.onRequestEditing}>
+					<div className="box add-group" onClick={this.onRequestEditing}>
 						<i className="fa fa-plus"></i>
-					</a>
+					</div>
 				</Tile>
 			);
 		}
@@ -164,9 +164,9 @@ var GroupTile = React.createClass({
 		switch (this.state.mode) {
 			case GroupTileMode.Normal:
 				content = (
-					<a className="box group" onContextMenu={this.onContextMenu}>
+					<div className="box group" onContextMenu={this.onContextMenu}>
 						{this.props.info.name}
-					</a>
+					</div>
 				);
 
 				break;
@@ -174,7 +174,7 @@ var GroupTile = React.createClass({
 			case GroupTileMode.Context:
 				content = (
 					<div className="box context">
-						<li onClick={this.onRequestDelete} className="first">Delete</li>
+						<li onClick={this.onRequestDelete}>Delete</li>
 						<li onClick={this.onRequestRename}>Rename</li>
 					</div>
 				);
@@ -183,9 +183,9 @@ var GroupTile = React.createClass({
 
 			case GroupTileMode.Delete:
 				content = (
-					<a className="box delete-group" onClick={this.onConfirmDelete}>
+					<div className="box delete-group" onClick={this.onConfirmDelete}>
 						<span>Are you sure?</span>
-					</a>
+					</div>
 				);
 
 				break;

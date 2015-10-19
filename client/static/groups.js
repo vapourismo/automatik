@@ -90,7 +90,7 @@ var AddGroupTile = React.createClass({
 				Tile,
 				null,
 				React.createElement(
-					"a",
+					"div",
 					{ className: "box add-group", onClick: this.onRequestEditing },
 					React.createElement("i", { className: "fa fa-plus" })
 				)
@@ -172,7 +172,7 @@ var GroupTile = React.createClass({
 		switch (this.state.mode) {
 			case GroupTileMode.Normal:
 				content = React.createElement(
-					"a",
+					"div",
 					{ className: "box group", onContextMenu: this.onContextMenu },
 					this.props.info.name
 				);
@@ -185,7 +185,7 @@ var GroupTile = React.createClass({
 					{ className: "box context" },
 					React.createElement(
 						"li",
-						{ onClick: this.onRequestDelete, className: "first" },
+						{ onClick: this.onRequestDelete },
 						"Delete"
 					),
 					React.createElement(
@@ -199,7 +199,7 @@ var GroupTile = React.createClass({
 
 			case GroupTileMode.Delete:
 				content = React.createElement(
-					"a",
+					"div",
 					{ className: "box delete-group", onClick: this.onConfirmDelete },
 					React.createElement(
 						"span",
