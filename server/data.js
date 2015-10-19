@@ -1,45 +1,10 @@
-const path   = require("path");
-
-const db     = require("./database");
-const util   = require("./utilities");
-const groups = require("./data/groups");
-
-// // Load plugins
-// const drivers = {};
-// const types   = {};
-
-// const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
-
-// util.iterateFiles(pluginDirectory, function (file) {
-// 	if (path.extname(file) != ".js")
-// 		return;
-
-// 	const fileIdentifier = path.relative(pluginDirectory, file);
-// 	const mod = require(file);
-
-// 	// Has backend drivers
-// 	if (mod.drivers) {
-// 		for (var id in mod.drivers) {
-// 			const driver = mod.drivers[id];
-
-// 			util.inform("plugin: " + fileIdentifier, "Loaded driver '" + driver.meta.name + "'");
-// 			drivers[id] = driver;
-// 		}
-// 	}
-
-// 	// Has component types
-// 	if (mod.types) {
-// 		for (var id in mod.types) {
-// 			const type = mod.types[id];
-
-// 			util.inform("plugin: " + fileIdentifier, "Loaded type '" + type.meta.name + "'");
-// 			types[id] = type;
-// 		}
-// 	}
-// });
+const path     = require("path");
+const db       = require("./database");
+const util     = require("./utilities");
+const groups   = require("./data/groups");
+const backends = require("./data/backends");
 
 // // Setup environment
-// const backends   = {};
 // const datapoints = {};
 // const entities   = {};
 
@@ -129,26 +94,9 @@ const groups = require("./data/groups");
 // 	});
 // }
 
-// function configureBackend(row) {
-// 	if (row.driver in drivers) {
-// 		backends[row.id] = new drivers[row.driver](row.config);
-// 		util.inform("backend: " + row.id, "Instantiated '" + row.name + "'");
-// 	} else {
-// 		util.abort("backend: " + row.id, "Driver '" + row.driver + "' does not exist");
-// 	}
-// }
-
-// function loadBackends() {
-// 	db.query("SELECT * FROM backends", function (err, result) {
-// 		if (err) return util.abort("backends", "Failed to fetch instances:", err);
-
-// 		result.rows.forEach(configureBackend);
-// 		groups.load();
-// 	});
-// }
-
-groups.load();
+backends.load(groups.load);
 
 module.exports = {
-	groups: groups
+	backends: backends,
+	groups:   groups
 };
