@@ -105,7 +105,7 @@ body {
 	background-color: #339966;
 }
 
-.box.add-room {
+.box.add-group {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -114,7 +114,7 @@ body {
 	background-color: #996633;
 }
 
-.box.delete-room {
+.box.delete-group {
 	text-decoration: none;
 	background-color: #993333;
 	flex-direction: column;
@@ -123,7 +123,7 @@ body {
 	text-align: center;
 }
 
-.box.delete-room:hover {
+.box.delete-group:hover {
 	background-color: #aa4444;
 }
 
@@ -153,7 +153,7 @@ body {
 	background-color: #aa4444;
 }
 
-.box.room {
+.box.group {
 	align-items: center;
 	align-content: center;
 	justify-content: center;

@@ -5,67 +5,67 @@ function BrowserClient(server, client) {
 	this.server = server;
 	this.client = client;
 
-	this.client.on("ListRooms",  this.onListRooms.bind(this));
-	this.client.on("AddRoom",    this.onAddRoom.bind(this));
-	this.client.on("DeleteRoom", this.onDeleteRoom.bind(this));
-	this.client.on("RenameRoom", this.onRenameRoom.bind(this));
+	this.client.on("AddGroup",    this.onAddGroup.bind(this));
+	this.client.on("ListGroups",  this.onListGroups.bind(this));
+	this.client.on("DeleteGroup", this.onDeleteGroup.bind(this));
+	this.client.on("RenameGroup", this.onRenameGroup.bind(this));
 }
 
 BrowserClient.prototype = {
-	onListRooms: function () {
-		var rooms = [];
+	onListGroups: function () {
+		var groups = [];
 
-		for (var id in data.rooms) {
-			rooms.push(data.rooms[id].info);
+		for (var id in data.groups) {
+			groups.push(data.groups[id].info);
 		}
 
-		this.client.emit("ListRooms", rooms);
+		this.client.emit("ListGroups", groups);
 	},
 
-	onAddRoom: function (name) {
+	onAddGroup: function (name) {
 		if (typeof(name) != "string" || name.length < 1)
 			return;
 
-		data.createRoom(name, function (err) {
+		data.createGroup(name, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {
-				this.onListRooms();
-				this.updateRooms();
+				this.onListGroups();
+				this.updateGroup();
 			}
 		}.bind(this));
 	},
 
-	onDeleteRoom: function (id) {
+	onDeleteGroup: function (id) {
 		if (typeof(id) != "number")
 			return;
 
-		data.deleteRoom(id, function (err) {
+		data.deleteGroup(id, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {
-				this.onListRooms();
-				this.updateRooms();
+				this.onListGroups();
+				this.updateGroup();
 			}
 		}.bind(this));
 	},
 
-	onRenameRoom: function (info) {
+	onRenameGroup: function (info) {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
 			return;
 
-		data.renameRoom(info.id, info.name, function (err) {
+		data.renameGroup(info.id, info.name, function (err) {
 			if (err) {
 				this.displayError(err);
 			} else {
-				this.onListRooms();
-				this.updateRooms();
+				this.onListGroups();
+				this.updateGroup();
 			}
 		}.bind(this));
 	},
 
-	updateRooms: function () {
-		this.server.emit("UpdateRooms");
+	updateGroup: function () {
+		this.server.emit("UpdateGroup");
 	},
 
 	displayError: function (err) {

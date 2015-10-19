@@ -26,43 +26,43 @@ var Container = React.createClass({
 	}
 });
 
-var RoomTileMode = {
+var GroupTileMode = {
 	Normal: 1,
-	ContextMenu: 2,
+	Context: 2,
 	Delete: 3,
 	Rename: 4
 };
 
-var RoomTile = React.createClass({
-	displayName: "RoomTile",
+var GroupTile = React.createClass({
+	displayName: "GroupTile",
 
 	getInitialState: function getInitialState() {
 		return {
-			mode: RoomTileMode.Normal
+			mode: GroupTileMode.Normal
 		};
 	},
 
 	onContextMenu: function onContextMenu(ev) {
 		ev.preventDefault();
-		this.setState({ mode: RoomTileMode.ContextMenu });
+		this.setState({ mode: GroupTileMode.Context });
 
-		var ctxEvent = new Event("OpenRoomContext");
+		var ctxEvent = new Event("OpenGroupContext");
 		ctxEvent.sender = this;
 
 		window.dispatchEvent(ctxEvent);
 	},
 
 	onRequestDelete: function onRequestDelete() {
-		this.setState({ mode: RoomTileMode.Delete });
+		this.setState({ mode: GroupTileMode.Delete });
 	},
 
 	onConfirmDelete: function onConfirmDelete() {
-		serverSocket.emit("DeleteRoom", this.props.info.id);
-		this.setState({ mode: RoomTileMode.Normal });
+		serverSocket.emit("DeleteGroup", this.props.info.id);
+		this.setState({ mode: GroupTileMode.Normal });
 	},
 
 	onRequestRename: function onRequestRename() {
-		this.setState({ mode: RoomTileMode.Rename });
+		this.setState({ mode: GroupTileMode.Rename });
 	},
 
 	focusRenameInput: function focusRenameInput() {
@@ -70,36 +70,32 @@ var RoomTile = React.createClass({
 	},
 
 	onSubmitRename: function onSubmitRename(ev) {
-		serverSocket.emit("RenameRoom", {
+		serverSocket.emit("RenameGroup", {
 			id: this.props.info.id,
 			name: this.refs.name.value
 		});
 
-		this.setState({ mode: RoomTileMode.Normal });
+		this.setState({ mode: GroupTileMode.Normal });
 		if (ev) ev.preventDefault();
 	},
 
-	// onCancelRename: function () {
-	// 	this.setState({mode: RoomTileMode.Normal});
-	// },
-
 	componentDidMount: function componentDidMount() {
 		this.eventHandlers = {
-			openRoomContext: (function (ev) {
-				if (ev.sender != this) this.setState({ mode: RoomTileMode.Normal });
+			openGroupContext: (function (ev) {
+				if (ev.sender != this) this.setState({ mode: GroupTileMode.Normal });
 			}).bind(this),
 
 			escape: (function () {
-				this.setState({ mode: RoomTileMode.Normal });
+				this.setState({ mode: GroupTileMode.Normal });
 			}).bind(this)
 		};
 
-		window.addEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
+		window.addEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
 		window.addEventListener("Escape", this.eventHandlers.escape);
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
-		window.removeEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
+		window.removeEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
 		window.removeEventListener("Escape", this.eventHandlers.escape);
 	},
 
@@ -107,16 +103,16 @@ var RoomTile = React.createClass({
 		var content;
 
 		switch (this.state.mode) {
-			case RoomTileMode.Normal:
+			case GroupTileMode.Normal:
 				content = React.createElement(
 					"a",
-					{ className: "box room", onContextMenu: this.onContextMenu },
+					{ className: "box group", onContextMenu: this.onContextMenu },
 					this.props.info.name
 				);
 
 				break;
 
-			case RoomTileMode.ContextMenu:
+			case GroupTileMode.Context:
 				content = React.createElement(
 					"div",
 					{ className: "box context" },
@@ -134,10 +130,10 @@ var RoomTile = React.createClass({
 
 				break;
 
-			case RoomTileMode.Delete:
+			case GroupTileMode.Delete:
 				content = React.createElement(
 					"a",
-					{ className: "box delete-room", onClick: this.onConfirmDelete },
+					{ className: "box delete-group", onClick: this.onConfirmDelete },
 					React.createElement(
 						"span",
 						null,
@@ -147,10 +143,10 @@ var RoomTile = React.createClass({
 
 				break;
 
-			case RoomTileMode.Rename:
+			case GroupTileMode.Rename:
 				content = React.createElement(
 					"form",
-					{ className: "box add-room", onClick: this.focusRenameInput, onSubmit: this.onSubmitRename },
+					{ className: "box add-group", onClick: this.focusRenameInput, onSubmit: this.onSubmitRename },
 					React.createElement("input", { className: "name", ref: "name", type: "text", defaultValue: this.props.info.name, onBlur: this.onSubmitRename })
 				);
 
@@ -165,12 +161,12 @@ var RoomTile = React.createClass({
 	},
 
 	componentDidUpdate: function componentDidUpdate() {
-		if (this.state.mode == RoomTileMode.Rename) this.focusRenameInput();
+		if (this.state.mode == GroupTileMode.Rename) this.focusRenameInput();
 	}
 });
 
-var EditableRoomTile = React.createClass({
-	displayName: "EditableRoomTile",
+var EditableGroupTile = React.createClass({
+	displayName: "EditableGroupTile",
 
 	onKey: function onKey(ev) {
 		if (ev.keyCode == 27) this.props.onCancel();else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
@@ -186,75 +182,75 @@ var EditableRoomTile = React.createClass({
 			null,
 			React.createElement(
 				"div",
-				{ className: "box add-room" },
+				{ className: "box add-group" },
 				React.createElement("input", { className: "name", ref: "name", type: "text", onKeyUp: this.onKey, onBlur: this.props.onCancel })
 			)
 		);
 	}
 });
 
-var RoomContainer = React.createClass({
-	displayName: "RoomContainer",
+var GroupContainer = React.createClass({
+	displayName: "GroupContainer",
 
 	getInitialState: function getInitialState() {
-		return { rooms: [], showTempTile: false };
+		return { groups: [], showTempTile: false };
 	},
 
-	requestRooms: function requestRooms() {
-		serverSocket.emit("ListRooms");
+	requestGroups: function requestGroups() {
+		serverSocket.emit("ListGroups");
 	},
 
-	onSubmitAddRoom: function onSubmitAddRoom(name) {
-		serverSocket.emit("AddRoom", name);
+	onSubmitAddGroup: function onSubmitAddGroup(name) {
+		serverSocket.emit("AddGroup", name);
 		this.setState({ showTempTile: false });
 	},
 
-	onCancelAddRoom: function onCancelAddRoom(name) {
+	onCancelAddGroup: function onCancelAddGroup(name) {
 		this.setState({ showTempTile: false });
 	},
 
-	onClickAddRoom: function onClickAddRoom() {
+	onClickAddGroup: function onClickAddGroup() {
 		this.setState({ showTempTile: true });
 	},
 
 	componentDidMount: function componentDidMount() {
 		this.eventHandlers = {
-			listRooms: (function (rooms) {
+			listGroups: (function (groups) {
 				this.setState({
-					rooms: rooms.sort(function (a, b) {
+					groups: groups.sort(function (a, b) {
 						return a.name.localeCompare(b.name);
 					})
 				});
 			}).bind(this),
 
-			updateRooms: this.requestRooms
+			updateGroups: this.requestGroups
 		};
 
-		serverSocket.on("ListRooms", this.eventHandlers.listRooms);
-		serverSocket.on("UpdateRooms", this.eventHandlers.updateRooms);
+		serverSocket.on("ListGroups", this.eventHandlers.listGroups);
+		serverSocket.on("UpdateGroups", this.eventHandlers.updateGroups);
 
-		this.requestRooms();
+		this.requestGroups();
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
-		serverSocket.removeListener("ListRooms", this.eventHandlers.listRooms);
-		serverSocket.removeListener("UpdateRooms", this.eventHandlers.updateRooms);
+		serverSocket.removeListener("ListGroups", this.eventHandlers.listGroups);
+		serverSocket.removeListener("UpdateGroups", this.eventHandlers.updateGroups);
 	},
 
 	render: function render() {
-		var tiles = this.state.rooms.map(function (room) {
-			return React.createElement(RoomTile, { key: room.id, info: room });
+		var tiles = this.state.groups.map(function (group) {
+			return React.createElement(GroupTile, { key: group.id, info: group });
 		});
 
 		if (this.state.showTempTile) {
-			tiles.push(React.createElement(EditableRoomTile, { key: "edit-room", onSubmit: this.onSubmitAddRoom, onCancel: this.onCancelAddRoom }));
+			tiles.push(React.createElement(EditableGroupTile, { key: "edit-group", onSubmit: this.onSubmitAddGroup, onCancel: this.onCancelAddGroup }));
 		} else {
 			tiles.push(React.createElement(
 				Tile,
-				{ key: "add-room" },
+				{ key: "add-group" },
 				React.createElement(
 					"a",
-					{ className: "add-tile", onClick: this.onClickAddRoom },
+					{ className: "add-tile", onClick: this.onClickAddGroup },
 					React.createElement("i", { className: "fa fa-plus" })
 				)
 			));
@@ -321,7 +317,7 @@ var Notifier = React.createClass({
 });
 
 window.addEventListener("load", function () {
-	ReactDOM.render(React.createElement(RoomContainer, null), document.getElementById("canvas"));
+	ReactDOM.render(React.createElement(GroupContainer, null), document.getElementById("canvas"));
 	ReactDOM.render(React.createElement(Notifier, null), document.getElementById("notifications"));
 });
 

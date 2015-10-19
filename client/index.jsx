@@ -12,41 +12,41 @@ var Container = React.createClass({
 	}
 });
 
-var RoomTileMode = {
+var GroupTileMode = {
 	Normal:  1,
 	Context: 2,
 	Delete:  3,
 	Rename:  4
 };
 
-var RoomTile = React.createClass({
+var GroupTile = React.createClass({
 	getInitialState: function () {
 		return {
-			mode: RoomTileMode.Normal
+			mode: GroupTileMode.Normal
 		};
 	},
 
 	onContextMenu: function (ev) {
 		ev.preventDefault();
-		this.setState({mode: RoomTileMode.Context});
+		this.setState({mode: GroupTileMode.Context});
 
-		var ctxEvent = new Event("OpenRoomContext");
+		var ctxEvent = new Event("OpenGroupContext");
 		ctxEvent.sender = this;
 
 		window.dispatchEvent(ctxEvent);
 	},
 
 	onRequestDelete: function () {
-		this.setState({mode: RoomTileMode.Delete});
+		this.setState({mode: GroupTileMode.Delete});
 	},
 
 	onConfirmDelete: function () {
-		serverSocket.emit("DeleteRoom", this.props.info.id);
-		this.setState({mode: RoomTileMode.Normal});
+		serverSocket.emit("DeleteGroup", this.props.info.id);
+		this.setState({mode: GroupTileMode.Normal});
 	},
 
 	onRequestRename: function () {
-		this.setState({mode: RoomTileMode.Rename});
+		this.setState({mode: GroupTileMode.Rename});
 	},
 
 	focusRenameInput: function () {
@@ -54,53 +54,49 @@ var RoomTile = React.createClass({
 	},
 
 	onSubmitRename: function (ev) {
-		serverSocket.emit("RenameRoom", {
+		serverSocket.emit("RenameGroup", {
 			id: this.props.info.id,
 			name: this.refs.name.value
 		});
 
-		this.setState({mode: RoomTileMode.Normal});
+		this.setState({mode: GroupTileMode.Normal});
 		if (ev) ev.preventDefault();
 	},
 
-	// onCancelRename: function () {
-	// 	this.setState({mode: RoomTileMode.Normal});
-	// },
-
 	componentDidMount: function () {
 		this.eventHandlers = {
-			openRoomContext: function (ev) {
-				if (ev.sender != this) this.setState({mode: RoomTileMode.Normal});
+			openGroupContext: function (ev) {
+				if (ev.sender != this) this.setState({mode: GroupTileMode.Normal});
 			}.bind(this),
 
 			escape: function () {
-				this.setState({mode: RoomTileMode.Normal});
+				this.setState({mode: GroupTileMode.Normal});
 			}.bind(this)
 		};
 
-		window.addEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
-		window.addEventListener("Escape",          this.eventHandlers.escape);
+		window.addEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
+		window.addEventListener("Escape",           this.eventHandlers.escape);
 	},
 
 	componentWillUnmount: function () {
-		window.removeEventListener("OpenRoomContext", this.eventHandlers.openRoomContext);
-		window.removeEventListener("Escape",          this.eventHandlers.escape);
+		window.removeEventListener("OpenGroupContext", this.eventHandlers.openGroupContext);
+		window.removeEventListener("Escape",           this.eventHandlers.escape);
 	},
 
 	render: function () {
 		var content;
 
 		switch (this.state.mode) {
-			case RoomTileMode.Normal:
+			case GroupTileMode.Normal:
 				content = (
-					<a className="box room" onContextMenu={this.onContextMenu}>
+					<a className="box group" onContextMenu={this.onContextMenu}>
 						{this.props.info.name}
 					</a>
 				);
 
 				break;
 
-			case RoomTileMode.Context:
+			case GroupTileMode.Context:
 				content = (
 					<div className="box context">
 						<li onClick={this.onRequestDelete} className="first">Delete</li>
@@ -110,18 +106,18 @@ var RoomTile = React.createClass({
 
 				break;
 
-			case RoomTileMode.Delete:
+			case GroupTileMode.Delete:
 				content = (
-					<a className="box delete-room" onClick={this.onConfirmDelete}>
+					<a className="box delete-group" onClick={this.onConfirmDelete}>
 						<span>Are you sure?</span>
 					</a>
 				);
 
 				break;
 
-			case RoomTileMode.Rename:
+			case GroupTileMode.Rename:
 				content = (
-					<form className="box add-room" onClick={this.focusRenameInput} onSubmit={this.onSubmitRename}>
+					<form className="box add-group" onClick={this.focusRenameInput} onSubmit={this.onSubmitRename}>
 						<input className="name" ref="name" type="text" defaultValue={this.props.info.name} onBlur={this.onSubmitRename}/>
 					</form>
 				);
@@ -133,12 +129,12 @@ var RoomTile = React.createClass({
 	},
 
 	componentDidUpdate: function () {
-		if (this.state.mode == RoomTileMode.Rename)
+		if (this.state.mode == GroupTileMode.Rename)
 			this.focusRenameInput();
 	}
 });
 
-var EditableRoomTile = React.createClass({
+var EditableGroupTile = React.createClass({
 	onKey: function (ev) {
 		if (ev.keyCode == 27) this.props.onCancel();
 		else if (ev.keyCode == 13) this.props.onSubmit(this.refs.name.value);
@@ -151,7 +147,7 @@ var EditableRoomTile = React.createClass({
 	render: function () {
 		return (
 			<Tile>
-				<div className="box add-room">
+				<div className="box add-group">
 					<input className="name" ref="name" type="text" onKeyUp={this.onKey} onBlur={this.props.onCancel}/>
 				</div>
 			</Tile>
@@ -159,65 +155,65 @@ var EditableRoomTile = React.createClass({
 	}
 });
 
-var RoomContainer = React.createClass({
+var GroupContainer = React.createClass({
 	getInitialState: function () {
-		return {rooms: [], showTempTile: false};
+		return {groups: [], showTempTile: false};
 	},
 
-	requestRooms: function () {
-		serverSocket.emit("ListRooms");
+	requestGroups: function () {
+		serverSocket.emit("ListGroups");
 	},
 
-	onSubmitAddRoom: function (name) {
-		serverSocket.emit("AddRoom", name);
+	onSubmitAddGroup: function (name) {
+		serverSocket.emit("AddGroup", name);
 		this.setState({showTempTile: false});
 	},
 
-	onCancelAddRoom: function (name) {
+	onCancelAddGroup: function (name) {
 		this.setState({showTempTile: false});
 	},
 
-	onClickAddRoom: function () {
+	onClickAddGroup: function () {
 		this.setState({showTempTile: true});
 	},
 
 	componentDidMount: function () {
 		this.eventHandlers = {
-			listRooms: function (rooms) {
+			listGroups: function (groups) {
 				this.setState({
-					rooms: rooms.sort(function (a, b) {
+					groups: groups.sort(function (a, b) {
 						return a.name.localeCompare(b.name);
 					})
 				});
 			}.bind(this),
 
-			updateRooms: this.requestRooms
+			updateGroups: this.requestGroups
 		};
 
-		serverSocket.on("ListRooms",   this.eventHandlers.listRooms);
-		serverSocket.on("UpdateRooms", this.eventHandlers.updateRooms);
+		serverSocket.on("ListGroups",   this.eventHandlers.listGroups);
+		serverSocket.on("UpdateGroups", this.eventHandlers.updateGroups);
 
-		this.requestRooms();
+		this.requestGroups();
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("ListRooms",   this.eventHandlers.listRooms);
-		serverSocket.removeListener("UpdateRooms", this.eventHandlers.updateRooms);
+		serverSocket.removeListener("ListGroups",   this.eventHandlers.listGroups);
+		serverSocket.removeListener("UpdateGroups", this.eventHandlers.updateGroups);
 	},
 
 	render: function () {
-		var tiles = this.state.rooms.map(function (room) {
-			return <RoomTile key={room.id} info={room}/>;
+		var tiles = this.state.groups.map(function (group) {
+			return <GroupTile key={group.id} info={group}/>;
 		});
 
 		if (this.state.showTempTile) {
 			tiles.push(
-				<EditableRoomTile key="edit-room" onSubmit={this.onSubmitAddRoom} onCancel={this.onCancelAddRoom}/>
+				<EditableGroupTile key="edit-group" onSubmit={this.onSubmitAddGroup} onCancel={this.onCancelAddGroup}/>
 			);
 		} else {
 			tiles.push(
-				<Tile key="add-room">
-					<a className="add-tile" onClick={this.onClickAddRoom}>
+				<Tile key="add-group">
+					<a className="add-tile" onClick={this.onClickAddGroup}>
 						<i className="fa fa-plus"></i>
 					</a>
 				</Tile>
@@ -271,7 +267,7 @@ var Notifier = React.createClass({
 });
 
 window.addEventListener("load", function () {
-	ReactDOM.render(<RoomContainer />, document.getElementById("canvas"));
+	ReactDOM.render(<GroupContainer />, document.getElementById("canvas"));
 	ReactDOM.render(<Notifier />, document.getElementById("notifications"));
 });
 

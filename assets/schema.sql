@@ -137,16 +137,16 @@ ALTER SEQUENCE entities_id_seq OWNED BY entities.id;
 
 
 --
--- Name: rooms; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
-CREATE TABLE rooms (
+CREATE TABLE groups (
     id integer NOT NULL,
     name character varying(255) NOT NULL
 );
 
 
-ALTER TABLE rooms OWNER TO automatik;
+ALTER TABLE groups OWNER TO automatik;
 
 --
 -- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
@@ -166,7 +166,7 @@ ALTER TABLE rooms_id_seq OWNER TO automatik;
 -- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
 --
 
-ALTER SEQUENCE rooms_id_seq OWNED BY rooms.id;
+ALTER SEQUENCE rooms_id_seq OWNED BY groups.id;
 
 
 --
@@ -229,7 +229,7 @@ ALTER TABLE ONLY entities ALTER COLUMN id SET DEFAULT nextval('entities_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
 --
 
-ALTER TABLE ONLY rooms ALTER COLUMN id SET DEFAULT nextval('rooms_id_seq'::regclass);
+ALTER TABLE ONLY groups ALTER COLUMN id SET DEFAULT nextval('rooms_id_seq'::regclass);
 
 
 --
@@ -291,7 +291,7 @@ ALTER TABLE ONLY entities
 -- Name: rooms_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
-ALTER TABLE ONLY rooms
+ALTER TABLE ONLY groups
     ADD CONSTRAINT rooms_name_key UNIQUE (name);
 
 
@@ -299,7 +299,7 @@ ALTER TABLE ONLY rooms
 -- Name: rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
-ALTER TABLE ONLY rooms
+ALTER TABLE ONLY groups
     ADD CONSTRAINT rooms_pkey PRIMARY KEY (id);
 
 
@@ -332,7 +332,7 @@ ALTER TABLE ONLY datapoints
 --
 
 ALTER TABLE ONLY entities
-    ADD CONSTRAINT entities_room_fkey FOREIGN KEY (room) REFERENCES rooms(id);
+    ADD CONSTRAINT entities_room_fkey FOREIGN KEY (room) REFERENCES groups(id);
 
 
 --

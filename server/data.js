@@ -3,7 +3,7 @@ const pg     = require("pg");
 
 const config = require("./config");
 const util   = require("./utilities");
-const Room   = require("./data/room");
+const Group  = require("./data/group");
 // const Entity = require("./data/entity");
 
 // Connect database
@@ -47,7 +47,7 @@ util.iterateFiles(pluginDirectory, function (file) {
 // Setup environment
 const backends   = {};
 const datapoints = {};
-const rooms      = {};
+const groups      = {};
 const entities   = {};
 
 // function configureEntity(row) {
@@ -85,8 +85,8 @@ const entities   = {};
 // 				const entity = new type(row, slots);
 // 				entities[row.id] = entity;
 
-// 				if (row.room in rooms)
-// 					rooms[row.room].entities.push(entity);
+// 				if (row.group in groups)
+// 					groups[row.group].entities.push(entity);
 
 // 				util.inform(tag, "Created '" + row.name + "'");
 // 			}
@@ -104,38 +104,38 @@ const entities   = {};
 // 	});
 // }
 
-function configureRoom(row) {
-	var room = rooms[row.id] = new Room(row);
-	util.inform("room: " + row.id, "Created '" + row.name + "'");
-	return room;
+function configureGroup(row) {
+	var group = groups[row.id] = new Group(row);
+	util.inform("group: " + row.id, "Created '" + row.name + "'");
+	return group;
 }
 
-function createRoom(name, callback) {
-	db.query("INSERT INTO rooms (name) VALUES ($1) RETURNING *", [name], function (err, result) {
+function createGroup(name, callback) {
+	db.query("INSERT INTO groups (name) VALUES ($1) RETURNING *", [name], function (err, result) {
 		if (err) {
-			if (err.code == 23505)      callback("A room with that name already exists", null);
-			else if (err.code == 22001) callback("Room name is too long", null);
+			if (err.code == 23505)      callback("A group with that name already exists", null);
+			else if (err.code == 22001) callback("Group name is too long", null);
 			else                        callback("Unknown error, check logs", null);
 
-			return util.error("rooms", "Failed to create room", err);
+			return util.error("groups", "Failed to create group", err);
 		}
 
-		callback(null, result.rows.map(configureRoom));
+		callback(null, result.rows.map(configureGroup));
 	});
 }
 
-function deleteRoom(id, callback) {
-	const tag = "room: " + id;
+function deleteGroup(id, callback) {
+	const tag = "group: " + id;
 
-	db.query("DELETE FROM rooms WHERE id = $1 RETURNING *", [id], function (err, result) {
+	db.query("DELETE FROM groups WHERE id = $1 RETURNING *", [id], function (err, result) {
 		if (err) {
 			callback("Unknown error, check logs", null);
-			return util.error(tag, "Failed to delete room", err);
+			return util.error(tag, "Failed to delete group", err);
 		}
 
 		callback(null, result.rows.map(function (row) {
-			if (row.id in rooms) {
-				delete rooms[row.id];
+			if (row.id in groups) {
+				delete groups[row.id];
 				util.inform(tag, "Deleted '" + row.name + "'");
 			}
 
@@ -144,39 +144,37 @@ function deleteRoom(id, callback) {
 	});
 }
 
-function renameRoom(id, name, callback) {
-	const tag = "room: " + id;
+function renameGroup(id, name, callback) {
+	const tag = "group: " + id;
 
-	db.query("UPDATE rooms SET name = $1 WHERE id = $2 RETURNING *", [name, id], function (err, result) {
+	db.query("UPDATE groups SET name = $1 WHERE id = $2 RETURNING *", [name, id], function (err, result) {
 		if (err) {
-			if (err.code == 23505) callback("A room with that name already exists", null);
+			if (err.code == 23505) callback("A group with that name already exists", null);
 			else                   callback("Unknown error, check logs", null);
 
 			return util.error(tag, "Failed to rename", err);
 		}
 
 		callback(null, result.rows.map(function (row) {
-			if (row.id in rooms) {
-				var room = rooms[row.id];
+			if (row.id in groups) {
+				var group = groups[row.id];
 
-				var oldName = room.info.name;
-				room.info = row;
+				var oldName = group.info.name;
+				group.info = row;
 
 				util.inform(tag, "Renamed '" + oldName + "' to '" + row.name + "'");
 			} else {
-				return configureRoom(row);
+				return configureGroup(row);
 			}
 		}));
 	});
 }
 
-function loadRooms() {
-	db.query("SELECT * FROM rooms", function (err, result) {
-		if (err) return util.abort("rooms", "Failed to fetch instances", err);
+function loadGroups() {
+	db.query("SELECT * FROM groups", function (err, result) {
+		if (err) return util.abort("groups", "Failed to fetch instances", err);
 
-		result.rows.forEach(configureRoom);
-
-		// loadEntities();
+		result.rows.forEach(configureGroup);
 	});
 }
 
@@ -208,7 +206,7 @@ function loadRooms() {
 // 		if (err) return util.abort("datapoints", "Failed to fetch instances:", err);
 
 // 		result.rows.forEach(configureDatapoint);
-// 		loadRooms();
+// 		loadGroups();
 // 	});
 // }
 
@@ -227,7 +225,7 @@ function loadBackends() {
 
 		result.rows.forEach(configureBackend);
 		// loadDatapoints();
-		loadRooms();
+		loadGroups();
 	});
 }
 
@@ -236,10 +234,10 @@ loadBackends();
 module.exports = {
 	backends:   backends,
 	datapoints: datapoints,
-	rooms:      rooms,
+	groups:     groups,
 	entities:   entities,
 
-	createRoom: createRoom,
-	deleteRoom: deleteRoom,
-	renameRoom: renameRoom
+	createGroup: createGroup,
+	deleteGroup: deleteGroup,
+	renameGroup: renameGroup
 };
