@@ -123,26 +123,6 @@ function createGroup(name, parent, callback) {
 	);
 }
 
-// function deleteGroup(grp, callback) {
-// 	const tag = "group: " + grp.id;
-
-// 	db.query("DELETE FROM groups WHERE id = $1 RETURNING *", [grp.id], function (err, result) {
-// 		if (err) {
-// 			callback("Unknown error, check logs", null);
-// 			return util.error(tag, "Failed to delete group", err);
-// 		}
-
-// 		callback(null, result.rows.map(function (row) {
-// 			if (row.id in groups) {
-// 				delete groups[row.id];
-// 				util.inform(tag, "Deleted '" + row.name + "'");
-// 			}
-
-// 			return row.id;
-// 		}));
-// 	});
-// }
-
 module.exports = {
 	load:   loadGroups,
 	create: createGroup,
