@@ -78,12 +78,19 @@ function makeGroup(row) {
 // Setup root group
 makeGroup({id: null, parent: null, name: null});
 
-
+var loadedGroups = false;
 function loadGroups(callback) {
+	if (loadedGroups) {
+		callback();
+		return;
+	}
+
 	db.query("SELECT * FROM groups", function (err, result) {
 		if (err) return util.abort("groups", "Failed to fetch instances", err);
 
 		result.rows.map(makeGroup).forEach(g => g.attachToParent());
+
+		loadGroups = true;
 		if (callback) callback();
 	});
 }
