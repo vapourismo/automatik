@@ -1,3 +1,97 @@
+var InputGroupBox = React.createClass({
+	onRequestEditing: function () {
+		this.setState({editing: true});
+	},
+
+	onSubmit: function (ev) {
+		this.props.onSubmit(this.refs.name.value);
+
+		if (ev) ev.preventDefault();
+		return false;
+	},
+
+	onCancel: function (ev) {
+		if (this.props.onCancel)
+			this.props.onCancel(this.refs.name.value);
+
+		if (ev) ev.preventDefault();
+		return false;
+	},
+
+	componentDidMount: function () {
+		window.addEventListener("OpenGroupContext", this.onCancel);
+		window.addEventListener("Escape",           this.onCancel);
+
+		this.refs.name.select();
+	},
+
+	componentWillUnmount: function () {
+		window.removeEventListener("OpenGroupContext", this.onCancel);
+		window.removeEventListener("Escape",           this.onCancel);
+	},
+
+	render: function () {
+		return (
+			<form className="box input-group" onSubmit={this.onSubmit}>
+				<input ref="name" type="text" defaultValue={this.props.defaultValue} onBlur={this.onCancel}/>
+			</form>
+		);
+	},
+
+	componentDidUpdate: function () {
+		this.refs.name.select();
+	}
+});
+
+var AddGroupTile = React.createClass({
+	getInitialState: function () {
+		return {
+			editing: false
+		};
+	},
+
+	onRequestEditing: function () {
+		this.setState({editing: true});
+	},
+
+	onSubmit: function (name) {
+		serverSocket.emit("CreateGroup", {name: name, parent: this.props.group});
+		this.setState({editing: false});
+	},
+
+	onCancel: function () {
+		this.setState({editing: false});
+	},
+
+	componentDidMount: function () {
+		window.addEventListener("OpenGroupContext", this.onCancel);
+		window.addEventListener("Escape",           this.onCancel);
+	},
+
+	componentWillUnmount: function () {
+		window.removeEventListener("OpenGroupContext", this.onCancel);
+		window.removeEventListener("Escape",           this.onCancel);
+	},
+
+	render: function () {
+		if (this.state.editing) {
+			return (
+				<Tile>
+					<InputGroupBox onSubmit={this.onSubmit} onCancel={this.onCancel}/>
+				</Tile>
+			);
+		} else {
+			return (
+				<Tile>
+					<a className="box add-group" onClick={this.onRequestEditing}>
+						<i className="fa fa-plus"></i>
+					</a>
+				</Tile>
+			);
+		}
+	}
+});
+
 var GroupTileMode = {
 	Normal:  1,
 	Waiting: 2,
@@ -36,19 +130,13 @@ var GroupTile = React.createClass({
 		this.setState({mode: GroupTileMode.Rename});
 	},
 
-	focusRenameInput: function () {
-		this.refs.name.select();
-	},
-
-	onSubmitRename: function (ev) {
+	onSubmitRename: function (name) {
 		this.setState({mode: GroupTileMode.Waiting});
+
 		serverSocket.emit("RenameGroup", {
 			id: this.props.info.id,
-			name: this.refs.name.value
+			name: name
 		});
-
-		if (ev) ev.preventDefault();
-		return false;
 	},
 
 	onOpenGroupContext: function (ev) {
@@ -104,9 +192,7 @@ var GroupTile = React.createClass({
 
 			case GroupTileMode.Rename:
 				content = (
-					<form className="box add-group" onClick={this.focusRenameInput} onSubmit={this.onSubmitRename}>
-						<input className="name" ref="name" type="text" defaultValue={this.props.info.name} onBlur={this.onSubmitRename}/>
-					</form>
+		           <InputGroupBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
 				);
 
 				break;
@@ -122,68 +208,54 @@ var GroupTile = React.createClass({
 		}
 
 		return <Tile>{content}</Tile>;
-	},
-
-	componentDidUpdate: function () {
-		if (this.state.mode == GroupTileMode.Rename)
-			this.focusRenameInput();
 	}
 });
 
-var AddGroupTile = React.createClass({
+var GroupContainer = React.createClass({
 	getInitialState: function () {
-		return {
-			editing: false
-		};
+		return {groups: [], showTempTile: false};
 	},
 
-	onRequestEditing: function () {
-		this.setState({editing: true});
+	requestSubGroups: function () {
+		serverSocket.emit("ListSubGroups", this.props.group);
 	},
 
-	onSubmit: function (ev) {
-		serverSocket.emit("CreateGroup", {name: this.refs.name.value, parent: this.props.group});
-		this.setState({editing: false});
+	onListSubGroups: function (info) {
+		if (info.group != this.props.group)
+			return;
 
-		if (ev) ev.preventDefault();
-		return false;
+		this.setState({
+			groups: info.subGroups.sort(function (a, b) {
+				return a.name.localeCompare(b.name);
+			})
+		});
 	},
 
-	onCancel: function () {
-		this.setState({editing: false});
+	onUpdateGroup: function (group) {
+		if (group == this.props.group)
+			this.requestSubGroups();
 	},
 
 	componentDidMount: function () {
-		window.addEventListener("OpenGroupContext", this.onCancel);
-		window.addEventListener("Escape",           this.onCancel);
+		serverSocket.on("ListSubGroups", this.onListSubGroups);
+		serverSocket.on("UpdateGroup",   this.onUpdateGroup);
+
+		this.counter = 0;
+		this.requestSubGroups();
 	},
 
 	componentWillUnmount: function () {
-		window.removeEventListener("OpenGroupContext", this.onCancel);
-		window.removeEventListener("Escape",           this.onCancel);
+		serverSocket.removeListener("ListSubGroups", this.onListSubGroups);
+		serverSocket.removeListener("UpdateGroup",   this.onUpdateGroup);
 	},
 
 	render: function () {
-		if (this.state.editing) {
-			return (
-				<Tile>
-					<form className="box add-group" onSubmit={this.onSubmit}>
-						<input className="name" ref="name" type="text" onBlur={this.onCancel}/>
-					</form>
-				</Tile>
-			);
-		} else {
-			return (
-				<Tile>
-					<a className="add-tile" onClick={this.onRequestEditing}>
-						<i className="fa fa-plus"></i>
-					</a>
-				</Tile>
-			);
-		}
-	},
+		var tiles = this.state.groups.map(function (group) {
+			return <GroupTile key={this.counter++} info={group}/>;
+		}.bind(this));
 
-	componentDidUpdate: function () {
-		if (this.state.editing) this.refs.name.focus();
+		tiles.push(<AddGroupTile key="add-group" group={this.props.group}/>);
+
+		return <Container>{tiles}</Container>;
 	}
 });

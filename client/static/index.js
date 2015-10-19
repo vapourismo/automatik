@@ -1,58 +1,5 @@
 "use strict";
 
-var GroupContainer = React.createClass({
-	displayName: "GroupContainer",
-
-	getInitialState: function getInitialState() {
-		return { groups: [], showTempTile: false };
-	},
-
-	requestSubGroups: function requestSubGroups() {
-		serverSocket.emit("ListSubGroups", this.props.group);
-	},
-
-	onListSubGroups: function onListSubGroups(info) {
-		if (info.group != this.props.group) return;
-
-		this.setState({
-			groups: info.subGroups.sort(function (a, b) {
-				return a.name.localeCompare(b.name);
-			})
-		});
-	},
-
-	onUpdateGroup: function onUpdateGroup(group) {
-		if (group == this.props.group) this.requestSubGroups();
-	},
-
-	componentDidMount: function componentDidMount() {
-		serverSocket.on("ListSubGroups", this.onListSubGroups);
-		serverSocket.on("UpdateGroup", this.onUpdateGroup);
-
-		this.counter = 0;
-		this.requestSubGroups();
-	},
-
-	componentWillUnmount: function componentWillUnmount() {
-		serverSocket.removeListener("ListSubGroups", this.onListSubGroups);
-		serverSocket.removeListener("UpdateGroup", this.onUpdateGroup);
-	},
-
-	render: function render() {
-		var tiles = this.state.groups.map((function (group) {
-			return React.createElement(GroupTile, { key: this.counter++, info: group });
-		}).bind(this));
-
-		tiles.push(React.createElement(AddGroupTile, { key: "add-group", group: this.props.group }));
-
-		return React.createElement(
-			Container,
-			null,
-			tiles
-		);
-	}
-});
-
 var Notification = React.createClass({
 	displayName: "Notification",
 

@@ -122,13 +122,24 @@ body {
 	background-color: #339966;
 }
 
-.box.add-group {
+.box.input-group {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
 	text-decoration: none;
 	cursor: text;
 	background-color: #996633;
+}
+
+.box.input-group input {
+	outline: none;
+	border: none;
+	background: transparent;
+	text-align: center;
+	font-family: "Roboto";
+	color: #fff;
+	width: 100%;
+	height: 100%;
 }
 
 .box.delete-group {
@@ -199,30 +210,17 @@ body {
 	padding: 5px;
 }
 
-.box input.name {
-	outline: none;
-	border: none;
-	background: transparent;
-	text-align: center;
-	font-family: "Roboto";
-	color: #fff;
-}
-
-.add-tile {
-	display: flex;
-	width: 100%;
-	height: 100%;
-	color: #fff;
-	padding: 10px;
+.box.add-group {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
 	text-decoration: none;
 	font-size: 3em;
 	cursor: pointer;
+	background-color: transparent;
 }
 
-.add-tile:hover {
+.box.add-group:hover {
 	background-color: #222;
 }
 
