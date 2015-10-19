@@ -79,52 +79,49 @@ function makeGroup(row) {
 makeGroup({id: null, parent: null, name: null});
 
 var loadedGroups = false;
-function loadGroups(callback) {
-	if (loadedGroups) {
-		callback();
-		return;
-	}
-
-	db.query("SELECT * FROM groups", function (err, result) {
-		if (err) return util.abort("groups", "Failed to fetch instances", err);
-
-		result.rows.map(makeGroup).forEach(g => g.attachToParent());
-
-		loadGroups = true;
-		if (callback) callback();
-	});
-}
-
-function findGroup(id) {
-	const grp = groups[id];
-
-	if (typeof(grp) == "object" && grp.__proto__ == GroupPrototype)
-		return grp;
-	else
-		return null;
-}
-
-function createGroup(name, parent, callback) {
-	db.query(
-		"INSERT INTO groups (name, parent) VALUES ($1, $2) RETURNING *",
-		[name, parent],
-		function (err, result) {
-			if (err) {
-				if (err.code == 23505)      callback("A group with that name already exists");
-				else if (err.code == 22001) callback("Group name is too long");
-				else                        callback("Unknown error, check logs");
-
-				return util.error("groups", "Failed to create group", err);
-			}
-
-			result.rows.map(makeGroup).forEach(g => g.attachToParent());
-			callback(null);
-		}
-	);
-}
 
 module.exports = {
-	load:   loadGroups,
-	create: createGroup,
-	find:   findGroup,
+	load: function (callback) {
+		if (loadedGroups) {
+			callback();
+			return;
+		}
+
+		db.query("SELECT * FROM groups", function (err, result) {
+			if (err) return util.abort("groups", "Failed to fetch instances", err);
+
+			result.rows.map(makeGroup).forEach(g => g.attachToParent());
+
+			loadGroups = true;
+			if (callback) callback();
+		});
+	},
+
+	create: function (name, parent, callback) {
+		db.query(
+			"INSERT INTO groups (name, parent) VALUES ($1, $2) RETURNING *",
+			[name, parent],
+			function (err, result) {
+				if (err) {
+					if (err.code == 23505)      callback("A group with that name already exists");
+					else if (err.code == 22001) callback("Group name is too long");
+					else                        callback("Unknown error, check logs");
+
+					return util.error("groups", "Failed to create group", err);
+				}
+
+				result.rows.map(makeGroup).forEach(g => g.attachToParent());
+				callback(null);
+			}
+		);
+	},
+
+	find: function (id) {
+		const grp = groups[id];
+
+		if (typeof(grp) == "object" && grp.__proto__ == GroupPrototype)
+			return grp;
+		else
+			return null;
+	}
 };
