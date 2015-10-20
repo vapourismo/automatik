@@ -21,18 +21,23 @@ var Notifier = React.createClass({
 		});
 	},
 
+	onMessage: function (err) {
+		this.setState({
+			notifications: this.state.notifications.concat([
+				<Notification key={this.counter++}>{err}</Notification>
+			])
+		});
+
+		setTimeout(this.onDecay, 15000);
+	},
+
 	componentDidMount: function () {
-		var counter = 0;
+		if (!this.counter) this.counter = 0;
+		serverSocket.on("DisplayError", this.onMessage);
+	},
 
-		serverSocket.on("DisplayError", function (err) {
-			this.setState({
-				notifications: this.state.notifications.concat([
-					<Notification key={counter++}>{err}</Notification>
-				])
-			});
-
-			setTimeout(this.onDecay, 15000);
-		}.bind(this));
+	componentWillUnmount: function () {
+		serverSocket.removeListener("DisplayError", this.onMessage);
 	},
 
 	render: function () {
