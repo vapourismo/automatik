@@ -65,45 +65,46 @@ function abort(tag, ...args) {
 }
 
 function fatalError(error) {
-	abort("fatal", error instanceof Error ? error.stack : error);
+	loggers.error("fatal", error instanceof Error ? error.stack : error);
 }
 
 /*
  * Generators
  */
 
-var GeneratorProto = (function* () {}).__proto__;
+const GeneratorProto = (function* () {}).__proto__;
 
-function serve(iterator, input, accept, reject) {
-	try {
-		var step = iterator.next(input);
-
-		if (step.done) {
-			accept(step.value);
-		} else {
-			step.value.then(
-				value => serve(iterator, value, accept, reject),
-				error => {
-					try {
-						iterator.throw(error);
-					} catch (error2) {
-						reject(error2);
-					}
+function serve(iter, step, accept, reject) {
+	if (step.done) {
+		accept(step.value);
+	} else {
+		step.value.then(
+			value => {
+				try {
+					serve(iter, iter.next(value), accept, reject);
+				} catch (error) {
+					reject(error);
 				}
-			);
-		}
-	} catch (error) {
-		reject(error);
+			},
+			error => {
+				try {
+					serve(iter, iter.throw(error), accept, reject);
+				} catch (error) {
+					reject(error);
+				}
+			}
+		);
 	}
 }
 
 GeneratorProto.async = function () {
-	var generator = this;
+	const generator = this;
 
 	return function (...args) {
 		return new Promise(function (accept, reject) {
-			serve(generator.call(this, ...args), undefined, accept, reject);
-		}.bind(this)).catch(fatalError);
+			const iter = generator.call(this, ...args);
+			serve(iter, iter.next(), accept, reject);
+		}.bind(this));
 	};
 };
 
