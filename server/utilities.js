@@ -32,9 +32,7 @@ function serve(iterator, input, accept, reject) {
 }
 
 GeneratorProto.promise = function (...args) {
-	return new Promise(function (accept, reject) {
-		serve(this(...args), undefined, accept, reject);
-	}.bind(this));
+	return new Promise((accept, reject) => serve(this(...args), undefined, accept, reject));
 };
 
 GeneratorProto.async = function () {
