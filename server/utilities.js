@@ -1,7 +1,41 @@
-var fs = require("fs");
-var path = require("path");
-
+var fs     = require("fs");
+var path   = require("path");
 var config = require("./config");
+
+/*
+ * Generators
+ */
+
+var GeneratorProto = (function* () {}).__proto__;
+
+function serve(iterator, input, accept, reject) {
+	try {
+		var step = iterator.next(input);
+
+		if (step.done) {
+			accept(step.value);
+		} else {
+			step.value.then(
+				value => serve(iterator, value, accept, reject),
+				error => reject(error)
+			);
+		}
+	} catch (error) {
+		reject(error);
+	}
+}
+
+GeneratorProto.promise = function (...args) {
+	return new Promise((accept, reject) => serve(this(...args), undefined, accept, reject));
+};
+
+GeneratorProto.async = function () {
+	return (...args) => this.promise(...args);
+};
+
+/*
+ * Files
+ */
 
 function iterateFiles(base, callback) {
 	fs.readdirSync(base).forEach(function (entry) {
@@ -15,6 +49,10 @@ function iterateFiles(base, callback) {
 		}
 	});
 }
+
+/*
+ * Logging
+ */
 
 function informColor(tag, ...msg) {
 	console.log("\033[32mI\033[0m", "\033[34m[" + tag + "]\033[0m", ...msg);
@@ -56,6 +94,10 @@ function abort(tag, msg) {
 	loggers.error(tag, msg);
 	process.exit(1);
 }
+
+/*
+ * Exports
+ */
 
 module.exports = {
 	iterateFiles: iterateFiles,
