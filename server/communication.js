@@ -34,16 +34,13 @@ BrowserClient.prototype = {
 	},
 
 	onCreateGroup: function (info) {
-		if (typeof(info) != "object" || typeof(info.name) != "string" || info.name.length < 1 || (typeof(info.parent) != "number" && info.parent != null))
+		if (typeof(info) != "object" || typeof(info.name) != "string" || (typeof(info.parent) != "number" && info.parent != null))
 			return util.error("communication", "Invalid parameter to 'CreateGroup' directive", info);
 
-		data.groups.create(info.name, info.parent, function (err) {
-			if (err) {
-				this.displayError(err);
-			} else {
-				this.updateGroup(info.parent);
-			}
-		}.bind(this));
+		data.groups.create(info.name, info.parent).then(
+			_   => this.updateGroup(info.parent),
+			err => this.displayError(err.message)
+		);
 	},
 
 	onRenameGroup: function (info) {
@@ -53,14 +50,10 @@ BrowserClient.prototype = {
 		const grp = data.groups.find(info.id);
 
 		if (grp)
-			grp.rename(info.name, function (err) {
-				if (err) {
-					this.displayError(err);
-				} else {
-					this.updateGroup(grp.id);
-					this.updateGroup(grp.parent);
-				}
-			}.bind(this));
+			grp.rename(info.name).then(
+				_   => { this.updateGroup(grp.id); this.updateGroup(grp.parent); },
+				err => this.displayError(err.message)
+			);
 		else
 			this.displayError("Cannot find group #" + info.id);
 	},
@@ -72,14 +65,10 @@ BrowserClient.prototype = {
 		const grp = data.groups.find(id);
 
 		if (grp)
-			grp.delete(function (err) {
-				if (err) {
-					this.displayError(err);
-				} else {
-					this.onListSubGroups();
-					this.updateGroup(grp.parent);
-				}
-			}.bind(this));
+			grp.delete().then(
+				_   => { this.onListSubGroups(); this.updateGroup(grp.parent); },
+				err => this.displayError(err.message)
+			);
 		else
 			this.displayError("Cannot find group #" + id);
 	},

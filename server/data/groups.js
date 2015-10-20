@@ -23,48 +23,44 @@ const GroupPrototype = {
 		this.subGroups = this.subGroups.filter(g => g != grp);
 	},
 
-	rename: function (name, callback) {
+	rename: function* (name) {
 		const tag = "group: " + this.id;
 
-		db.query(
-			"UPDATE groups SET name = $1 WHERE id = $2 RETURNING name",
-			[name, this.id],
-			function (err, result) {
-				if (err) {
-					if (err.code == 23505) callback("A group with that name already exists");
-					else                   callback("Unknown error, check logs");
+		try {
+			const result = yield db.queryAsync(
+				"UPDATE groups SET name = $1 WHERE id = $2 RETURNING name",
+				[name, this.id]
+			);
 
-					return util.error(tag, "Failed to rename", err);
-				}
+			this.name = result.rows[0].name;
+			util.inform(tag, "Renamed to '" + this.name + "'");
+		} catch (err) {
+			util.error(tag, "Failed to rename", err);
 
-				this.name = result.rows[0].name;
-				util.inform(tag, "Renamed to '" + this.name + "'");
+			if (err.code == 23505)
+				throw new GroupError("A group with that name already exists", err);
+			else
+				throw new GroupError("Unknown error, check logs", err);
+		}
+	}.async(),
 
-				callback(null);
-			}.bind(this)
-		);
-	},
-
-	delete: function (callback) {
+	delete: function* () {
 		const tag = "group: " + this.id;
 
 		if (this.id == null)
 			return util.error(tag, "Cannot delete root group");
 
-		db.query("DELETE FROM groups WHERE id = $1", [this.id], function (err, result) {
-			if (err) {
-				callback("Unknown error, check logs", null);
-				return util.error(tag, "Failed to delete group", err);
-			}
+		try {
+			yield db.queryAsync("DELETE FROM groups WHERE id = $1", [this.id]);
 
 			this.detachFromParent();
 			delete groups[this.id];
 
 			util.inform(tag, "Deleted '" + this.name + "'");
-
-			callback(null);
-		}.bind(this));
-	}
+		} catch (err) {
+			util.error(tag, "Failed to delete", err);
+		}
+	}.async()
 };
 
 function makeGroup(row) {
@@ -75,46 +71,61 @@ function makeGroup(row) {
 	return groups[row.id] = row;
 }
 
+function GroupError(message, cause) {
+	Error.call(this);
+
+	this.message = message;
+	this.cause = cause;
+}
+
+GroupError.prototype = Object.create(Error.prototype);
+
 // Setup root group
 makeGroup({id: null, parent: null, name: null});
 
 var loadedGroups = false;
 
 module.exports = {
-	load: function (callback) {
-		if (loadedGroups) {
-			callback();
-			return;
-		}
+	load: function* () {
+		if (loadedGroups) return;
 
-		db.query("SELECT * FROM groups", function (err, result) {
-			if (err) return util.abort("groups", "Failed to fetch instances", err);
+		const result = yield db.queryAsync("SELECT * FROM groups");
 
+		// TODO: Review pros and cons of traversing groups only once
+		// Theoretically we don't need to traverse the newly loaded groups twice if we sort them
+		// by ID in ascending order. Since IDs are higher for groups which have been created at a
+		// later point in time and groups can only be attached to groups that already exist (because
+		// they have been created earlier, therefore lower ID), each parent group will be available
+		// before its children.
+		// Note, this only works when reparenting is not allowed.
+
+		result.rows.map(makeGroup).forEach(g => g.attachToParent());
+		loadGroups = true;
+	}.async(),
+
+	create: function* (name, parent) {
+		if (name.length < 1)
+			throw new GroupError("Group name has to contain at least one character");
+
+		try {
+			const result = yield db.queryAsync(
+				"INSERT INTO groups (name, parent) VALUES ($1, $2) RETURNING *",
+				[name, parent]
+			);
+
+			// TODO: Review pros and cons of traversing groups only once
 			result.rows.map(makeGroup).forEach(g => g.attachToParent());
+		} catch (err) {
+			util.error("groups", "Failed to create", err);
 
-			loadGroups = true;
-			if (callback) callback();
-		});
-	},
-
-	create: function (name, parent, callback) {
-		db.query(
-			"INSERT INTO groups (name, parent) VALUES ($1, $2) RETURNING *",
-			[name, parent],
-			function (err, result) {
-				if (err) {
-					if (err.code == 23505)      callback("A group with that name already exists");
-					else if (err.code == 22001) callback("Group name is too long");
-					else                        callback("Unknown error, check logs");
-
-					return util.error("groups", "Failed to create group", err);
-				}
-
-				result.rows.map(makeGroup).forEach(g => g.attachToParent());
-				callback(null);
-			}
-		);
-	},
+			if (err.code == 23505)
+				throw new GroupError("A group with that name already exists", err);
+			else if (err.code == 22001)
+				throw new GroupError("Group name is too long", err);
+			else
+				throw new GroupError("Unknown error, check logs", err);
+		}
+	}.async(),
 
 	find: function (id) {
 		const grp = groups[id];
