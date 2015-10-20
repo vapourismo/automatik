@@ -17,7 +17,13 @@ function serve(iterator, input, accept, reject) {
 		} else {
 			step.value.then(
 				value => serve(iterator, value, accept, reject),
-				error => reject(error)
+				error => {
+					try {
+						iterator.throw(error);
+					} catch (error2) {
+						reject(error2);
+					}
+				}
 			);
 		}
 	} catch (error) {
@@ -26,7 +32,9 @@ function serve(iterator, input, accept, reject) {
 }
 
 GeneratorProto.promise = function (...args) {
-	return new Promise((accept, reject) => serve(this(...args), undefined, accept, reject));
+	return new Promise(function (accept, reject) {
+		serve(this(...args), undefined, accept, reject);
+	}.bind(this));
 };
 
 GeneratorProto.async = function () {
