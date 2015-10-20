@@ -3,45 +3,6 @@ var path   = require("path");
 var config = require("./config");
 
 /*
- * Generators
- */
-
-var GeneratorProto = (function* () {}).__proto__;
-
-function serve(iterator, input, accept, reject) {
-	try {
-		var step = iterator.next(input);
-
-		if (step.done) {
-			accept(step.value);
-		} else {
-			step.value.then(
-				value => serve(iterator, value, accept, reject),
-				error => {
-					try {
-						iterator.throw(error);
-					} catch (error2) {
-						reject(error2);
-					}
-				}
-			);
-		}
-	} catch (error) {
-		reject(error);
-	}
-}
-
-GeneratorProto.async = function () {
-	var generator = this;
-
-	return function (...args) {
-		return new Promise(function (accept, reject) {
-			serve(generator.call(this, ...args), undefined, accept, reject);
-		}.bind(this));
-	};
-};
-
-/*
  * Files
  */
 
@@ -98,10 +59,53 @@ function debugPlain(tag, ...msg) {
 var loggers = config.colorLogging ? {error: errorColor, warn: warnColor, inform: informColor, debug: debugColor}
                                   : {error: errorPlain, warn: warnPlain, inform: informPlain, debug: debugPlain};
 
-function abort(tag, msg) {
-	loggers.error(tag, msg);
+function abort(tag, ...args) {
+	loggers.error(tag, ...args);
 	process.exit(1);
 }
+
+function fatalError(error) {
+	abort("fatal", error instanceof Error ? error.stack : error);
+}
+
+/*
+ * Generators
+ */
+
+var GeneratorProto = (function* () {}).__proto__;
+
+function serve(iterator, input, accept, reject) {
+	try {
+		var step = iterator.next(input);
+
+		if (step.done) {
+			accept(step.value);
+		} else {
+			step.value.then(
+				value => serve(iterator, value, accept, reject),
+				error => {
+					try {
+						iterator.throw(error);
+					} catch (error2) {
+						reject(error2);
+					}
+				}
+			);
+		}
+	} catch (error) {
+		reject(error);
+	}
+}
+
+GeneratorProto.async = function () {
+	var generator = this;
+
+	return function (...args) {
+		return new Promise(function (accept, reject) {
+			serve(generator.call(this, ...args), undefined, accept, reject);
+		}.bind(this)).catch(fatalError);
+	};
+};
 
 /*
  * Exports
@@ -110,6 +114,7 @@ function abort(tag, msg) {
 module.exports = {
 	iterateFiles: iterateFiles,
 	abort:        abort,
+	fatalError:   fatalError,
 	inform:       loggers.inform,
 	warn:         loggers.warn,
 	error:        loggers.error,
