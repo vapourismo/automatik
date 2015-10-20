@@ -1,6 +1,6 @@
-var fs     = require("fs");
-var path   = require("path");
-var config = require("./config");
+const fs     = require("fs");
+const path   = require("path");
+const config = require("./config");
 
 /*
  * Files
@@ -9,7 +9,7 @@ var config = require("./config");
 function iterateFiles(base, callback) {
 	fs.readdirSync(base).forEach(function (entry) {
 		entry = path.join(base, entry);
-		var stat = fs.statSync(entry);
+		const stat = fs.statSync(entry);
 
 		if (stat.isFile()) {
 			callback(entry);
@@ -75,25 +75,17 @@ function fatalError(error) {
 const GeneratorProto = (function* () {}).__proto__;
 
 function serve(iter, step, accept, reject) {
-	if (step.done) {
-		accept(step.value);
-	} else {
-		step.value.then(
-			value => {
-				try {
-					serve(iter, iter.next(value), accept, reject);
-				} catch (error) {
-					reject(error);
-				}
-			},
-			error => {
-				try {
-					serve(iter, iter.throw(error), accept, reject);
-				} catch (error) {
-					reject(error);
-				}
-			}
-		);
+	try {
+		if (step.done) {
+			accept(step.value);
+		} else {
+			step.value.then(
+				value => serve(iter, iter.next(value), accept, reject),
+				error => serve(iter, iter.throw(error), accept, reject)
+			);
+		}
+	} catch (error) {
+		reject(error);
 	}
 }
 
