@@ -75,17 +75,25 @@ function fatalError(error) {
 const GeneratorProto = (function* () {}).__proto__;
 
 function serve(iter, step, accept, reject) {
-	try {
-		if (step.done) {
-			accept(step.value);
-		} else {
-			step.value.then(
-				value => serve(iter, iter.next(value), accept, reject),
-				error => serve(iter, iter.throw(error), accept, reject)
-			);
-		}
-	} catch (error) {
-		reject(error);
+	if (step.done) {
+		accept(step.value);
+	} else {
+		step.value.then(
+			function (value) {
+				try {
+					serve(iter, iter.next(value), accept, reject);
+				} catch (error) {
+					reject(error);
+				}
+			},
+			function (error) {
+				try {
+					serve(iter, iter.throw(error), accept, reject);
+				} catch (error) {
+					reject(error);
+				}
+			}
+		);
 	}
 }
 
@@ -93,10 +101,18 @@ GeneratorProto.async = function () {
 	const generator = this;
 
 	return function (...args) {
-		return new Promise(function (accept, reject) {
+		const promise = new Promise(function (accept, reject) {
 			const iter = generator.call(this, ...args);
 			serve(iter, iter.next(), accept, reject);
 		}.bind(this));
+
+		// if (config.logAsyncErrors) {
+		// 	promise.catch(function (error) {
+		// 		loggers.error("async", error instanceof Error ? error.stack : error);
+		// 	});
+		// }
+
+		return promise;
 	};
 };
 
