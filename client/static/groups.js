@@ -164,10 +164,15 @@ var GroupTile = React.createClass({
 		}
 	},
 
+	onUpdate: function onUpdate(id) {
+		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
+	},
+
 	componentDidMount: function componentDidMount() {
 		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.addEventListener("Escape", this.onEscape);
 
+		serverSocket.on("UpdateGroup", this.onUpdate);
 		serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
@@ -175,6 +180,7 @@ var GroupTile = React.createClass({
 		window.removeEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.removeEventListener("Escape", this.onEscape);
 
+		serverSocket.removeListener("UpdateGroup", this.onUpdate);
 		serverSocket.removeListener("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
