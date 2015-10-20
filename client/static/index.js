@@ -27,20 +27,32 @@ var Notifier = React.createClass({
 		});
 	},
 
+	onMessage: function onMessage(message) {
+		this.setState({
+			notifications: this.state.notifications.concat([React.createElement(
+				Notification,
+				{ key: this.counter++ },
+				message
+			)])
+		});
+
+		setTimeout(this.onDecay, 15000);
+	},
+
+	onLocalMessage: function onLocalMessage(ev) {
+		this.onMessage(ev.message);
+	},
+
 	componentDidMount: function componentDidMount() {
-		var counter = 0;
+		if (!this.counter) this.counter = 0;
 
-		serverSocket.on("DisplayError", (function (err) {
-			this.setState({
-				notifications: this.state.notifications.concat([React.createElement(
-					Notification,
-					{ key: counter++ },
-					err
-				)])
-			});
+		serverSocket.on("DisplayError", this.onMessage);
+		window.addEventListener("DisplayError", this.onLocalMessage);
+	},
 
-			setTimeout(this.onDecay, 15000);
-		}).bind(this));
+	componentWillUnmount: function componentWillUnmount() {
+		serverSocket.removeListener("DisplayError", this.onMessage);
+		window.removeEventListener("DisplayError", this.onLocalMessage);
 	},
 
 	render: function render() {
@@ -51,6 +63,13 @@ var Notifier = React.createClass({
 		);
 	}
 });
+
+function displayError(message) {
+	var ev = new Event("DisplayError");
+	ev.message = message;
+
+	window.dispatchEvent(ev);
+}
 
 window.addEventListener("load", function () {
 	ReactDOM.render(React.createElement(

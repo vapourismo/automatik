@@ -6,7 +6,8 @@ const defaultConfig = {
 		user: "automatik",
 		database: "automatik"
 	},
-	colorLogging: true
+	colorLogging: true,
+	logAsyncErrors: true
 };
 
 function validateObject(schema, instance) {

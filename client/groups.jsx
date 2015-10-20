@@ -148,14 +148,27 @@ var GroupTile = React.createClass({
 			this.setState({mode: GroupTileMode.Normal});
 	},
 
+	onUpdateFailed: function (info) {
+		if (info.id == this.props.info.id) {
+			displayError(info.message);
+
+			if (this.state.mode == GroupTileMode.Waiting)
+				this.setState({mode: GroupTileMode.Normal});
+		}
+	},
+
 	componentDidMount: function () {
 		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.addEventListener("Escape",           this.onEscape);
+
+		serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
 	componentWillUnmount: function () {
 		window.removeEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.removeEventListener("Escape",           this.onEscape);
+
+		serverSocket.removeListener("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
 	render: function () {
@@ -221,7 +234,7 @@ var GroupContainer = React.createClass({
 	},
 
 	onListSubGroups: function (info) {
-		if (info.group != this.props.group)
+		if (info.id != this.props.group)
 			return;
 
 		this.setState({
@@ -231,8 +244,8 @@ var GroupContainer = React.createClass({
 		});
 	},
 
-	onUpdateGroup: function (group) {
-		if (group == this.props.group)
+	onUpdateGroup: function (id) {
+		if (id == this.props.group)
 			this.requestSubGroups();
 	},
 
@@ -240,7 +253,7 @@ var GroupContainer = React.createClass({
 		serverSocket.on("ListSubGroups", this.onListSubGroups);
 		serverSocket.on("UpdateGroup",   this.onUpdateGroup);
 
-		this.counter = 0;
+		if (!this.counter) this.counter = 0;
 		this.requestSubGroups();
 	},
 

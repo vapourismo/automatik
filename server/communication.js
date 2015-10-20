@@ -23,7 +23,7 @@ BrowserClient.prototype = {
 
 		if (grp)
 			this.client.emit("ListSubGroups", {
-				group: id,
+				id: id,
 				subGroups: grp.subGroups.map(g => ({id: g.id, name: g.name}))
 			});
 	},
@@ -38,7 +38,7 @@ BrowserClient.prototype = {
 			return util.error("communication", "Invalid parameter to 'CreateGroup' directive", info);
 
 		data.groups.create(info.name, info.parent).then(
-			_   => this.updateGroup(info.parent),
+			val => this.updateGroup(info.parent),
 			err => this.displayError(err.message)
 		);
 	},
@@ -49,13 +49,18 @@ BrowserClient.prototype = {
 
 		const grp = data.groups.find(info.id);
 
-		if (grp)
+		if (grp) {
 			grp.rename(info.name).then(
-				_   => { this.updateGroup(grp.id); this.updateGroup(grp.parent); },
-				err => this.displayError(err.message)
+				val => {
+					this.updateGroup(grp.id);
+					this.updateGroup(grp.parent);
+				},
+				err => this.updateGroupFailed(grp.id, err.message)
 			);
-		else
+		} else {
+			util.error("communication", "Cannot find group #" + info.id);
 			this.displayError("Cannot find group #" + info.id);
+		}
 	},
 
 	onDeleteGroup: function (id) {
@@ -64,17 +69,26 @@ BrowserClient.prototype = {
 
 		const grp = data.groups.find(id);
 
-		if (grp)
+		if (grp) {
 			grp.delete().then(
-				_   => { this.onListSubGroups(); this.updateGroup(grp.parent); },
-				err => this.displayError(err.message)
+				val => this.updateGroup(grp.parent),
+				err => this.updateGroupFailed(grp.id, err.message)
 			);
-		else
+		} else {
+			util.error("communication", "Cannot find group #" + id);
 			this.displayError("Cannot find group #" + id);
+		}
 	},
 
-	updateGroup: function (group) {
-		this.server.emit("UpdateGroup", group);
+	updateGroup: function (id) {
+		this.server.emit("UpdateGroup", id);
+	},
+
+	updateGroupFailed: function (id, msg) {
+		this.client.emit("UpdateGroupFailed", {
+			id: id,
+			message: msg
+		});
 	},
 
 	displayError: function (err) {

@@ -156,14 +156,26 @@ var GroupTile = React.createClass({
 		if (this.state.mode > GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
 	},
 
+	onUpdateFailed: function onUpdateFailed(info) {
+		if (info.id == this.props.info.id) {
+			displayError(info.message);
+
+			if (this.state.mode == GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
+		}
+	},
+
 	componentDidMount: function componentDidMount() {
 		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.addEventListener("Escape", this.onEscape);
+
+		serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
 		window.removeEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.removeEventListener("Escape", this.onEscape);
+
+		serverSocket.removeListener("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
 	render: function render() {
@@ -245,7 +257,7 @@ var GroupContainer = React.createClass({
 	},
 
 	onListSubGroups: function onListSubGroups(info) {
-		if (info.group != this.props.group) return;
+		if (info.id != this.props.group) return;
 
 		this.setState({
 			groups: info.subGroups.sort(function (a, b) {
@@ -254,15 +266,15 @@ var GroupContainer = React.createClass({
 		});
 	},
 
-	onUpdateGroup: function onUpdateGroup(group) {
-		if (group == this.props.group) this.requestSubGroups();
+	onUpdateGroup: function onUpdateGroup(id) {
+		if (id == this.props.group) this.requestSubGroups();
 	},
 
 	componentDidMount: function componentDidMount() {
 		serverSocket.on("ListSubGroups", this.onListSubGroups);
 		serverSocket.on("UpdateGroup", this.onUpdateGroup);
 
-		this.counter = 0;
+		if (!this.counter) this.counter = 0;
 		this.requestSubGroups();
 	},
 
