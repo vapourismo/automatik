@@ -73,7 +73,6 @@ page("/", function () {
 });
 
 page(function () {
-	console.log("none");
 	page.redirect("/");
 });
 

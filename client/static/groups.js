@@ -303,8 +303,6 @@ var GroupContainer = React.createClass({
 	onGetGroupInfo: function onGetGroupInfo(info) {
 		if (info.id != this.props.group) return;
 
-		console.log(info);
-
 		this.setState({
 			name: info.name,
 			parent: info.parent,
