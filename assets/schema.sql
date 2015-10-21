@@ -137,23 +137,10 @@ ALTER SEQUENCE entities_id_seq OWNED BY entities.id;
 
 
 --
--- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
 --
 
-CREATE TABLE groups (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    parent integer
-);
-
-
-ALTER TABLE groups OWNER TO automatik;
-
---
--- Name: rooms_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
---
-
-CREATE SEQUENCE rooms_id_seq
+CREATE SEQUENCE groups_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -161,14 +148,20 @@ CREATE SEQUENCE rooms_id_seq
     CACHE 1;
 
 
-ALTER TABLE rooms_id_seq OWNER TO automatik;
+ALTER TABLE groups_id_seq OWNER TO automatik;
 
 --
--- Name: rooms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
+-- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
-ALTER SEQUENCE rooms_id_seq OWNED BY groups.id;
+CREATE TABLE groups (
+    id integer DEFAULT nextval('groups_id_seq'::regclass) NOT NULL,
+    name character varying(255) NOT NULL,
+    parent integer
+);
 
+
+ALTER TABLE groups OWNER TO automatik;
 
 --
 -- Name: slots; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
@@ -224,13 +217,6 @@ ALTER TABLE ONLY datapoints ALTER COLUMN id SET DEFAULT nextval('datapoints_id_s
 --
 
 ALTER TABLE ONLY entities ALTER COLUMN id SET DEFAULT nextval('entities_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY groups ALTER COLUMN id SET DEFAULT nextval('rooms_id_seq'::regclass);
 
 
 --
