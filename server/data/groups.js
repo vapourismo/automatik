@@ -50,6 +50,8 @@ const GroupPrototype = {
 		if (this.id == null)
 			return util.error(tag, "Cannot delete root group");
 
+		yield* this.subGroups.map(g => g.delete());
+
 		try {
 			yield db.queryAsync("DELETE FROM groups WHERE id = $1", [this.id]);
 
