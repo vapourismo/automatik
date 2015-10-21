@@ -43,52 +43,61 @@ var InputGroupBox = React.createClass({
 	}
 });
 
-var AddGroupTile = React.createClass({
-	getInitialState: function () {
-		return {
-			editing: false
-		};
-	},
-
-	onRequestEditing: function () {
-		this.setState({editing: true});
-	},
-
+var AddGroupBox = React.createClass({
 	onSubmit: function (name) {
-		serverSocket.emit("CreateGroup", {name: name, parent: this.props.group});
-		this.setState({editing: false});
-	},
-
-	onCancel: function () {
-		this.setState({editing: false});
-	},
-
-	componentDidMount: function () {
-		window.addEventListener("OpenGroupContext", this.onCancel);
-		window.addEventListener("Escape",           this.onCancel);
-	},
-
-	componentWillUnmount: function () {
-		window.removeEventListener("OpenGroupContext", this.onCancel);
-		window.removeEventListener("Escape",           this.onCancel);
+		serverSocket.emit("CreateGroup", {name: name, parent: this.props.parent});
+		this.props.onSubmit();
 	},
 
 	render: function () {
-		if (this.state.editing) {
-			return (
-				<Tile>
-					<InputGroupBox onSubmit={this.onSubmit} onCancel={this.onCancel}/>
-				</Tile>
-			);
-		} else {
-			return (
-				<Tile>
-					<div className="box add-group" onClick={this.onRequestEditing}>
+		return <InputGroupBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
+	}
+});
+
+var AddElementTileMode = {
+	Normal:    1,
+	Group:     2,
+	Component: 3
+};
+
+var AddElementTile = React.createClass({
+	getInitialState: function () {
+		return {
+			mode: AddElementTileMode.Normal
+		};
+	},
+
+	restoreNormal: function () {
+		this.setState({mode: AddElementTileMode.Normal});
+	},
+
+	requestGroup: function () {
+		this.setState({mode: AddElementTileMode.Group});
+	},
+
+	render: function () {
+		var content;
+
+		switch (this.state.mode) {
+			case AddElementTileMode.Group:
+				content = (
+					<AddGroupBox parent={this.props.parent} onSubmit={this.restoreNormal}
+					             onCancel={this.restoreNormal}/>
+				);
+
+				break;
+
+			default:
+				content = (
+					<div className="box add-group" onClick={this.requestGroup}>
 						<i className="fa fa-plus"></i>
 					</div>
-				</Tile>
-			);
+				);
+
+				break;
 		}
+
+		return <Tile>{content}</Tile>
 	}
 });
 
@@ -181,15 +190,6 @@ var GroupTile = React.createClass({
 		var content;
 
 		switch (this.state.mode) {
-			case GroupTileMode.Normal:
-				content = (
-					<div className="box group" onContextMenu={this.onContextMenu}>
-						{this.props.info.name}
-					</div>
-				);
-
-				break;
-
 			case GroupTileMode.Context:
 				content = (
 					<div className="box context">
@@ -220,6 +220,15 @@ var GroupTile = React.createClass({
 				content = (
 					<div className="box group">
 						<i className="fa fa-refresh rotate"></i>
+					</div>
+				);
+
+				break;
+
+			default:
+				content = (
+					<div className="box group" onContextMenu={this.onContextMenu}>
+						{this.props.info.name}
 					</div>
 				);
 
@@ -273,7 +282,7 @@ var GroupContainer = React.createClass({
 			return <GroupTile key={this.counter++} info={group}/>;
 		}.bind(this));
 
-		tiles.push(<AddGroupTile key="add-group" group={this.props.group}/>);
+		tiles.push(<AddElementTile key="add-group" parent={this.props.group}/>);
 
 		return <Container>{tiles}</Container>;
 	}
