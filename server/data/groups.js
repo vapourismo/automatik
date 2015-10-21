@@ -37,7 +37,7 @@ const GroupPrototype = {
 		} catch (err) {
 			util.error(tag, "Failed to rename", err);
 
-			if (err.code == 23505)
+			if (err.code == 23505 && err.constraint == "groups_name_unique")
 				throw new GroupError("A group with that name already exists", err);
 			else
 				throw new GroupError("Unknown error, check logs", err);
@@ -60,7 +60,7 @@ const GroupPrototype = {
 		} catch (err) {
 			util.error(tag, "Failed to delete", err);
 
-			if (err.code == 23503)
+			if (err.code == 23503 && err.constraint == "groups_parent_fkey")
 				throw new GroupError("Non-empty groups cannot be deleted", err);
 			else
 				throw new GroupError("Unknown error, check logs", err);
@@ -123,8 +123,10 @@ module.exports = {
 		} catch (err) {
 			util.error("groups", "Failed to create", err);
 
-			if (err.code == 23505)
+			if (err.code == 23505 && (err.constraint == "groups_name_parent_unique" || err.constraint == "groups_name_unique"))
 				throw new GroupError("A group with that name already exists", err);
+			else if (err.code == 23503 && err.constraint == "groups_parent_fkey")
+				throw new GroupError("Parent group does no longer exist", err);
 			else if (err.code == 22001)
 				throw new GroupError("Group name is too long", err);
 			else
