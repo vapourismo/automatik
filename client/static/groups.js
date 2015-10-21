@@ -179,7 +179,7 @@ var GroupTile = React.createClass({
 	},
 
 	onClick: function onClick() {
-		displayGroup(this.props.info.id);
+		page("/groups/" + this.props.info.id);
 	},
 
 	componentDidMount: function componentDidMount() {

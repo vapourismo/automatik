@@ -75,6 +75,19 @@ function displayGroup(group) {
 	), document.getElementById("canvas"));
 }
 
-window.addEventListener("load", function () {
+page(/^\/groups\/(\d+)/, function (ctx) {
+	displayGroup(Number.parseInt(ctx.params[0]));
+});
+
+page("/", function () {
 	displayGroup(null);
+});
+
+page(function () {
+	console.log("none");
+	page.redirect("/");
+});
+
+window.addEventListener("load", function () {
+	page(window.location.pathname);
 });
