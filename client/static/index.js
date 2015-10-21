@@ -66,11 +66,15 @@ function displayError(message) {
 
 serverSocket.on("DisplayError", displayError);
 
-window.addEventListener("load", function () {
+function displayGroup(group) {
 	ReactDOM.render(React.createElement(
 		"div",
 		null,
-		React.createElement(GroupContainer, { group: null }),
+		React.createElement(GroupContainer, { key: "group-container-" + group, group: group }),
 		React.createElement(Notifier, null)
 	), document.getElementById("canvas"));
+}
+
+window.addEventListener("load", function () {
+	displayGroup(null);
 });

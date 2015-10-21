@@ -170,6 +170,10 @@ var GroupTile = React.createClass({
 			this.setState({mode: GroupTileMode.Normal});
 	},
 
+	onClick: function () {
+		displayGroup(this.props.info.id);
+	},
+
 	componentDidMount: function () {
 		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.addEventListener("Escape",           this.onEscape);
@@ -227,7 +231,7 @@ var GroupTile = React.createClass({
 
 			default:
 				content = (
-					<div className="box group" onContextMenu={this.onContextMenu}>
+					<div className="box group" onContextMenu={this.onContextMenu} onClick={this.onClick}>
 						{this.props.info.name}
 					</div>
 				);
@@ -278,11 +282,14 @@ var GroupContainer = React.createClass({
 
 	render: function () {
 		var tiles = this.state.groups.map(function (group) {
-			return <GroupTile key={"group-" + group.id} info={group}/>;
-		}.bind(this));
+			return <GroupTile key={"group-tile-" + group.id} info={group}/>;
+		});
 
-		tiles.push(<AddElementTile key="add-group" parent={this.props.group}/>);
-
-		return <Container>{tiles}</Container>;
+		return (
+			<Container>
+				{tiles}
+				<AddElementTile key="add-group" parent={this.props.group}/>
+			</Container>
+		);
 	}
 });

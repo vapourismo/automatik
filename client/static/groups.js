@@ -178,6 +178,10 @@ var GroupTile = React.createClass({
 		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting) this.setState({ mode: GroupTileMode.Normal });
 	},
 
+	onClick: function onClick() {
+		displayGroup(this.props.info.id);
+	},
+
 	componentDidMount: function componentDidMount() {
 		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
 		window.addEventListener("Escape", this.onEscape);
@@ -246,7 +250,7 @@ var GroupTile = React.createClass({
 			default:
 				content = React.createElement(
 					"div",
-					{ className: "box group", onContextMenu: this.onContextMenu },
+					{ className: "box group", onContextMenu: this.onContextMenu, onClick: this.onClick },
 					this.props.info.name
 				);
 
@@ -290,7 +294,6 @@ var GroupContainer = React.createClass({
 		serverSocket.on("ListSubGroups", this.onListSubGroups);
 		serverSocket.on("UpdateGroup", this.onUpdateGroup);
 
-		if (!this.counter) this.counter = 0;
 		this.requestSubGroups();
 	},
 
@@ -300,16 +303,15 @@ var GroupContainer = React.createClass({
 	},
 
 	render: function render() {
-		var tiles = this.state.groups.map((function (group) {
-			return React.createElement(GroupTile, { key: this.counter++, info: group });
-		}).bind(this));
-
-		tiles.push(React.createElement(AddElementTile, { key: "add-group", parent: this.props.group }));
+		var tiles = this.state.groups.map(function (group) {
+			return React.createElement(GroupTile, { key: "group-tile-" + group.id, info: group });
+		});
 
 		return React.createElement(
 			Container,
 			null,
-			tiles
+			tiles,
+			React.createElement(AddElementTile, { key: "add-group", parent: this.props.group })
 		);
 	}
 });

@@ -54,12 +54,16 @@ function displayError(message) {
 
 serverSocket.on("DisplayError", displayError);
 
-window.addEventListener("load", function () {
+function displayGroup(group) {
 	ReactDOM.render(
 		<div>
-			<GroupContainer group={null}/>
+			<GroupContainer key={"group-container-" + group} group={group}/>
 			<Notifier />
 		</div>,
 		document.getElementById("canvas")
 	);
+}
+
+window.addEventListener("load", function () {
+	displayGroup(null);
 });
