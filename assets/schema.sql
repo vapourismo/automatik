@@ -289,19 +289,11 @@ ALTER TABLE ONLY entities
 
 
 --
--- Name: rooms_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY groups
-    ADD CONSTRAINT rooms_name_key UNIQUE (name);
-
-
---
--- Name: rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
---
-
-ALTER TABLE ONLY groups
-    ADD CONSTRAINT rooms_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -318,6 +310,20 @@ ALTER TABLE ONLY slots
 
 ALTER TABLE ONLY slots
     ADD CONSTRAINT slots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
+--
+
+CREATE UNIQUE INDEX groups_name_parent_unique ON groups USING btree (name, parent) WHERE (parent IS NOT NULL);
+
+
+--
+-- Name: groups_name_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
+--
+
+CREATE UNIQUE INDEX groups_name_unique ON groups USING btree (name) WHERE (parent IS NULL);
 
 
 --
