@@ -21,30 +21,24 @@ var Notifier = React.createClass({
 		});
 	},
 
-	onMessage: function (message) {
+	onMessage: function (ev) {
 		this.setState({
 			notifications: this.state.notifications.concat([
-				<Notification key={this.counter++}>{message}</Notification>
+				<Notification key={this.counter++}>{ev.message}</Notification>
 			])
 		});
 
 		setTimeout(this.onDecay, 15000);
 	},
 
-	onLocalMessage: function (ev) {
-		this.onMessage(ev.message);
-	},
-
 	componentDidMount: function () {
 		if (!this.counter) this.counter = 0;
 
-		serverSocket.on("DisplayError", this.onMessage);
-		window.addEventListener("DisplayError", this.onLocalMessage);
+		window.addEventListener("DisplayError", this.onMessage);
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("DisplayError", this.onMessage);
-		window.removeEventListener("DisplayError", this.onLocalMessage);
+		window.removeEventListener("DisplayError", this.onMessage);
 	},
 
 	render: function () {
@@ -57,6 +51,8 @@ function displayError(message) {
 		message: message
 	});
 }
+
+serverSocket.on("DisplayError", displayError);
 
 window.addEventListener("load", function () {
 	ReactDOM.render(
