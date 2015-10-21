@@ -65,10 +65,9 @@ var Notifier = React.createClass({
 });
 
 function displayError(message) {
-	var ev = new Event("DisplayError");
-	ev.message = message;
-
-	window.dispatchEvent(ev);
+	window.dispatchEventEasily("DisplayError", {
+		message: message
+	});
 }
 
 window.addEventListener("load", function () {

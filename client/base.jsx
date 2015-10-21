@@ -1,13 +1,24 @@
 var serverSocket = io();
 
+window.dispatchEventEasily = function (tag, attach) {
+	var event = new Event(tag);
+
+	if (attach instanceof Object) {
+		for (var key in attach)
+			event[key] = attach[key];
+	}
+
+	window.dispatchEvent(event);
+};
+
 window.addEventListener("keyup", function (ev) {
 	if (ev.keyCode == 27)
-		window.dispatchEvent(new Event("Escape"));
+		window.dispatchEventEasily("Escape");
 });
 
 window.addEventListener("click", function (ev) {
 	if (ev.target == document.body)
-		window.dispatchEvent(new Event("Escape"));
+		window.dispatchEventEasily("Escape");
 });
 
 var Tile = React.createClass({

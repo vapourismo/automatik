@@ -120,10 +120,9 @@ var GroupTile = React.createClass({
 		ev.preventDefault();
 		this.setState({ mode: GroupTileMode.Context });
 
-		var ctxEvent = new Event("OpenGroupContext");
-		ctxEvent.sender = this;
-
-		window.dispatchEvent(ctxEvent);
+		window.dispatchEventEasily("OpenGroupContext", {
+			sender: this
+		});
 	},
 
 	onRequestDelete: function onRequestDelete() {
