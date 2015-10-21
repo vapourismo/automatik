@@ -1,4 +1,4 @@
-var InputGroupBox = React.createClass({
+const InputGroupBox = React.createClass({
 	onRequestEditing: function () {
 		this.setState({editing: true});
 	},
@@ -43,7 +43,7 @@ var InputGroupBox = React.createClass({
 	}
 });
 
-var AddGroupBox = React.createClass({
+const AddGroupBox = React.createClass({
 	onSubmit: function (name) {
 		serverSocket.emit("CreateGroup", {name: name, parent: this.props.parent});
 		this.props.onSubmit();
@@ -54,13 +54,13 @@ var AddGroupBox = React.createClass({
 	}
 });
 
-var AddElementTileMode = {
+const AddElementTileMode = {
 	Normal:    1,
 	Group:     2,
 	Component: 3
 };
 
-var AddElementTile = React.createClass({
+const AddElementTile = React.createClass({
 	getInitialState: function () {
 		return {
 			mode: AddElementTileMode.Normal
@@ -101,7 +101,7 @@ var AddElementTile = React.createClass({
 	}
 });
 
-var GroupTileMode = {
+const GroupTileMode = {
 	Normal:  1,
 	Waiting: 2,
 	Context: 3,
@@ -109,7 +109,7 @@ var GroupTileMode = {
 	Rename:  5
 };
 
-var GroupTile = React.createClass({
+const GroupTile = React.createClass({
 	getInitialState: function () {
 		return {
 			mode: GroupTileMode.Normal
@@ -243,7 +243,7 @@ var GroupTile = React.createClass({
 	}
 });
 
-var ParentGroupTile = React.createClass({
+const ParentGroupTile = React.createClass({
 	onClick: function () {
 		page("/groups/" + this.props.group);
 	},
@@ -259,7 +259,7 @@ var ParentGroupTile = React.createClass({
 	}
 });
 
-var GroupContainer = React.createClass({
+const GroupContainer = React.createClass({
 	getInitialState: function () {
 		return {
 			name: null,
@@ -279,9 +279,7 @@ var GroupContainer = React.createClass({
 		this.setState({
 			name: info.name,
 			parent: info.parent,
-			subGroups: info.subGroups.sort(function (a, b) {
-				return a.name.localeCompare(b.name);
-			})
+			subGroups: info.subGroups.sort((a, b) => a.name.localeCompare(b.name))
 		});
 	},
 
@@ -303,11 +301,11 @@ var GroupContainer = React.createClass({
 	},
 
 	render: function () {
-		var tiles = this.state.subGroups.map(function (group) {
-			return <GroupTile key={"group-tile-" + group.id} info={group}/>;
-		});
+		const tiles = this.state.subGroups.map(
+			group => <GroupTile key={"group-tile-" + group.id} info={group}/>
+		);
 
-		var back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
+		const back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
 
 		return (
 			<Container>

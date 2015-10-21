@@ -1,7 +1,7 @@
-var serverSocket = io();
+const serverSocket = io();
 
 window.dispatchEventEasily = function (tag, attach) {
-	var event = new Event(tag);
+	const event = new Event(tag);
 
 	if (attach instanceof Object) {
 		for (var key in attach)
@@ -21,13 +21,13 @@ window.addEventListener("click", function (ev) {
 		window.dispatchEventEasily("Escape");
 });
 
-var Tile = React.createClass({
+const Tile = React.createClass({
 	render: function () {
 		return <div className="tile">{this.props.children}</div>;
 	}
 });
 
-var Container = React.createClass({
+const Container = React.createClass({
 	render: function () {
 		return <div className="container">{this.props.children}</div>;
 	}

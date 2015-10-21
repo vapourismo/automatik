@@ -1,4 +1,4 @@
-var Notification = React.createClass({
+const Notification = React.createClass({
 	render: function () {
 		return (
 			<div className="notification fade-out">
@@ -8,7 +8,7 @@ var Notification = React.createClass({
 	}
 });
 
-var Notifier = React.createClass({
+const Notifier = React.createClass({
 	getInitialState: function () {
 		return {
 			notifications: []
