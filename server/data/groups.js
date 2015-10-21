@@ -90,12 +90,8 @@ GroupError.prototype = Object.create(Error.prototype);
 // Setup root group
 makeGroup({id: null, parent: null, name: null});
 
-var loadedGroups = false;
-
 module.exports = {
 	load: function* () {
-		if (loadedGroups) return;
-
 		const result = yield db.queryAsync("SELECT * FROM groups");
 
 		// TODO: Review pros and cons of traversing groups only once
@@ -107,7 +103,6 @@ module.exports = {
 		// Note, this only works when reparenting is not allowed.
 
 		result.rows.map(makeGroup).forEach(g => g.attachToParent());
-		loadGroups = true;
 	}.async(),
 
 	create: function* (name, parent) {

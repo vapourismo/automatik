@@ -16,9 +16,9 @@ function configureBackend(row) {
 }
 
 module.exports = {
-	load: function (callback) {
-		db.query("SELECT * FROM backends", function (err, result) {
-			if (err) return util.abort("backends", "Failed to fetch instances:", err);
+	load: function* () {
+		try {
+			const result = yield db.queryAsync("SELECT * FROM backends");
 
 			result.rows.forEach(function (row) {
 				const tag = "backend: " + row.id;
@@ -31,8 +31,8 @@ module.exports = {
 					util.error(tag, "Could not find driver '" + row.driver + "'");
 				}
 			});
-
-			if (callback) callback();
-		});
-	}
+		} catch (err) {
+			util.abort("backends", "Failed to fetch instances", err);
+		}
+	}.async()
 };

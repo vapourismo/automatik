@@ -94,9 +94,12 @@ const backends = require("./data/backends");
 // 	});
 // }
 
-backends.load(function () {
-	groups.load().catch(util.fatalError);
-});
+const load = function* () {
+	backends.load();
+	groups.load();
+}.async();
+
+load();
 
 module.exports = {
 	backends: backends,
