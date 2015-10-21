@@ -113,16 +113,11 @@ body {
 	display: flex;
 	width: 100%;
 	height: 100%;
-	background-color: #336699;
 	color: #fff;
 	padding: 10px;
 }
 
-.box:hover {
-	background-color: #339966;
-}
-
-.box.input-group {
+.tile .input-group {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -131,7 +126,7 @@ body {
 	background-color: #996633;
 }
 
-.box.input-group input {
+.tile .input-group input {
 	outline: none;
 	border: none;
 	background: transparent;
@@ -142,7 +137,7 @@ body {
 	height: 100%;
 }
 
-.box.delete-group {
+.tile .delete-group {
 	text-decoration: none;
 	background-color: #993333;
 	flex-direction: column;
@@ -151,37 +146,37 @@ body {
 	text-align: center;
 }
 
-.box.delete-group:hover {
+.tile .delete-group:hover {
 	background-color: #aa4444;
 }
 
-.box.context {
+.tile .context {
 	text-decoration: none;
-	background-color: #993333;
 	flex-direction: column;
 	justify-content: center;
 }
 
-.box.context li {
+.tile .context li {
 	display: flex;
 	justify-content: center;
 	align-content: center;
 	align-items: center;
 	padding: 5px;
-	border-top: dotted 1px #cc6666;
+	border-top: dotted 1px rgba(255, 255, 255, 0.2);
 	height: 100%;
 	cursor: pointer;
 }
 
-.box.context li:first-child {
+.tile .context li:first-child {
 	border: none;
 }
 
-.box.context li:hover {
-	background-color: #aa4444;
+.tile .context li:hover {
+	background-color: rgba(255, 255, 255, 0.1);
 }
 
-.box.group {
+.tile .group.normal {
+	background-color: #336699;
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -190,7 +185,15 @@ body {
 	text-align: center;
 }
 
-.box.group-action {
+.tile .group.normal:hover {
+	background-color: #339966;
+}
+
+.tile .group.context {
+	background-color: #339966;
+}
+
+.tile .group-action {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -201,7 +204,7 @@ body {
 	background-color: #669933;
 }
 
-.box.element-action {
+.tile .element-action.normal {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -211,8 +214,12 @@ body {
 	background-color: transparent;
 }
 
-.box.element-action:hover {
+.tile .element-action.normal:hover {
 	background-color: #222;
+}
+
+.tile .element-action.context {
+	background-color: #993333;
 }
 
 /* Pop up */

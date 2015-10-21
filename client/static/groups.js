@@ -22,14 +22,14 @@ var InputGroupBox = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
-		window.addEventListener("OpenGroupContext", this.onCancel);
+		window.addEventListener("OpenContext", this.onCancel);
 		window.addEventListener("Escape", this.onCancel);
 
 		this.refs.name.select();
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
-		window.removeEventListener("OpenGroupContext", this.onCancel);
+		window.removeEventListener("OpenContext", this.onCancel);
 		window.removeEventListener("Escape", this.onCancel);
 	},
 
@@ -61,8 +61,9 @@ var AddGroupBox = React.createClass({
 
 var AddElementTileMode = {
 	Normal: 1,
-	Group: 2,
-	Component: 3
+	Context: 2,
+	Group: 3,
+	Component: 4
 };
 
 var AddElementTile = React.createClass({
@@ -74,12 +75,40 @@ var AddElementTile = React.createClass({
 		};
 	},
 
-	restoreNormal: function restoreNormal() {
-		this.setState({ mode: AddElementTileMode.Normal });
+	onRequestNormal: function onRequestNormal() {
+		this.setState({
+			mode: AddElementTileMode.Normal
+		});
 	},
 
-	requestGroup: function requestGroup() {
-		this.setState({ mode: AddElementTileMode.Group });
+	onOpenContext: function onOpenContext(ev) {
+		if (ev.sender != this) this.onRequestNormal();
+	},
+
+	onRequestContext: function onRequestContext() {
+		window.dispatchEventEasily("OpenContext", {
+			sender: this
+		});
+
+		this.setState({
+			mode: AddElementTileMode.Context
+		});
+	},
+
+	onRequestGroup: function onRequestGroup() {
+		this.setState({
+			mode: AddElementTileMode.Group
+		});
+	},
+
+	componentDidMount: function componentDidMount() {
+		window.addEventListener("OpenContext", this.onOpenContext);
+		window.addEventListener("Escape", this.onRequestNormal);
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		window.removeEventListener("OpenContext", this.onOpenContext);
+		window.removeEventListener("Escape", this.onRequestNormal);
 	},
 
 	render: function render() {
@@ -87,15 +116,34 @@ var AddElementTile = React.createClass({
 
 		switch (this.state.mode) {
 			case AddElementTileMode.Group:
-				content = React.createElement(AddGroupBox, { parent: this.props.parent, onSubmit: this.restoreNormal,
-					onCancel: this.restoreNormal });
+				content = React.createElement(AddGroupBox, { parent: this.props.parent,
+					onSubmit: this.onRequestNormal,
+					onCancel: this.onRequestNormal });
+
+				break;
+
+			case AddElementTileMode.Context:
+				content = React.createElement(
+					"div",
+					{ className: "box element-action context" },
+					React.createElement(
+						"li",
+						{ onClick: this.onRequestGroup },
+						"Group"
+					),
+					React.createElement(
+						"li",
+						null,
+						"Component"
+					)
+				);
 
 				break;
 
 			default:
 				content = React.createElement(
 					"div",
-					{ className: "box element-action", onClick: this.requestGroup },
+					{ className: "box element-action normal", onClick: this.onRequestContext },
 					React.createElement("i", { className: "fa fa-plus" })
 				);
 
@@ -131,7 +179,7 @@ var GroupTile = React.createClass({
 		ev.preventDefault();
 		this.setState({ mode: GroupTileMode.Context });
 
-		window.dispatchEventEasily("OpenGroupContext", {
+		window.dispatchEventEasily("OpenContext", {
 			sender: this
 		});
 	},
@@ -158,7 +206,7 @@ var GroupTile = React.createClass({
 		});
 	},
 
-	onOpenGroupContext: function onOpenGroupContext(ev) {
+	onOpenContext: function onOpenContext(ev) {
 		if (ev.sender != this) this.setState({ mode: GroupTileMode.Normal });
 	},
 
@@ -183,7 +231,7 @@ var GroupTile = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
-		window.addEventListener("OpenGroupContext", this.onOpenGroupContext);
+		window.addEventListener("OpenContext", this.onOpenContext);
 		window.addEventListener("Escape", this.onEscape);
 
 		serverSocket.on("UpdateGroup", this.onUpdate);
@@ -191,7 +239,7 @@ var GroupTile = React.createClass({
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
-		window.removeEventListener("OpenGroupContext", this.onOpenGroupContext);
+		window.removeEventListener("OpenContext", this.onOpenContext);
 		window.removeEventListener("Escape", this.onEscape);
 
 		serverSocket.removeListener("UpdateGroup", this.onUpdate);
@@ -205,7 +253,7 @@ var GroupTile = React.createClass({
 			case GroupTileMode.Context:
 				content = React.createElement(
 					"div",
-					{ className: "box context" },
+					{ className: "box group context" },
 					React.createElement(
 						"li",
 						{ onClick: this.onRequestDelete },
@@ -241,7 +289,7 @@ var GroupTile = React.createClass({
 			case GroupTileMode.Waiting:
 				content = React.createElement(
 					"div",
-					{ className: "box group" },
+					{ className: "box group normal" },
 					React.createElement("i", { className: "fa fa-refresh rotate" })
 				);
 
@@ -250,7 +298,7 @@ var GroupTile = React.createClass({
 			default:
 				content = React.createElement(
 					"div",
-					{ className: "box group", onContextMenu: this.onContextMenu, onClick: this.onClick },
+					{ className: "box group normal", onContextMenu: this.onContextMenu, onClick: this.onClick },
 					this.props.info.name
 				);
 
