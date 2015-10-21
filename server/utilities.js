@@ -64,10 +64,6 @@ function abort(tag, ...args) {
 	process.exit(1);
 }
 
-function fatalError(error) {
-	loggers.error("fatal", error instanceof Error ? error.stack : error);
-}
-
 /*
  * Generators
  */
@@ -123,7 +119,6 @@ GeneratorProto.async = function () {
 module.exports = {
 	iterateFiles: iterateFiles,
 	abort:        abort,
-	fatalError:   fatalError,
 	inform:       loggers.inform,
 	warn:         loggers.warn,
 	error:        loggers.error,
