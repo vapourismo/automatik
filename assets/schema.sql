@@ -10,14 +10,14 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -30,7 +30,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: backends; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+-- Name: backends; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
 --
 
 CREATE TABLE backends (
@@ -65,7 +65,7 @@ ALTER SEQUENCE backends_id_seq OWNED BY backends.id;
 
 
 --
--- Name: datapoints; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+-- Name: datapoints; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
 --
 
 CREATE TABLE datapoints (
@@ -101,42 +101,6 @@ ALTER SEQUENCE datapoints_id_seq OWNED BY datapoints.id;
 
 
 --
--- Name: entities; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
---
-
-CREATE TABLE entities (
-    id integer NOT NULL,
-    room integer NOT NULL,
-    name character varying(255) NOT NULL,
-    type character varying(255) NOT NULL,
-    config json
-);
-
-
-ALTER TABLE entities OWNER TO automatik;
-
---
--- Name: entities_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
---
-
-CREATE SEQUENCE entities_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE entities_id_seq OWNER TO automatik;
-
---
--- Name: entities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
---
-
-ALTER SEQUENCE entities_id_seq OWNED BY entities.id;
-
-
---
 -- Name: groups_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
 --
 
@@ -151,7 +115,7 @@ CREATE SEQUENCE groups_id_seq
 ALTER TABLE groups_id_seq OWNER TO automatik;
 
 --
--- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
 --
 
 CREATE TABLE groups (
@@ -162,41 +126,6 @@ CREATE TABLE groups (
 
 
 ALTER TABLE groups OWNER TO automatik;
-
---
--- Name: slots; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
---
-
-CREATE TABLE slots (
-    id integer NOT NULL,
-    entity integer NOT NULL,
-    name character varying(255) NOT NULL,
-    value integer NOT NULL
-);
-
-
-ALTER TABLE slots OWNER TO automatik;
-
---
--- Name: slots_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
---
-
-CREATE SEQUENCE slots_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE slots_id_seq OWNER TO automatik;
-
---
--- Name: slots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
---
-
-ALTER SEQUENCE slots_id_seq OWNED BY slots.id;
-
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
@@ -213,21 +142,7 @@ ALTER TABLE ONLY datapoints ALTER COLUMN id SET DEFAULT nextval('datapoints_id_s
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY entities ALTER COLUMN id SET DEFAULT nextval('entities_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY slots ALTER COLUMN id SET DEFAULT nextval('slots_id_seq'::regclass);
-
-
---
--- Name: backends_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: backends_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
 --
 
 ALTER TABLE ONLY backends
@@ -235,7 +150,7 @@ ALTER TABLE ONLY backends
 
 
 --
--- Name: backends_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: backends_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
 --
 
 ALTER TABLE ONLY backends
@@ -243,7 +158,7 @@ ALTER TABLE ONLY backends
 
 
 --
--- Name: datapoints_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: datapoints_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
 --
 
 ALTER TABLE ONLY datapoints
@@ -251,7 +166,7 @@ ALTER TABLE ONLY datapoints
 
 
 --
--- Name: datapoints_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: datapoints_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
 --
 
 ALTER TABLE ONLY datapoints
@@ -259,23 +174,7 @@ ALTER TABLE ONLY datapoints
 
 
 --
--- Name: entities_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
---
-
-ALTER TABLE ONLY entities
-    ADD CONSTRAINT entities_pkey PRIMARY KEY (id);
-
-
---
--- Name: entities_room_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
---
-
-ALTER TABLE ONLY entities
-    ADD CONSTRAINT entities_room_name_key UNIQUE (room, name);
-
-
---
--- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
 --
 
 ALTER TABLE ONLY groups
@@ -283,30 +182,14 @@ ALTER TABLE ONLY groups
 
 
 --
--- Name: slots_entity_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
---
-
-ALTER TABLE ONLY slots
-    ADD CONSTRAINT slots_entity_name_key UNIQUE (entity, name);
-
-
---
--- Name: slots_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
---
-
-ALTER TABLE ONLY slots
-    ADD CONSTRAINT slots_pkey PRIMARY KEY (id);
-
-
---
--- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace:
 --
 
 CREATE UNIQUE INDEX groups_name_parent_unique ON groups USING btree (name, parent) WHERE (parent IS NOT NULL);
 
 
 --
--- Name: groups_name_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
+-- Name: groups_name_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace:
 --
 
 CREATE UNIQUE INDEX groups_name_unique ON groups USING btree (name) WHERE (parent IS NULL);
@@ -321,35 +204,11 @@ ALTER TABLE ONLY datapoints
 
 
 --
--- Name: entities_room_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY entities
-    ADD CONSTRAINT entities_room_fkey FOREIGN KEY (room) REFERENCES groups(id);
-
-
---
 -- Name: groups_parent_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
 --
 
 ALTER TABLE ONLY groups
     ADD CONSTRAINT groups_parent_fkey FOREIGN KEY (parent) REFERENCES groups(id);
-
-
---
--- Name: slots_entity_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY slots
-    ADD CONSTRAINT slots_entity_fkey FOREIGN KEY (entity) REFERENCES entities(id);
-
-
---
--- Name: slots_value_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
---
-
-ALTER TABLE ONLY slots
-    ADD CONSTRAINT slots_value_fkey FOREIGN KEY (value) REFERENCES datapoints(id);
 
 
 --
