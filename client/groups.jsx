@@ -268,7 +268,6 @@ var GroupContainer = React.createClass({
 		serverSocket.on("ListSubGroups", this.onListSubGroups);
 		serverSocket.on("UpdateGroup",   this.onUpdateGroup);
 
-		if (!this.counter) this.counter = 0;
 		this.requestSubGroups();
 	},
 
@@ -279,7 +278,7 @@ var GroupContainer = React.createClass({
 
 	render: function () {
 		var tiles = this.state.groups.map(function (group) {
-			return <GroupTile key={this.counter++} info={group}/>;
+			return <GroupTile key={"group-" + group.id} info={group}/>;
 		}.bind(this));
 
 		tiles.push(<AddElementTile key="add-group" parent={this.props.group}/>);
