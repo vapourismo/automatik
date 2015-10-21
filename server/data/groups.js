@@ -37,7 +37,7 @@ const GroupPrototype = {
 		} catch (err) {
 			util.error(tag, "Failed to rename", err);
 
-			if (err.code == 23505 && err.constraint == "groups_name_unique")
+			if (err.code == 23505 && (err.constraint == "groups_name_parent_unique" || err.constraint == "groups_name_unique"))
 				throw new GroupError("A group with that name already exists", err);
 			else
 				throw new GroupError("Unknown error, check logs", err);
