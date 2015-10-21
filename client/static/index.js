@@ -66,6 +66,18 @@ function displayError(message) {
 
 serverSocket.on("DisplayError", displayError);
 
+serverSocket.on("error", function (err) {
+	console.error(err);
+});
+
+serverSocket.on("disconnect", function () {
+	displayError("Lost connection to server");
+});
+
+serverSocket.on("reconnect", function () {
+	displayError("Successfully reconnected");
+});
+
 function displayGroup(group) {
 	ReactDOM.render(React.createElement(
 		"div",
@@ -84,7 +96,6 @@ page("/", function () {
 });
 
 page(function () {
-	console.log("none");
 	page.redirect("/");
 });
 

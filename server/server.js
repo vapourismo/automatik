@@ -1,7 +1,3 @@
-// HTTP server
-const http = require("http").Server();
-
-// Application
-require("./communication")(http);
-
-http.listen(3001);
+const server = require("socket.io")();
+require("./communication")(server);
+server.listen(3001);

@@ -1,15 +1,14 @@
-const SocketIO = require("socket.io");
-const data     = require("./data");
-const util     = require("./utilities");
+const data = require("./data");
+const util = require("./utilities");
 
-function BrowserClient(server, client) {
-	this.server = server;
+function BrowserClient(client) {
+	this.server = client.server;
 	this.client = client;
 
-	this.client.on("GetGroupInfo",  this.onGetGroupInfo.bind(this));
-	this.client.on("CreateGroup",   this.onCreateGroup.bind(this));
-	this.client.on("RenameGroup",   this.onRenameGroup.bind(this));
-	this.client.on("DeleteGroup",   this.onDeleteGroup.bind(this));
+	this.client.on("GetGroupInfo", this.onGetGroupInfo.bind(this));
+	this.client.on("CreateGroup",  this.onCreateGroup.bind(this));
+	this.client.on("RenameGroup",  this.onRenameGroup.bind(this));
+	this.client.on("DeleteGroup",  this.onDeleteGroup.bind(this));
 }
 
 BrowserClient.prototype = {
@@ -88,7 +87,6 @@ BrowserClient.prototype = {
 	}
 };
 
-module.exports = function (http) {
-	var server = SocketIO(http);
-	server.on("connection", client => new BrowserClient(server, client));
+module.exports = function (server) {
+	server.on("connection", client => new BrowserClient(client));
 };
