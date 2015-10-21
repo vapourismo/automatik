@@ -78,5 +78,7 @@ page(function () {
 });
 
 window.addEventListener("load", function () {
-	page(window.location.pathname);
+	page({
+		click: false
+	});
 });

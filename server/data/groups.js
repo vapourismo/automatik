@@ -61,7 +61,7 @@ const GroupPrototype = {
 			util.error(tag, "Failed to delete", err);
 
 			if (err.code == 23503)
-				throw new GroupError("Non-empty group cannot be deleted", err);
+				throw new GroupError("Non-empty groups cannot be deleted", err);
 			else
 				throw new GroupError("Unknown error, check logs", err);
 		}

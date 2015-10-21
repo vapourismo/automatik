@@ -89,7 +89,7 @@ var AddElementTile = React.createClass({
 
 			default:
 				content = (
-					<div className="box add-group" onClick={this.requestGroup}>
+					<div className="box element-action" onClick={this.requestGroup}>
 						<i className="fa fa-plus"></i>
 					</div>
 				);
@@ -243,21 +243,45 @@ var GroupTile = React.createClass({
 	}
 });
 
+var ParentGroupTile = React.createClass({
+	onClick: function () {
+		page("/groups/" + this.props.group);
+	},
+
+	render: function () {
+		return (
+			<Tile>
+				<div className="box group-action" onClick={this.onClick}>
+					<i className="fa fa-arrow-left"></i>
+				</div>
+			</Tile>
+		);
+	}
+});
+
 var GroupContainer = React.createClass({
 	getInitialState: function () {
-		return {groups: [], showTempTile: false};
+		return {
+			name: null,
+			parent: null,
+			subGroups: []
+		};
 	},
 
 	requestSubGroups: function () {
-		serverSocket.emit("ListSubGroups", this.props.group);
+		serverSocket.emit("GetGroupInfo", this.props.group);
 	},
 
-	onListSubGroups: function (info) {
+	onGetGroupInfo: function (info) {
 		if (info.id != this.props.group)
 			return;
 
+		console.log(info);
+
 		this.setState({
-			groups: info.subGroups.sort(function (a, b) {
+			name: info.name,
+			parent: info.parent,
+			subGroups: info.subGroups.sort(function (a, b) {
 				return a.name.localeCompare(b.name);
 			})
 		});
@@ -269,24 +293,27 @@ var GroupContainer = React.createClass({
 	},
 
 	componentDidMount: function () {
-		serverSocket.on("ListSubGroups", this.onListSubGroups);
-		serverSocket.on("UpdateGroup",   this.onUpdateGroup);
+		serverSocket.on("GetGroupInfo", this.onGetGroupInfo);
+		serverSocket.on("UpdateGroup",  this.onUpdateGroup);
 
 		this.requestSubGroups();
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("ListSubGroups", this.onListSubGroups);
-		serverSocket.removeListener("UpdateGroup",   this.onUpdateGroup);
+		serverSocket.removeListener("GetGroupInfo", this.onGetGroupInfo);
+		serverSocket.removeListener("UpdateGroup",  this.onUpdateGroup);
 	},
 
 	render: function () {
-		var tiles = this.state.groups.map(function (group) {
+		var tiles = this.state.subGroups.map(function (group) {
 			return <GroupTile key={"group-tile-" + group.id} info={group}/>;
 		});
 
+		var back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
+
 		return (
 			<Container>
+				{back}
 				{tiles}
 				<AddElementTile key="add-group" parent={this.props.group}/>
 			</Container>

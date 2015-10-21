@@ -6,31 +6,23 @@ function BrowserClient(server, client) {
 	this.server = server;
 	this.client = client;
 
-	this.client.on("ListSubGroups", this.onListSubGroups.bind(this));
 	this.client.on("GetGroupInfo",  this.onGetGroupInfo.bind(this));
 	this.client.on("CreateGroup",   this.onCreateGroup.bind(this));
 	this.client.on("RenameGroup",   this.onRenameGroup.bind(this));
 	this.client.on("DeleteGroup",   this.onDeleteGroup.bind(this));
 }
 
-function flattenGroup(grp) {
-	return {id: grp.id, name: grp.name};
-}
-
 BrowserClient.prototype = {
-	onListSubGroups: function (id) {
+	onGetGroupInfo: function (id) {
 		const grp = data.groups.find(id);
 
 		if (grp)
-			this.client.emit("ListSubGroups", {
+			this.client.emit("GetGroupInfo", {
 				id: id,
+				name: grp.name,
+				parent: grp.parent,
 				subGroups: grp.subGroups.map(g => ({id: g.id, name: g.name}))
 			});
-	},
-
-	onGetGroupInfo: function (id) {
-		const grp = data.groups.find(id);
-		if (grp) this.client.emit("GetGroupInfo", {id: grp.id, name: grp.name});
 	},
 
 	onCreateGroup: function (info) {

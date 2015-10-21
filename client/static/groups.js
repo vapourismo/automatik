@@ -95,7 +95,7 @@ var AddElementTile = React.createClass({
 			default:
 				content = React.createElement(
 					"div",
-					{ className: "box add-group", onClick: this.requestGroup },
+					{ className: "box element-action", onClick: this.requestGroup },
 					React.createElement("i", { className: "fa fa-plus" })
 				);
 
@@ -265,22 +265,50 @@ var GroupTile = React.createClass({
 	}
 });
 
+var ParentGroupTile = React.createClass({
+	displayName: "ParentGroupTile",
+
+	onClick: function onClick() {
+		page("/groups/" + this.props.group);
+	},
+
+	render: function render() {
+		return React.createElement(
+			Tile,
+			null,
+			React.createElement(
+				"div",
+				{ className: "box group-action", onClick: this.onClick },
+				React.createElement("i", { className: "fa fa-arrow-left" })
+			)
+		);
+	}
+});
+
 var GroupContainer = React.createClass({
 	displayName: "GroupContainer",
 
 	getInitialState: function getInitialState() {
-		return { groups: [], showTempTile: false };
+		return {
+			name: null,
+			parent: null,
+			subGroups: []
+		};
 	},
 
 	requestSubGroups: function requestSubGroups() {
-		serverSocket.emit("ListSubGroups", this.props.group);
+		serverSocket.emit("GetGroupInfo", this.props.group);
 	},
 
-	onListSubGroups: function onListSubGroups(info) {
+	onGetGroupInfo: function onGetGroupInfo(info) {
 		if (info.id != this.props.group) return;
 
+		console.log(info);
+
 		this.setState({
-			groups: info.subGroups.sort(function (a, b) {
+			name: info.name,
+			parent: info.parent,
+			subGroups: info.subGroups.sort(function (a, b) {
 				return a.name.localeCompare(b.name);
 			})
 		});
@@ -291,25 +319,28 @@ var GroupContainer = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
-		serverSocket.on("ListSubGroups", this.onListSubGroups);
+		serverSocket.on("GetGroupInfo", this.onGetGroupInfo);
 		serverSocket.on("UpdateGroup", this.onUpdateGroup);
 
 		this.requestSubGroups();
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
-		serverSocket.removeListener("ListSubGroups", this.onListSubGroups);
+		serverSocket.removeListener("GetGroupInfo", this.onGetGroupInfo);
 		serverSocket.removeListener("UpdateGroup", this.onUpdateGroup);
 	},
 
 	render: function render() {
-		var tiles = this.state.groups.map(function (group) {
+		var tiles = this.state.subGroups.map(function (group) {
 			return React.createElement(GroupTile, { key: "group-tile-" + group.id, info: group });
 		});
+
+		var back = this.props.group != null ? React.createElement(ParentGroupTile, { group: this.state.parent }) : null;
 
 		return React.createElement(
 			Container,
 			null,
+			back,
 			tiles,
 			React.createElement(AddElementTile, { key: "add-group", parent: this.props.group })
 		);
