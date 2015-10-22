@@ -1,5 +1,5 @@
-const data = require("./data");
-const util = require("./utilities");
+const util     = require("./utilities");
+const groups   = require("./data/groups");
 
 function BrowserClient(client) {
 	this.server = client.server;
@@ -13,7 +13,7 @@ function BrowserClient(client) {
 
 BrowserClient.prototype = {
 	onGetGroupInfo: function (id) {
-		const grp = data.groups.find(id);
+		const grp = groups.find(id);
 
 		if (grp)
 			this.client.emit("GetGroupInfo", {
@@ -28,7 +28,7 @@ BrowserClient.prototype = {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || (typeof(info.parent) != "number" && info.parent != null))
 			return util.error("communication", "Invalid parameter to 'CreateGroup' directive", info);
 
-		data.groups.create(info.name, info.parent).then(
+		groups.create(info.name, info.parent).then(
 			val => this.updateGroup(info.parent),
 			err => this.displayError(err.message)
 		);
@@ -38,7 +38,7 @@ BrowserClient.prototype = {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
 			return util.error("communication", "Invalid parameter to 'RenameGroup' directive");
 
-		const grp = data.groups.find(info.id);
+		const grp = groups.find(info.id);
 
 		if (grp) {
 			grp.rename(info.name).then(
@@ -58,7 +58,7 @@ BrowserClient.prototype = {
 		if (typeof(id) != "number")
 			return util.error("communication", "Invalid parameter to 'DeleteGroup' directive");
 
-		const grp = data.groups.find(id);
+		const grp = groups.find(id);
 
 		if (grp) {
 			grp.delete().then(
