@@ -52,6 +52,32 @@ function displayError(message) {
 	});
 }
 
+var loadedScripts = {};
+serverSocket.on("AttachScript", function (url) {
+	if (url in loadedScripts)
+		return;
+
+	var scriptElement = document.createElement("script");
+	scriptElement.src = url;
+
+	loadedScripts[url] = scriptElement;
+	document.head.appendChild(scriptElement);
+});
+
+var loadedStyles = {};
+serverSocket.on("AttachStyle", function (url) {
+	if (url in loadedStyles)
+		return;
+
+	var linkElement = document.createElement("link");
+	linkElement.href = url;
+	linkElement.type = "text/css";
+	linkElement.rel = "stylesheet";
+
+	loadedStyles[url] = linkElement;
+	document.head.appendChild(linkElement);
+});
+
 serverSocket.on("DisplayError", displayError);
 
 serverSocket.on("error", function (err) {

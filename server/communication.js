@@ -1,18 +1,32 @@
-const util     = require("./utilities");
-const groups   = require("./groups");
+"use strict";
 
-function BrowserClient(client) {
-	this.server = client.server;
-	this.client = client;
+const util   = require("./utilities");
+const groups = require("./groups");
+const Driver = require("./driver");
 
-	this.client.on("GetGroupInfo", this.onGetGroupInfo.bind(this));
-	this.client.on("CreateGroup",  this.onCreateGroup.bind(this));
-	this.client.on("RenameGroup",  this.onRenameGroup.bind(this));
-	this.client.on("DeleteGroup",  this.onDeleteGroup.bind(this));
-}
+const clientScripts = {};
+const clientStyles = {};
 
-BrowserClient.prototype = {
-	onGetGroupInfo: function (id) {
+/*
+ * Brower controller
+ */
+
+class BrowserClient {
+	constructor(client) {
+		this.server = client.server;
+		this.client = client;
+
+		this.client.on("GetGroupInfo", this.onGetGroupInfo.bind(this));
+		this.client.on("CreateGroup",  this.onCreateGroup.bind(this));
+		this.client.on("RenameGroup",  this.onRenameGroup.bind(this));
+		this.client.on("DeleteGroup",  this.onDeleteGroup.bind(this));
+
+		// Send all client attachments
+		clientStyles.forEach(url => this.attachStyle(url));
+		clientScripts.forEach(url => this.attachScript(url));
+	}
+
+	onGetGroupInfo(id) {
 		const grp = groups.find(id);
 
 		if (grp)
@@ -22,9 +36,9 @@ BrowserClient.prototype = {
 				parent: grp.parent,
 				subGroups: grp.subGroups.map(g => ({id: g.id, name: g.name}))
 			});
-	},
+	}
 
-	onCreateGroup: function (info) {
+	onCreateGroup(info) {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || (typeof(info.parent) != "number" && info.parent != null))
 			return util.error("communication", "Invalid parameter to 'CreateGroup' directive", info);
 
@@ -32,9 +46,9 @@ BrowserClient.prototype = {
 			val => this.updateGroup(info.parent),
 			err => this.displayError(err.message)
 		);
-	},
+	}
 
-	onRenameGroup: function (info) {
+	onRenameGroup(info) {
 		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
 			return util.error("communication", "Invalid parameter to 'RenameGroup' directive");
 
@@ -52,9 +66,9 @@ BrowserClient.prototype = {
 			util.error("communication", "Cannot find group #" + info.id);
 			this.displayError("Cannot find group #" + info.id);
 		}
-	},
+	}
 
-	onDeleteGroup: function (id) {
+	onDeleteGroup(id) {
 		if (typeof(id) != "number")
 			return util.error("communication", "Invalid parameter to 'DeleteGroup' directive");
 
@@ -69,24 +83,50 @@ BrowserClient.prototype = {
 			util.error("communication", "Cannot find group #" + id);
 			this.displayError("Cannot find group #" + id);
 		}
-	},
+	}
 
-	updateGroup: function (id) {
+	updateGroup(id) {
 		this.server.emit("UpdateGroup", id);
-	},
+	}
 
-	updateGroupFailed: function (id, msg) {
+	updateGroupFailed(id, msg) {
 		this.client.emit("UpdateGroupFailed", {
 			id: id,
 			message: msg
 		});
-	},
+	}
 
-	displayError: function (err) {
+	displayError(err) {
 		this.client.emit("DisplayError", err);
+	}
+
+	attachScript(url) {
+		this.client.emit("AttachScript", url);
+	}
+
+	attachStyle(url) {
+		this.client.emit("AttachStyle", url);
 	}
 };
 
-module.exports = function (server) {
+/*
+ * Local instance
+ */
+
+function Communication(server) {
 	server.on("connection", client => new BrowserClient(client));
 };
+
+Communication.attachClientScript = function (url) {
+	clientScripts[url] = null;
+};
+
+Communication.attachClientStyle = function (url) {
+	clientStyles[url] = null;
+};
+
+/*
+ * Exports
+ */
+
+module.exports = Communication;

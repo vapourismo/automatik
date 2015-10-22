@@ -113,6 +113,29 @@ GeneratorProto.async = function () {
 };
 
 /*
+ * Object utilities
+ */
+Object.defineProperty(Object.prototype, "forEach", {
+	value: function (callback) {
+		for (var key in this) callback(key, this[key]);
+	},
+	enumerable: false
+});
+
+Object.defineProperty(Object.prototype, "map", {
+	value: function (callback) {
+		var newObject = {};
+
+		for (var key in this)
+			newObject[key] = callback(key, this[key]);
+
+		return newObject;
+	},
+	enumerable: false
+});
+
+
+/*
  * Exports
  */
 
