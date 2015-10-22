@@ -71,10 +71,11 @@ const GroupPrototype = {
 };
 
 function makeGroup(row) {
+	util.inform("group: " + row.id, "Loading '" + row.name + "'");
+
 	row.__proto__ = GroupPrototype;
 	row.subGroups = [];
 
-	util.inform("group: " + row.id, "Configured '" + row.name + "'");
 	return groups[row.id] = row;
 }
 

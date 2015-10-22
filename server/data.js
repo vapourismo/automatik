@@ -3,8 +3,12 @@ const groups   = require("./data/groups");
 const backends = require("./data/backends");
 
 (function* () {
-	backends.load();
-	groups.load();
+	try {
+		yield backends.load();
+		yield groups.load();
+	} catch (error) {
+		util.abort("data", error instanceof Error ? error.stack : error);
+	}
 }).async()();
 
 module.exports = {
