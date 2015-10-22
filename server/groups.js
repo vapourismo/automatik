@@ -1,5 +1,5 @@
-const db   = require("../database");
-const util = require("../utilities");
+const db   = require("./database");
+const util = require("./utilities");
 
 const groups = {};
 

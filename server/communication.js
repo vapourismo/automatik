@@ -1,5 +1,5 @@
 const util     = require("./utilities");
-const groups   = require("./data/groups");
+const groups   = require("./groups");
 
 function BrowserClient(client) {
 	this.server = client.server;

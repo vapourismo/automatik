@@ -1,9 +1,15 @@
-const knxclient = require("knxclient");
-const drivers   = require("../drivers");
+"use strict";
 
-drivers.register("knx_router", {
-	configure: function (config) {
+const knxclient = require("knxclient");
+const Driver    = require("../driver");
+
+class KNXRouter extends Driver {
+	constructor(config) {
+		super();
+
 		this.client = new knxclient.RouterClient(config);
 		this.datapoints = {};
 	}
-});
+}
+
+Driver.register(KNXRouter);
