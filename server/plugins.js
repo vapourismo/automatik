@@ -1,29 +1,20 @@
-const path = require("path");
-const util = require("./utilities");
+const path     = require("path");
+const util     = require("./utilities");
+const wrappers = require("./wrappers");
 
 const drivers = {};
-
-const defaultDriverSpec = {
-	configure: function (config) {}
-};
 
 // Every plugin's initialization function will be bound to this environment
 const pluginEnvironment = {
 	registerDriver: function (name, spec) {
 		const tag = "driver: " + name;
 
-		if (!(spec instanceof Object))
-			return util.error(tag, "Specification needs to be an Object");
-
 		// This check might be removed in future version
 		if (name in drivers)
 			return util.error("drivers", "Driver '" + name + "' already exists");
 
-		// Ensure all needed methods exist
-		spec.__proto__ = defaultDriverSpec;
-
 		util.inform("drivers", "Registering driver '" + name + "'");
-		drivers[name] = spec;
+		drivers[name] = wrappers.createDriver(spec);
 	}
 };
 
