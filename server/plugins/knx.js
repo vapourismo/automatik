@@ -15,5 +15,5 @@ class KNXRouter extends Driver {
 
 Driver.register(KNXRouter);
 
-Communication.attachClientScript("/static/plugins/knx.js");
-Communication.attachClientStyle("/static/plugins/knx.css");
+// Communication.attachClientScript("/static/plugins/knx.js");
+// Communication.attachClientStyle("/static/plugins/knx.css");
