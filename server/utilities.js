@@ -93,24 +93,19 @@ function serve(iter, step, accept, reject) {
 	}
 }
 
-GeneratorProto.async = function () {
-	const generator = this;
+Object.defineProperty(GeneratorProto, "async", {
+	get: function () {
+		const generator = this;
 
-	return function (...args) {
-		const promise = new Promise(function (accept, reject) {
-			const iter = generator.call(this, ...args);
-			serve(iter, iter.next(), accept, reject);
-		}.bind(this));
-
-		// if (config.logAsyncErrors) {
-		// 	promise.catch(function (error) {
-		// 		loggers.error("async", error instanceof Error ? error.stack : error);
-		// 	});
-		// }
-
-		return promise;
-	};
-};
+		return function (...args) {
+			return new Promise((accept, reject) => {
+				const iter = generator.call(this, ...args);
+				serve(iter, iter.next(), accept, reject);
+			});
+		};
+	},
+	enumerable: false
+});
 
 /*
  * Object utilities
@@ -141,9 +136,7 @@ Object.defineProperty(Object.prototype, "map", {
 
 module.exports = {
 	iterateFiles: iterateFiles,
-	abort:        abort,
-	inform:       loggers.inform,
-	warn:         loggers.warn,
-	error:        loggers.error,
-	debug:        loggers.debug
+	abort:        abort
 };
+
+Object.assign(module.exports, loggers);

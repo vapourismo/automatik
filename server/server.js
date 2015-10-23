@@ -27,4 +27,4 @@ require("./communication")(server);
 	} catch (error) {
 		util.abort("data", error instanceof Error ? error.stack : error);
 	}
-}).async()();
+}).async();

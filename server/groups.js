@@ -50,7 +50,7 @@ Group.prototype.rename = function* (name) {
 		else
 			throw new GroupError("Unknown error, check logs", err);
 	}
-}.async();
+}.async;
 
 Group.prototype.delete = function* () {
 	const tag = "group: " + this.id;
@@ -75,7 +75,7 @@ Group.prototype.delete = function* () {
 		else
 			throw new GroupError("Unknown error, check logs", err);
 	}
-}.async();
+}.async;
 
 class GroupError extends Error {
 	constructor(message, cause) {
@@ -105,7 +105,7 @@ module.exports = {
 			util.inform("group: " + row.id, "Registering '" + row.name + "'");
 			return groups[row.id] = new Group(row);
 		}).forEach(g => g.attachToParent());
-	}.async(),
+	}.async,
 
 	create: function* (name, parent) {
 		if (name.length < 1)
@@ -134,7 +134,7 @@ module.exports = {
 			else
 				throw new GroupError("Unknown error, check logs", err);
 		}
-	}.async(),
+	}.async,
 
 	find: function (id) {
 		const grp = groups[id];

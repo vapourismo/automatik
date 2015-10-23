@@ -21,7 +21,7 @@ module.exports = {
 			util.inform("backends", "Registering '" + row.name + "'");
 			backends[row.id] = new Backend(row);
 		});
-	}.async(),
+	}.async,
 
 	find: function (id) {
 		const backend = backends[id];
