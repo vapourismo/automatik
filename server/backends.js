@@ -23,7 +23,8 @@ module.exports = {
 		});
 	}.async(),
 
-	find: function () {
-
+	find: function (id) {
+		const backend = backends[id];
+		return backend instanceof Backend ? backend : null;
 	}
 };
