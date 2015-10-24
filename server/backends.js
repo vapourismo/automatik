@@ -52,6 +52,17 @@ module.exports = {
 		});
 	}.async,
 
+	create: function* (name, driver, config) {
+		if (!(driver in drivers))
+			throw new Error("Driver '" + this.driver + "' does not exist");
+
+		const insertResult = yield db.queryAsync("INSERT INTO backends (name, driver, config) VALUES ($1, $2, $3) RETURNING *", [name, driver, config]);
+		insertResult.rows.forEach(function (row) {
+			util.inform("backends", "Registering '" + row.name + "'");
+			backends[row.id] = new Backend(row);
+		});
+	}.async,
+
 	find: function (id) {
 		const backend = backends[id];
 		return backend instanceof Backend ? backend : null;
