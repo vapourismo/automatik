@@ -35,8 +35,8 @@ class Datapoint extends EventEmitter {
 }
 
 class Driver {
-	obtainDatapoint(config) {
-		throw new Error("Driver.obtainDatapoint is not implemented");
+	attachToDatapoint(config, datapoint) {
+		throw new Error("Driver.attachToDatapoint is not implemented");
 	}
 }
 
@@ -50,20 +50,15 @@ class Backend {
 		this.driver = new drivers[this.driver](this.config);
 	}
 
-	obtainDatapoint(config) {
-		const obj = this.driver.obtainDatapoint(config);
-
-		obj.on("update", function (value) {
-			util.inform("update", value);
-		});
-
-		return obj;
+	createDatapoint(config) {
+		const dp = new Datapoint();
+		this.driver.attachToDatapoint(config, dp);
+		return dp;
 	}
 }
 
 module.exports = {
-	Datapoint: Datapoint,
-	Driver:    Driver,
+	Driver: Driver,
 
 	registerDriver: function (clazz) {
 		const name = clazz.name;
@@ -91,7 +86,7 @@ module.exports = {
 				throw new Error("Backend #" + row.backend + " does not exist");
 
 			util.inform("datapoints", "Registering '" + row.name + "'");
-			datapoints[row.id] = backends[row.backend].obtainDatapoint(row.config);
+			datapoints[row.id] = backends[row.backend].createDatapoint(row.config);
 		});
 	}.async,
 
