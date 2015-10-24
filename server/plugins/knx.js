@@ -28,6 +28,9 @@ class KNXRouter extends backends.Driver {
 					datapoint.value = message.asBool();
 				});
 
+				if (datapoint.value == null)
+					datapoint.value = false;
+
 				break;
 
 			case 9:
@@ -38,6 +41,9 @@ class KNXRouter extends backends.Driver {
 				this.hooks.on(config.address, message => {
 					datapoint.value = message.asFloat16();
 				});
+
+				if (datapoint.value == null)
+					datapoint.value = 0.0;
 
 				break;
 		}
