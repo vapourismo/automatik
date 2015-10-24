@@ -2,7 +2,6 @@
 
 const util   = require("./utilities");
 const groups = require("./groups");
-const Driver = require("./driver");
 
 const clientScripts = {};
 const clientStyles = {};

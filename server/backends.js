@@ -3,18 +3,47 @@
 const path   = require("path");
 const db     = require("./database");
 const util   = require("./utilities");
-const Driver = require("./driver");
 
 const backends = {};
+const drivers = {};
+
+class Driver {
+	obtainDatapoint(config) {
+		throw new Error("Driver.obtainDatapoint is not implemented");
+	}
+}
 
 class Backend {
 	constructor(row) {
 		Object.assign(this, row);
-		row.driver = Driver.create(this.driver, this.config);
+
+		if (!(this.driver in drivers))
+			throw new Error("Driver '" + this.driver + "' does not exist");
+
+		row.driver = new drivers[this.driver](this.config);
+	}
+
+	obtainDatapoint(config) {
+		return row.driver.obtainDatapoint(config);
 	}
 }
 
 module.exports = {
+	Driver: Driver,
+
+	registerDriver: function (clazz) {
+		const name = clazz.name;
+
+		if (name in drivers)
+			throw new Error("Driver '" + name + "' already exists");
+
+		if (!(clazz.prototype instanceof Driver))
+			throw new Error("Driver '" + name + "' needs to extend the Driver class");
+
+		util.inform("drivers", "Registering '" + name + "'");
+		drivers[name] = clazz;
+	},
+
 	load: function* () {
 		const backendsResult = yield db.queryAsync("SELECT * FROM backends");
 		backendsResult.rows.forEach(function (row) {
