@@ -24,7 +24,7 @@ class KNXRouter extends backends.Driver {
 					this.client.send(0, config.address, knxclient.makeBool(value));
 				});
 
-				this.hooks.on(config.address, message => {
+				this.hooks.on(config.address, function (message) {
 					datapoint.value = message.asBool();
 				});
 
@@ -38,7 +38,7 @@ class KNXRouter extends backends.Driver {
 					this.client.send(0, config.address, knxclient.makeFloat16(value));
 				});
 
-				this.hooks.on(config.address, message => {
+				this.hooks.on(config.address, function (message) {
 					datapoint.value = message.asFloat16();
 				});
 
