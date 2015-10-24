@@ -1,11 +1,38 @@
 "use strict";
 
-const path   = require("path");
-const db     = require("./database");
-const util   = require("./utilities");
+const EventEmitter = require('events');
+const path         = require("path");
+const db           = require("./database");
+const util         = require("./utilities");
 
-const backends = {};
 const drivers = {};
+const backends = {};
+const datapoints = {};
+
+class Datapoint extends EventEmitter {
+	constructor(value) {
+		super();
+
+		if (value !== undefined)
+			this.value = value;
+	}
+
+	set value(value) {
+		this._value = value;
+		this.emit("update", value);
+	}
+
+	get value() {
+		return this._value;
+	}
+
+	commit(value) {
+		if (value !== undefined)
+			this.value = value;
+
+		this.emit("commit", value);
+	}
+}
 
 class Driver {
 	obtainDatapoint(config) {
@@ -20,16 +47,23 @@ class Backend {
 		if (!(this.driver in drivers))
 			throw new Error("Driver '" + this.driver + "' does not exist");
 
-		row.driver = new drivers[this.driver](this.config);
+		this.driver = new drivers[this.driver](this.config);
 	}
 
 	obtainDatapoint(config) {
-		return row.driver.obtainDatapoint(config);
+		const obj = this.driver.obtainDatapoint(config);
+
+		obj.on("update", function (value) {
+			util.inform("update", value);
+		});
+
+		return obj;
 	}
 }
 
 module.exports = {
-	Driver: Driver,
+	Datapoint: Datapoint,
+	Driver:    Driver,
 
 	registerDriver: function (clazz) {
 		const name = clazz.name;
@@ -49,6 +83,15 @@ module.exports = {
 		backendsResult.rows.forEach(function (row) {
 			util.inform("backends", "Registering '" + row.name + "'");
 			backends[row.id] = new Backend(row);
+		});
+
+		const datapointsResult = yield db.queryAsync("SELECT * FROM datapoints");
+		datapointsResult.rows.forEach(function (row) {
+			if (!(row.backend in backends))
+				throw new Error("Backend #" + row.backend + " does not exist");
+
+			util.inform("datapoints", "Registering '" + row.name + "'");
+			datapoints[row.id] = backends[row.backend].obtainDatapoint(row.config);
 		});
 	}.async,
 
