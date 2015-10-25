@@ -15,8 +15,20 @@ const groups = {};
 
 class Group {
 	constructor(row) {
-		Object.assign(this, row);
+		this.row = row;
 		this.subGroups = [];
+	}
+
+	get id() {
+		return this.row.data.id;
+	}
+
+	get name() {
+		return this.row.data.name;
+	}
+
+	get parent() {
+		return this.row.data.parent;
 	}
 
 	attachToParent() {
@@ -30,7 +42,7 @@ class Group {
 	}
 
 	attach(grp) {
-		if (!(grp in this.subGroups))
+		if (this.subGroups.every(g => g != grp))
 			this.subGroups.push(grp);
 	}
 
@@ -43,12 +55,7 @@ Group.prototype.rename = function* (name) {
 	const tag = "group: " + this.id;
 
 	try {
-		const result = yield db.queryAsync(
-			"UPDATE groups SET name = $1 WHERE id = $2 RETURNING name",
-			[name, this.id]
-		);
-
-		this.name = result.rows[0].name;
+		yield this.row.update({name: name});
 		util.inform(tag, "Renamed to '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to rename", err);
@@ -63,14 +70,10 @@ Group.prototype.rename = function* (name) {
 Group.prototype.delete = function* () {
 	const tag = "group: " + this.id;
 
-	if (this.id == null)
-		return util.error(tag, "Cannot delete root group");
-
 	yield* this.subGroups.map(g => g.delete());
 
 	try {
-		yield db.queryAsync("DELETE FROM groups WHERE id = $1", [this.id]);
-
+		yield this.row.delete();
 		this.detachFromParent();
 		delete groups[this.id];
 
@@ -85,24 +88,31 @@ Group.prototype.delete = function* () {
 	}
 }.async;
 
+class BaseGroup extends Group {
+	constructor() {
+		super(new db.Row(null, {parent: null, name: null}));
+	}
+}
+
+BaseGroup.prototype.rename = function* () {
+	return util.error(tag, "Cannot rename root group");
+};
+
+BaseGroup.prototype.delete = function* () {
+	return util.error(tag, "Cannot delete root group");
+};
+
 // Setup root group
-groups[null] = new Group({id: null, parent: null, name: null});
+groups[null] = new BaseGroup();
+
+const table = new db.Table("groups", "id", ["name", "parent"]);
 
 module.exports = {
 	load: function* () {
-		const result = yield db.queryAsync("SELECT * FROM groups");
-
-		// TODO: Review pros and cons of traversing groups only once
-		// Theoretically we don't need to traverse the newly loaded groups twice if we sort them
-		// by ID in ascending order. Since IDs are higher for groups which have been created at a
-		// later point in time and groups can only be attached to groups that already exist (because
-		// they have been created earlier, therefore lower ID), each parent group will be available
-		// before its children.
-		// Note, this only works when reparenting is not allowed.
-
-		result.rows.map(row => {
-			util.inform("group: " + row.id, "Registering '" + row.name + "'");
-			return groups[row.id] = new Group(row);
+		const rows = yield table.load();
+		rows.map(row => {
+			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
+			return groups[row.data.id] = new Group(row);
 		}).forEach(g => g.attachToParent());
 	}.async,
 
@@ -111,18 +121,14 @@ module.exports = {
 			throw new GroupError("Group name has to contain at least one character");
 
 		try {
-			const result = yield db.queryAsync(
-				"INSERT INTO groups (name, parent) VALUES ($1, $2) RETURNING *",
-				[name, parent]
-			);
+			const row = yield table.insert({name: name, parent: parent});
 
-			// TODO: Review pros and cons of traversing groups only once
-			result.rows.map(row => {
-				util.inform("group: " + row.id, "Creating '" + row.name + "'");
-				return groups[row.id] = new Group(row);
-			}).forEach(g => g.attachToParent());
+			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
+			const group = groups[row.data.id] = new Group(row);
+
+			group.attachToParent();
 		} catch (err) {
-			util.error("groups", "Failed to create", err);
+			util.error("groups", "Failed to create", err.stack);
 
 			if (err.code == 23505 && (err.constraint == "groups_name_parent_unique" || err.constraint == "groups_name_unique"))
 				throw new GroupError("A group with that name already exists", err);
