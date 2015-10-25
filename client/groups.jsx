@@ -1,48 +1,3 @@
-const InputGroupBox = React.createClass({
-	onRequestEditing: function () {
-		this.setState({editing: true});
-	},
-
-	onSubmit: function (ev) {
-		this.props.onSubmit(this.refs.name.value);
-
-		if (ev) ev.preventDefault();
-		return false;
-	},
-
-	onCancel: function (ev) {
-		if (this.props.onCancel)
-			this.props.onCancel(this.refs.name.value);
-
-		if (ev) ev.preventDefault();
-		return false;
-	},
-
-	componentDidMount: function () {
-		window.addEventListener("OpenContext", this.onCancel);
-		window.addEventListener("Escape",      this.onCancel);
-
-		this.refs.name.select();
-	},
-
-	componentWillUnmount: function () {
-		window.removeEventListener("OpenContext", this.onCancel);
-		window.removeEventListener("Escape",      this.onCancel);
-	},
-
-	render: function () {
-		return (
-			<form className="box input-group" onSubmit={this.onSubmit}>
-				<input ref="name" type="text" defaultValue={this.props.defaultValue} onBlur={this.onCancel}/>
-			</form>
-		);
-	},
-
-	componentDidUpdate: function () {
-		this.refs.name.select();
-	}
-});
-
 const AddGroupBox = React.createClass({
 	onSubmit: function (name) {
 		serverSocket.emit("CreateGroup", {name: name, parent: this.props.parent});
@@ -50,7 +5,7 @@ const AddGroupBox = React.createClass({
 	},
 
 	render: function () {
-		return <InputGroupBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
+		return <InputBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
 	}
 });
 
@@ -97,6 +52,10 @@ const AddElementTile = React.createClass({
 	componentDidMount: function () {
 		window.addEventListener("OpenContext", this.onOpenContext);
 		window.addEventListener("Escape",      this.onRequestNormal);
+
+		this.contextItems = {
+			"Group": this.onRequestGroup
+		};
 	},
 
 	componentWillUnmount: function () {
@@ -118,12 +77,7 @@ const AddElementTile = React.createClass({
 				break;
 
 			case AddElementTileMode.Context:
-				content = (
-					<div className="box element-action context">
-						<li onClick={this.onRequestGroup}>Group</li>
-						<li>Component</li>
-					</div>
-				);
+				content = <ContextBox items={this.contextItems}/>;
 
 				break;
 
@@ -220,6 +174,11 @@ const GroupTile = React.createClass({
 
 		serverSocket.on("UpdateGroup",       this.onUpdate);
 		serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
+
+		this.contextItems = {
+			"Delete": this.onRequestDelete,
+			"Rename": this.onRequestRename
+		};
 	},
 
 	componentWillUnmount: function () {
@@ -235,43 +194,30 @@ const GroupTile = React.createClass({
 
 		switch (this.state.mode) {
 			case GroupTileMode.Context:
-				content = (
-					<div className="box group context">
-						<li onClick={this.onRequestDelete}>Delete</li>
-						<li onClick={this.onRequestRename}>Rename</li>
-					</div>
-				);
+				content = <ContextBox items={this.contextItems}/>;
 
 				break;
 
 			case GroupTileMode.Delete:
-				content = (
-					<div className="box delete-group" onClick={this.onConfirmDelete}>
-						<span>Are you sure?</span>
-					</div>
-				);
+				content = <ConfirmBox onConfirm={this.onConfirmDelete}/>;
 
 				break;
 
 			case GroupTileMode.Rename:
 				content = (
-		           <InputGroupBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
+		           <InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
 				);
 
 				break;
 
 			case GroupTileMode.Waiting:
-				content = (
-					<div className="box group normal">
-						<i className="fa fa-refresh rotate"></i>
-					</div>
-				);
+				content = <WaitingBox />;
 
 				break;
 
 			default:
 				content = (
-					<div className="box group normal" onContextMenu={this.onContextMenu} onClick={this.onClick}>
+					<div className="box normal" onContextMenu={this.onContextMenu} onClick={this.onClick}>
 						{this.props.info.name}
 					</div>
 				);

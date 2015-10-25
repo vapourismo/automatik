@@ -102,9 +102,19 @@ function displayGroup(group) {
 	);
 }
 
-page(/^\/groups\/(\d+)/, function (ctx) {
-	displayGroup(Number.parseInt(ctx.params[0]));
-});
+function displayBackends() {
+	ReactDOM.render(
+		<div>
+			<BackendContainer key="backend-container" />
+			<Notifier />
+		</div>,
+		document.getElementById("canvas")
+	);
+}
+
+page(/^\/groups\/(\d+)/, ctx => displayGroup(Number.parseInt(ctx.params[0])));
+
+page("/backends", displayBackends);
 
 page("/", function () {
 	displayGroup(null);

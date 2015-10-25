@@ -43,24 +43,23 @@ var Container = React.createClass({
 		);
 	}
 });
-"use strict";
 
-var InputGroupBox = React.createClass({
-	displayName: "InputGroupBox",
+var InputBox = React.createClass({
+	displayName: "InputBox",
 
 	onRequestEditing: function onRequestEditing() {
 		this.setState({ editing: true });
 	},
 
 	onSubmit: function onSubmit(ev) {
-		this.props.onSubmit(this.refs.name.value);
+		this.props.onSubmit(this.refs.input.value);
 
 		if (ev) ev.preventDefault();
 		return false;
 	},
 
 	onCancel: function onCancel(ev) {
-		if (this.props.onCancel) this.props.onCancel(this.refs.name.value);
+		if (this.props.onCancel) this.props.onCancel(this.refs.input.value);
 
 		if (ev) ev.preventDefault();
 		return false;
@@ -70,7 +69,7 @@ var InputGroupBox = React.createClass({
 		window.addEventListener("OpenContext", this.onCancel);
 		window.addEventListener("Escape", this.onCancel);
 
-		this.refs.name.select();
+		this.refs.input.select();
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
@@ -81,15 +80,64 @@ var InputGroupBox = React.createClass({
 	render: function render() {
 		return React.createElement(
 			"form",
-			{ className: "box input-group", onSubmit: this.onSubmit },
-			React.createElement("input", { ref: "name", type: "text", defaultValue: this.props.defaultValue, onBlur: this.onCancel })
+			{ className: "box input", onSubmit: this.onSubmit },
+			React.createElement("input", { ref: "input", type: "text", defaultValue: this.props.defaultValue, onBlur: this.onCancel })
 		);
 	},
 
 	componentDidUpdate: function componentDidUpdate() {
-		this.refs.name.select();
+		this.refs.input.select();
 	}
 });
+
+var ContextBox = React.createClass({
+	displayName: "ContextBox",
+
+	render: function render() {
+		var items = [];
+
+		for (var name in this.props.items) items.push(React.createElement(
+			"li",
+			{ key: items.length, onClick: this.props.items[name] },
+			name
+		));
+
+		return React.createElement(
+			"div",
+			{ className: "box context" },
+			items
+		);
+	}
+});
+
+var ConfirmBox = React.createClass({
+	displayName: "ConfirmBox",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "box delete", onClick: this.props.onConfirm },
+			React.createElement(
+				"span",
+				null,
+				"Are you sure?"
+			)
+		);
+	}
+});
+
+var WaitingBox = React.createClass({
+	displayName: "WaitingBox",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "box waiting" },
+			React.createElement("i", { className: "fa fa-refresh rotate" })
+		);
+	}
+});
+"use strict";
 
 var AddGroupBox = React.createClass({
 	displayName: "AddGroupBox",
@@ -100,7 +148,7 @@ var AddGroupBox = React.createClass({
 	},
 
 	render: function render() {
-		return React.createElement(InputGroupBox, { onSubmit: this.onSubmit, onCancel: this.props.onCancel });
+		return React.createElement(InputBox, { onSubmit: this.onSubmit, onCancel: this.props.onCancel });
 	}
 });
 
@@ -149,6 +197,10 @@ var AddElementTile = React.createClass({
 	componentDidMount: function componentDidMount() {
 		window.addEventListener("OpenContext", this.onOpenContext);
 		window.addEventListener("Escape", this.onRequestNormal);
+
+		this.contextItems = {
+			"Group": this.onRequestGroup
+		};
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
@@ -168,20 +220,7 @@ var AddElementTile = React.createClass({
 				break;
 
 			case AddElementTileMode.Context:
-				content = React.createElement(
-					"div",
-					{ className: "box element-action context" },
-					React.createElement(
-						"li",
-						{ onClick: this.onRequestGroup },
-						"Group"
-					),
-					React.createElement(
-						"li",
-						null,
-						"Component"
-					)
-				);
+				content = React.createElement(ContextBox, { items: this.contextItems });
 
 				break;
 
@@ -281,6 +320,11 @@ var GroupTile = React.createClass({
 
 		serverSocket.on("UpdateGroup", this.onUpdate);
 		serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
+
+		this.contextItems = {
+			"Delete": this.onRequestDelete,
+			"Rename": this.onRequestRename
+		};
 	},
 
 	componentWillUnmount: function componentWillUnmount() {
@@ -296,54 +340,29 @@ var GroupTile = React.createClass({
 
 		switch (this.state.mode) {
 			case GroupTileMode.Context:
-				content = React.createElement(
-					"div",
-					{ className: "box group context" },
-					React.createElement(
-						"li",
-						{ onClick: this.onRequestDelete },
-						"Delete"
-					),
-					React.createElement(
-						"li",
-						{ onClick: this.onRequestRename },
-						"Rename"
-					)
-				);
+				content = React.createElement(ContextBox, { items: this.contextItems });
 
 				break;
 
 			case GroupTileMode.Delete:
-				content = React.createElement(
-					"div",
-					{ className: "box delete-group", onClick: this.onConfirmDelete },
-					React.createElement(
-						"span",
-						null,
-						"Are you sure?"
-					)
-				);
+				content = React.createElement(ConfirmBox, { onConfirm: this.onConfirmDelete });
 
 				break;
 
 			case GroupTileMode.Rename:
-				content = React.createElement(InputGroupBox, { defaultValue: this.props.info.name, onSubmit: this.onSubmitRename });
+				content = React.createElement(InputBox, { defaultValue: this.props.info.name, onSubmit: this.onSubmitRename });
 
 				break;
 
 			case GroupTileMode.Waiting:
-				content = React.createElement(
-					"div",
-					{ className: "box group normal" },
-					React.createElement("i", { className: "fa fa-refresh rotate" })
-				);
+				content = React.createElement(WaitingBox, null);
 
 				break;
 
 			default:
 				content = React.createElement(
 					"div",
-					{ className: "box group normal", onContextMenu: this.onContextMenu, onClick: this.onClick },
+					{ className: "box normal", onContextMenu: this.onContextMenu, onClick: this.onClick },
 					this.props.info.name
 				);
 
@@ -434,6 +453,188 @@ var GroupContainer = React.createClass({
 			back,
 			tiles,
 			React.createElement(AddElementTile, { key: "add-group", parent: this.props.group })
+		);
+	}
+});
+"use strict";
+
+var BackendTileMode = {
+	Normal: 1,
+	Waiting: 2,
+	Context: 3,
+	Delete: 4,
+	Rename: 5
+};
+
+var BackendTile = React.createClass({
+	displayName: "BackendTile",
+
+	getInitialState: function getInitialState() {
+		return {
+			mode: BackendTileMode.Normal
+		};
+	},
+
+	onContextMenu: function onContextMenu(ev) {
+		ev.preventDefault();
+		this.setState({ mode: BackendTileMode.Context });
+
+		window.dispatchEventEasily("OpenContext", { sender: this });
+	},
+
+	onRequestDelete: function onRequestDelete() {
+		this.setState({ mode: BackendTileMode.Delete });
+	},
+
+	onConfirmDelete: function onConfirmDelete() {
+		this.setState({ mode: BackendTileMode.Waiting });
+		serverSocket.emit("DeleteBackend", this.props.info.id);
+	},
+
+	onRequestRename: function onRequestRename() {
+		this.setState({ mode: BackendTileMode.Rename });
+	},
+
+	onSubmitRename: function onSubmitRename(name) {
+		this.setState({ mode: BackendTileMode.Waiting });
+
+		serverSocket.emit("RenameBackend", {
+			id: this.props.info.id,
+			name: name
+		});
+	},
+
+	onOpenContext: function onOpenContext(ev) {
+		if (ev.sender != this) this.setState({ mode: BackendTileMode.Normal });
+	},
+
+	onEscape: function onEscape() {
+		if (this.state.mode > BackendTileMode.Waiting) this.setState({ mode: BackendTileMode.Normal });
+	},
+
+	onUpdateFailed: function onUpdateFailed(info) {
+		if (info.id == this.props.info.id) {
+			displayError(info.message);
+
+			if (this.state.mode == BackendTileMode.Waiting) this.setState({ mode: BackendTileMode.Normal });
+		}
+	},
+
+	onUpdate: function onUpdate(id) {
+		if (id == this.props.info.id && this.state.mode == BackendTileMode.Waiting) this.setState({ mode: BackendTileMode.Normal });
+	},
+
+	onClick: function onClick() {
+		// page("/backend/" + this.props.info.id);
+	},
+
+	componentDidMount: function componentDidMount() {
+		window.addEventListener("OpenContext", this.onOpenContext);
+		window.addEventListener("Escape", this.onEscape);
+
+		serverSocket.on("UpdateBackend", this.onUpdate);
+		serverSocket.on("UpdateBackendFailed", this.onUpdateFailed);
+
+		this.contextItems = {
+			"Delete": this.onRequestDelete,
+			"Rename": this.onRequestRename
+		};
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		window.removeEventListener("OpenContext", this.onOpenContext);
+		window.removeEventListener("Escape", this.onEscape);
+
+		serverSocket.removeListener("UpdateBackend", this.onUpdate);
+		serverSocket.removeListener("UpdateBackendFailed", this.onUpdateFailed);
+	},
+
+	render: function render() {
+		var content;
+
+		switch (this.state.mode) {
+			case BackendTileMode.Context:
+				content = React.createElement(ContextBox, { items: this.contextItems });
+
+				break;
+
+			case BackendTileMode.Delete:
+				content = React.createElement(ConfirmBox, { onConfirm: this.onConfirmDelete });
+
+				break;
+
+			case BackendTileMode.Rename:
+				content = React.createElement(InputBox, { defaultValue: this.props.info.name, onSubmit: this.onSubmitRename });
+
+				break;
+
+			case BackendTileMode.Waiting:
+				content = React.createElement(
+					"div",
+					{ className: "box backend normal" },
+					React.createElement("i", { className: "fa fa-refresh rotate" })
+				);
+
+				break;
+
+			default:
+				content = React.createElement(
+					"div",
+					{ className: "box backend normal", onContextMenu: this.onContextMenu, onClick: this.onClick },
+					this.props.info.name
+				);
+
+				break;
+		}
+
+		return React.createElement(
+			Tile,
+			null,
+			content
+		);
+	}
+});
+
+var BackendContainer = React.createClass({
+	displayName: "BackendContainer",
+
+	getInitialState: function getInitialState() {
+		return {
+			backends: []
+		};
+	},
+
+	requestBackends: function requestBackends() {
+		serverSocket.emit("ListBackends");
+	},
+
+	onListBackends: function onListBackends(backends) {
+		this.setState({
+			backends: backends.sort(function (a, b) {
+				return a.name.localeCompare(b.name);
+			})
+		});
+	},
+
+	componentDidMount: function componentDidMount() {
+		serverSocket.on("ListBackends", this.onListBackends);
+
+		this.requestBackends();
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		serverSocket.removeListener("ListBackends", this.onListBackends);
+	},
+
+	render: function render() {
+		var tiles = this.state.backends.map(function (backend) {
+			return React.createElement(BackendTile, { key: "backend-tile-" + backend.id, info: backend });
+		});
+
+		return React.createElement(
+			Container,
+			null,
+			tiles
 		);
 	}
 });

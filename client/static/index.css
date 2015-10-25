@@ -117,7 +117,7 @@ body {
 	padding: 10px;
 }
 
-.tile .input-group {
+.tile .input {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -126,7 +126,7 @@ body {
 	background-color: #996633;
 }
 
-.tile .input-group input {
+.tile .input input {
 	outline: none;
 	border: none;
 	background: transparent;
@@ -137,7 +137,7 @@ body {
 	height: 100%;
 }
 
-.tile .delete-group {
+.tile .delete {
 	text-decoration: none;
 	background-color: #993333;
 	flex-direction: column;
@@ -146,11 +146,12 @@ body {
 	text-align: center;
 }
 
-.tile .delete-group:hover {
+.tile .delete:hover {
 	background-color: #aa4444;
 }
 
 .tile .context {
+	background-color: #993333;
 	text-decoration: none;
 	flex-direction: column;
 	justify-content: center;
@@ -175,7 +176,8 @@ body {
 	background-color: rgba(255, 255, 255, 0.1);
 }
 
-.tile .group.normal {
+.tile .normal,
+.tile .waiting {
 	background-color: #336699;
 	align-items: center;
 	align-content: center;
@@ -185,12 +187,8 @@ body {
 	text-align: center;
 }
 
-.tile .group.normal:hover {
+.tile .normal:hover {
 	background-color: #339966;
-}
-
-.tile .group.context {
-	background-color: #993333;
 }
 
 .tile .group-action {
