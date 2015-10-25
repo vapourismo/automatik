@@ -1,3 +1,5 @@
+"use strict";
+
 const fs     = require("fs");
 const path   = require("path");
 const config = require("./config");
@@ -24,7 +26,7 @@ function iterateFiles(base, callback) {
  */
 
 function informColor(tag, ...msg) {
-	console.log("\033[32mI\033[0m", "\033[34m[" + tag + "]\033[0m", ...msg);
+	console.log("\x1b[32mI\x1b[0m", "\x1b[34m[" + tag + "]\x1b[0m", ...msg);
 }
 
 function informPlain(tag, ...msg) {
@@ -32,7 +34,7 @@ function informPlain(tag, ...msg) {
 }
 
 function warnColor(tag, ...msg) {
-	console.warn("\033[33mW\033[0m", "\033[34m[" + tag + "]\033[0m", ...msg);
+	console.warn("\x1b[33mW\x1b[0m", "\x1b[34m[" + tag + "]\x1b[0m", ...msg);
 }
 
 function warnPlain(tag, ...msg) {
@@ -40,7 +42,7 @@ function warnPlain(tag, ...msg) {
 }
 
 function errorColor(tag, ...msg) {
-	console.error("\033[31mE\033[0m", "\033[34m[" + tag + "]\033[0m", ...msg);
+	console.error("\x1b[31mE\x1b[0m", "\x1b[34m[" + tag + "]\x1b[0m", ...msg);
 }
 
 function errorPlain(tag, ...msg) {
@@ -48,7 +50,7 @@ function errorPlain(tag, ...msg) {
 }
 
 function debugColor(tag, ...msg) {
-	console.log("\033[35mD\033[0m", "\033[34m[" + tag + "]\033[0m", ...msg);
+	console.log("\x1b[35mD\x1b[0m", "\x1b[34m[" + tag + "]\x1b[0m", ...msg);
 }
 
 function debugPlain(tag, ...msg) {
@@ -112,16 +114,16 @@ Object.defineProperty(GeneratorProto, "async", {
  */
 Object.defineProperty(Object.prototype, "forEach", {
 	value: function (callback) {
-		for (var key in this) callback(key, this[key]);
+		for (let key in this) callback(key, this[key]);
 	},
 	enumerable: false
 });
 
 Object.defineProperty(Object.prototype, "map", {
 	value: function (callback) {
-		var newObject = {};
+		let newObject = {};
 
-		for (var key in this)
+		for (let key in this)
 			newObject[key] = callback(key, this[key]);
 
 		return newObject;
