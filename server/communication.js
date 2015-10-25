@@ -1,7 +1,8 @@
 "use strict";
 
-const util   = require("./utilities");
-const groups = require("./groups");
+const util     = require("./utilities");
+const groups   = require("./groups");
+const backends = require("./backends");
 
 const clientScripts = {};
 const clientStyles = {};
@@ -19,6 +20,10 @@ class BrowserClient {
 		this.client.on("CreateGroup",  this.onCreateGroup.bind(this));
 		this.client.on("RenameGroup",  this.onRenameGroup.bind(this));
 		this.client.on("DeleteGroup",  this.onDeleteGroup.bind(this));
+
+		this.client.on("ListBackends",  this.onListBackends.bind(this));
+		this.client.on("RenameBackend", this.onRenameBackend.bind(this));
+		this.client.on("DeleteBackend", this.onDeleteBackend.bind(this));
 
 		// Send all client attachments
 		clientStyles.forEach(url => this.attachStyle(url));
@@ -90,6 +95,64 @@ class BrowserClient {
 
 	updateGroupFailed(id, msg) {
 		this.client.emit("UpdateGroupFailed", {
+			id: id,
+			message: msg
+		});
+	}
+
+	onListBackends() {
+		const list = [];
+
+		backends.all.forEach((k, v) => {
+			list.push({id: v.id, name: v.name});
+		});
+
+		this.client.emit("ListBackends", list);
+	}
+
+	onRenameBackend(info) {
+		if (typeof(info) != "object" || typeof(info.name) != "string" || typeof(info.id) != "number")
+			return util.error("communication", "Invalid parameter to 'RenameBackend' directive");
+
+		const grp = backends.find(info.id);
+
+		if (grp) {
+			grp.rename(info.name).then(
+				val => {
+					this.updateBackend(grp.id);
+					this.onListBackends();
+				},
+				err => this.updateBackendFailed(grp.id, err.message)
+			);
+		} else {
+			util.error("communication", "Cannot find backend #" + info.id);
+			this.displayError("Cannot find backend #" + info.id);
+		}
+	}
+
+	onDeleteBackend(id) {
+		if (typeof(id) != "number")
+			return util.error("communication", "Invalid parameter to 'DeleteBackend' directive");
+
+		const grp = backends.find(id);
+
+		if (grp) {
+			grp.delete().then(
+				val => this.onListBackends(),
+				err => this.updateBackendFailed(grp.id, err.message)
+			);
+		} else {
+			util.error("communication", "Cannot find backend #" + id);
+			this.displayError("Cannot find backend #" + id);
+		}
+	}
+
+	updateBackend(id) {
+		this.server.emit("UpdateBackend", id);
+	}
+
+	updateBackendFailed(id, msg) {
+		this.client.emit("UpdateBackendFailed", {
 			id: id,
 			message: msg
 		});

@@ -3,6 +3,14 @@
 const db   = require("./database");
 const util = require("./utilities");
 
+class GroupError extends Error {
+	constructor(message, cause) {
+		super(message);
+
+		this.cause = cause;
+	}
+}
+
 const groups = {};
 
 class Group {
@@ -76,15 +84,6 @@ Group.prototype.delete = function* () {
 			throw new GroupError("Unknown error, check logs", err);
 	}
 }.async;
-
-class GroupError extends Error {
-	constructor(message, cause) {
-		super(this, message);
-
-		this.message = message;
-		this.cause = cause;
-	}
-}
 
 // Setup root group
 groups[null] = new Group({id: null, parent: null, name: null});
