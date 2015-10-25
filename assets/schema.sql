@@ -10,14 +10,14 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -30,7 +30,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: backends; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
+-- Name: backends; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
 CREATE TABLE backends (
@@ -65,7 +65,7 @@ ALTER SEQUENCE backends_id_seq OWNED BY backends.id;
 
 
 --
--- Name: datapoints; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
+-- Name: datapoints; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
 CREATE TABLE datapoints (
@@ -115,7 +115,7 @@ CREATE SEQUENCE groups_id_seq
 ALTER TABLE groups_id_seq OWNER TO automatik;
 
 --
--- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace:
+-- Name: groups; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
 CREATE TABLE groups (
@@ -142,7 +142,7 @@ ALTER TABLE ONLY datapoints ALTER COLUMN id SET DEFAULT nextval('datapoints_id_s
 
 
 --
--- Name: backends_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
+-- Name: backends_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY backends
@@ -150,7 +150,7 @@ ALTER TABLE ONLY backends
 
 
 --
--- Name: backends_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
+-- Name: backends_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY backends
@@ -158,7 +158,7 @@ ALTER TABLE ONLY backends
 
 
 --
--- Name: datapoints_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
+-- Name: datapoints_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY datapoints
@@ -166,7 +166,7 @@ ALTER TABLE ONLY datapoints
 
 
 --
--- Name: datapoints_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
+-- Name: datapoints_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY datapoints
@@ -174,7 +174,7 @@ ALTER TABLE ONLY datapoints
 
 
 --
--- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace:
+-- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
 --
 
 ALTER TABLE ONLY groups
@@ -182,14 +182,14 @@ ALTER TABLE ONLY groups
 
 
 --
--- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace:
+-- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
 --
 
 CREATE UNIQUE INDEX groups_name_parent_unique ON groups USING btree (name, parent) WHERE (parent IS NOT NULL);
 
 
 --
--- Name: groups_name_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace:
+-- Name: groups_name_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
 --
 
 CREATE UNIQUE INDEX groups_name_unique ON groups USING btree (name) WHERE (parent IS NULL);
