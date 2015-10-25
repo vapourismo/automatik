@@ -23,12 +23,24 @@ class Driver {
 
 class Backend {
 	constructor(row) {
-		Object.assign(this, row);
+		this.row = row;
 
-		if (!(this.driver in drivers))
-			throw new Error("Driver '" + this.driver + "' does not exist");
+		if (!(row.data.driver in drivers))
+			throw new Error("Driver '" + row.data.driver + "' does not exist");
 
-		this.driver = new drivers[this.driver](this.config);
+		this.driver = new drivers[row.data.driver](this.config);
+	}
+
+	get id() {
+		return this.row.data.id;
+	}
+
+	get name() {
+		return this.row.data.name;
+	}
+
+	get config() {
+		return this.row.data.config;
 	}
 
 	attachToDatapoint(config, datapoint) {
@@ -40,12 +52,7 @@ Backend.prototype.rename = function* (name) {
 	const tag = "backend: " + this.id;
 
 	try {
-		const result = yield db.queryAsync(
-			"UPDATE backends SET name = $1 WHERE id = $2 RETURNING name",
-			[name, this.id]
-		);
-
-		this.name = result.rows[0].name;
+		yield this.row.update({name: name});
 		util.inform(tag, "Renamed to '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to rename", err);
@@ -61,8 +68,9 @@ Backend.prototype.delete = function* () {
 	const tag = "backend: " + this.id;
 
 	try {
-		yield db.queryAsync("DELETE FROM backends WHERE id = $1", [this.id]);
 		delete backends[this.id];
+		yield this.row.delete();
+
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to delete", err);
@@ -73,6 +81,8 @@ Backend.prototype.delete = function* () {
 			throw new BackendError("Unknown error, check logs", err);
 	}
 }.async;
+
+const table = new db.Table("backends", "id", ["name", "driver", "config"]);
 
 module.exports = {
 	Driver: Driver,
@@ -92,10 +102,10 @@ module.exports = {
 	},
 
 	load: function* () {
-		const backendsResult = yield db.queryAsync("SELECT * FROM backends");
-		backendsResult.rows.forEach(function (row) {
-			util.inform("backends", "Registering '" + row.name + "'");
-			backends[row.id] = new Backend(row);
+		const rows = yield table.load();
+		rows.forEach(function (row) {
+			util.inform("backends", "Registering '" + row.data.name + "'");
+			backends[row.data.id] = new Backend(row);
 		});
 	}.async,
 
@@ -103,11 +113,10 @@ module.exports = {
 		if (!(driver in drivers))
 			throw new Error("Driver '" + this.driver + "' does not exist");
 
-		const insertResult = yield db.queryAsync("INSERT INTO backends (name, driver, config) VALUES ($1, $2, $3) RETURNING *", [name, driver, config]);
-		insertResult.rows.forEach(function (row) {
-			util.inform("backends", "Registering '" + row.name + "'");
-			backends[row.id] = new Backend(row);
-		});
+		const row = yield table.insert({name: name, driver: driver, config: config});
+
+		util.inform("backends", "Registering '" + row.name + "'");
+		backends[row.id] = new Backend(row);
 	}.async,
 
 	find: function (id) {
