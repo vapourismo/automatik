@@ -73,9 +73,9 @@ Group.prototype.delete = function* () {
 	yield* this.subGroups.map(g => g.delete());
 
 	try {
-		yield this.row.delete();
 		this.detachFromParent();
 		delete groups[this.id];
+		yield this.row.delete();
 
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
@@ -110,7 +110,7 @@ const table = new db.Table("groups", "id", ["name", "parent"]);
 module.exports = {
 	load: function* () {
 		const rows = yield table.load();
-		rows.map(row => {
+		rows.map(function (row) {
 			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
 			return groups[row.data.id] = new Group(row);
 		}).forEach(g => g.attachToParent());
