@@ -1,6 +1,6 @@
 const React = require("react");
 const page  = require("page");
-const base  = require("./base");
+const base  = require("./base.jsx");
 
 const AddGroupBox = React.createClass({
 	onSubmit: function (name) {

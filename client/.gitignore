@@ -1,2 +1,4 @@
-build/
+.sass-cache/
 static/index.js
+static/index.css
+static/index.css.map

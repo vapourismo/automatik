@@ -1,9 +1,12 @@
+// Libraryies
 const React            = require("react");
 const ReactDOM         = require("react-dom");
 const page             = require("page");
-const GroupContainer   = require("./groups");
-const BackendContainer = require("./backends");
-const base             = require("./base");
+
+// Modules
+const GroupContainer   = require("./groups.jsx");
+const BackendContainer = require("./backends.jsx");
+const base             = require("./base.jsx");
 
 const Notification = React.createClass({
 	render: function () {
