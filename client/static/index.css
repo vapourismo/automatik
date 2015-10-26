@@ -115,6 +115,7 @@ body {
 	height: 100%;
 	color: #fff;
 	padding: 10px;
+	transition: background-color 0.5s;
 }
 
 .tile .input {
@@ -200,6 +201,10 @@ body {
 	font-size: 2em;
 	cursor: pointer;
 	background-color: #669933;
+}
+
+.tile .group-action:hover {
+	background-color: #663399;
 }
 
 .tile .element-action.normal {
