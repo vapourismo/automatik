@@ -1,12 +1,12 @@
-@import url(http://fonts.googleapis.com/css?family=Roboto);
-@import url(/static/font-awesome/css/font-awesome.css);
+@import url("http://fonts.googleapis.com/css?family=Roboto");
+@import url("/static/font-awesome/css/font-awesome.css");
 
-$box-color: #336699;
-$box-hover-color: #009966;
+$box-bg: #336699;
+$box-hover-bg: #009966;
 
-$box-context-color: #993333;
-$box-context-item-hover-color: rgba(255, 255, 255, 0.25);
-$box-context-item-seperator-color: $box-context-item-hover-color;
+$box-context-bg: #993333;
+$box-context-item-hover-bg: rgba(255, 255, 255, 0.1);
+$box-context-item-seperator-color: $box-context-item-hover-bg;
 
 /* General */
 body {
@@ -69,6 +69,13 @@ body {
 	user-select: none;
 }
 
+.centered-content {
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+	text-align: center;
+}
+
 /* Container */
 .container {
 	display: flex;
@@ -84,17 +91,33 @@ body {
 		height: 10em;
 
 		.box {
+			@extend .unselectable;
+
 			display: flex;
 			width: 100%;
 			height: 100%;
 			color: #fff;
 			padding: 10px;
-			transition: background-color 500ms;
-
-			@extend .unselectable;
+			transition: all 333ms;
 		}
 
-		.input {
+		.plus {
+			@extend .centered-content;
+
+			text-decoration: none;
+			font-size: 3em;
+			cursor: pointer;
+			color: #fff;
+			background-color: transparent;
+
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.33);
+			}
+		}
+
+		/*.input {
+			@extend .box;
+
 			align-items: center;
 			align-content: center;
 			justify-content: center;
@@ -121,14 +144,14 @@ body {
 			justify-content: center;
 			cursor: pointer;
 			text-align: center;
-		}
 
-		.delete:hover {
-			background-color: #aa4444;
+			&:hover {
+				background-color: #aa4444;
+			}
 		}
 
 		.context {
-			background-color: $box-context-color;
+			background-color: $box-context-bg;
 			text-decoration: none;
 			flex-direction: column;
 			justify-content: center;
@@ -149,24 +172,22 @@ body {
 			}
 
 			li:hover {
-				background-color: $box-context-item-hover-color;
+				background-color: $box-context-item-hover-bg;
 			}
 		}
 
-
-		.normal,
-		.waiting {
+		.normal {
 			align-items: center;
 			align-content: center;
 			justify-content: center;
 			text-decoration: none;
 			cursor: pointer;
 			text-align: center;
-			background-color: $box-color;
+			background-color: $box-bg;
 		}
 
 		.normal:hover {
-			background-color: $box-hover-color;
+			background-color: $box-hover-bg;
 		}
 
 		.group-action {
@@ -182,25 +203,7 @@ body {
 
 		.group-action:hover {
 			background-color: #663399;
-		}
-
-		.element-action.normal {
-			align-items: center;
-			align-content: center;
-			justify-content: center;
-			text-decoration: none;
-			font-size: 3em;
-			cursor: pointer;
-			background-color: transparent;
-		}
-
-		.element-action.normal:hover {
-			background-color: #222;
-		}
-
-		.element-action.context {
-			background-color: #993333;
-		}
+		}*/
 	}
 }
 

@@ -80,6 +80,16 @@ const InputBox = React.createClass({
 	}
 });
 
+const PlusBox = React.createClass({
+	render() {
+		return (
+			<div className="box plus" onClick={this.props.onClick}>
+				<i className="fa fa-plus"></i>
+			</div>
+		);
+	}
+});
+
 const ContextBox = React.createClass({
 	render: function () {
 		const items = [];
@@ -115,6 +125,7 @@ module.exports = {
 	Tile:         Tile,
 	Container:    Container,
 	InputBox:     InputBox,
+	PlusBox:      PlusBox,
 	ContextBox:   ContextBox,
 	ConfirmBox:   ConfirmBox,
 	WaitingBox:   WaitingBox,

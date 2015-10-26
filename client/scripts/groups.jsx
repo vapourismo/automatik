@@ -86,11 +86,7 @@ const AddElementTile = React.createClass({
 				break;
 
 			default:
-				content = (
-					<div className="box element-action normal" onClick={this.onRequestContext}>
-						<i className="fa fa-plus"></i>
-					</div>
-				);
+				content = <base.PlusBox onClick={this.onRequestContext}/>
 
 				break;
 		}
