@@ -239,7 +239,7 @@ const ParentGroupTile = React.createClass({
 	render: function () {
 		return (
 			<base.Tile>
-				<div className="box group-action" onClick={this.onClick}>
+				<div className="box back" onClick={this.onClick}>
 					<i className="fa fa-arrow-left"></i>
 				</div>
 			</base.Tile>

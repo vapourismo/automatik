@@ -1,13 +1,6 @@
 @import url("http://fonts.googleapis.com/css?family=Roboto");
 @import url("/static/font-awesome/css/font-awesome.css");
 
-$box-bg: #336699;
-$box-hover-bg: #009966;
-
-$box-context-bg: #993333;
-$box-context-item-hover-bg: rgba(255, 255, 255, 0.1);
-$box-context-item-seperator-color: $box-context-item-hover-bg;
-
 /* General */
 body {
 	display: flex;
@@ -70,6 +63,7 @@ body {
 }
 
 .centered-content {
+	display: flex;
 	align-items: center;
 	align-content: center;
 	justify-content: center;
@@ -98,7 +92,7 @@ body {
 			height: 100%;
 			color: #fff;
 			padding: 10px;
-			transition: all 333ms;
+			transition: all 333ms ease-out;
 		}
 
 		.plus {
@@ -115,95 +109,87 @@ body {
 			}
 		}
 
-		/*.input {
-			@extend .box;
+		.back {
+			@extend .centered-content;
 
-			align-items: center;
-			align-content: center;
-			justify-content: center;
-			text-decoration: none;
-			cursor: text;
-			background-color: #996633;
-		}
-
-		.input input {
-			outline: none;
-			border: none;
-			background: transparent;
-			text-align: center;
-			font-family: "Roboto";
-			color: #fff;
-			width: 100%;
-			height: 100%;
-		}
-
-		.delete {
-			text-decoration: none;
-			background-color: #993333;
-			flex-direction: column;
-			justify-content: center;
+			font-size: 2em;
 			cursor: pointer;
-			text-align: center;
+			color: #fff;
+			background-color: rgba(0, 0, 0, 0.33);
 
 			&:hover {
-				background-color: #aa4444;
+				background-color: rgba(255, 255, 255, 0.33);
 			}
 		}
 
 		.context {
-			background-color: $box-context-bg;
-			text-decoration: none;
+			@extend .centered-content;
+
 			flex-direction: column;
-			justify-content: center;
+			border: solid 1px rgba(255, 255, 255, 0.2);
+			background-color: #993333;
 
 			li {
-				display: flex;
-				justify-content: center;
-				align-content: center;
-				align-items: center;
-				padding: 5px;
-				border-top: dotted 1px $box-context-item-seperator-color;
+				@extend .centered-content;
+
 				height: 100%;
+				width: 100%;
+				padding: 5px;
+				border-top: solid 1px rgba(255, 255, 255, 0.2);
 				cursor: pointer;
-			}
 
-			li:first-child {
+				&:first-child {
+					border: none;
+				}
+
+				&:hover {
+					background-color: rgba(255, 255, 255, 0.1);
+				}
+			}
+		}
+
+		.input {
+			@extend .centered-content;
+
+			cursor: text;
+			background-color: #996633;
+			border: solid 1px rgba(255, 255, 255, 0.2);
+
+			input {
+				outline: none;
 				border: none;
-			}
-
-			li:hover {
-				background-color: $box-context-item-hover-bg;
+				margin: 0;
+				background: transparent;
+				text-align: center;
+				font-family: "Roboto";
+				color: #fff;
+				width: 100%;
+				height: 100%;
 			}
 		}
 
 		.normal {
-			align-items: center;
-			align-content: center;
-			justify-content: center;
-			text-decoration: none;
+			@extend .centered-content;
+
 			cursor: pointer;
-			text-align: center;
-			background-color: $box-bg;
+			background-color: #336699;
+
+			&:hover {
+				background-color: #009966;
+			}
 		}
 
-		.normal:hover {
-			background-color: $box-hover-bg;
-		}
+		.confirm {
+			@extend .centered-content;
 
-		.group-action {
-			align-items: center;
-			align-content: center;
-			justify-content: center;
-			text-decoration: none;
-			flex-direction: column;
-			font-size: 2em;
 			cursor: pointer;
-			background-color: #669933;
-		}
+			border: solid 1px rgba(255, 255, 255, 0.2);
+			background-color: #993333;
 
-		.group-action:hover {
-			background-color: #663399;
-		}*/
+			&:hover {
+				background-color: #663333;
+			}
+		}
 	}
 }
 

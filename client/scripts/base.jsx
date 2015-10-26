@@ -104,7 +104,7 @@ const ContextBox = React.createClass({
 const ConfirmBox = React.createClass({
 	render: function () {
 		return (
-			<div className="box delete" onClick={this.props.onConfirm}>
+			<div className="box confirm" onClick={this.props.onConfirm}>
 				<span>Are you sure?</span>
 			</div>
 		);
@@ -114,7 +114,7 @@ const ConfirmBox = React.createClass({
 const WaitingBox = React.createClass({
 	render: function () {
 		return (
-			<div className="box waiting">
+			<div className="box normal">
 				<i className="fa fa-refresh rotate"></i>
 			</div>
 		);
