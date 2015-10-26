@@ -1,3 +1,5 @@
+const base = require("./base");
+
 const BackendTileMode = {
 	Normal:  1,
 	Waiting: 2,
@@ -26,7 +28,7 @@ const BackendTile = React.createClass({
 
 	onConfirmDelete: function () {
 		this.setState({mode: BackendTileMode.Waiting});
-		serverSocket.emit("DeleteBackend", this.props.info.id);
+		base.serverSocket.emit("DeleteBackend", this.props.info.id);
 	},
 
 	onRequestRename: function () {
@@ -36,7 +38,7 @@ const BackendTile = React.createClass({
 	onSubmitRename: function (name) {
 		this.setState({mode: BackendTileMode.Waiting});
 
-		serverSocket.emit("RenameBackend", {
+		base.serverSocket.emit("RenameBackend", {
 			id: this.props.info.id,
 			name: name
 		});
@@ -53,7 +55,9 @@ const BackendTile = React.createClass({
 
 	onUpdateFailed: function (info) {
 		if (info.id == this.props.info.id) {
-			displayError(info.message);
+			window.dispatchEventEasily("DisplayError", {
+				message: info.message
+			});
 
 			if (this.state.mode == BackendTileMode.Waiting)
 				this.setState({mode: BackendTileMode.Normal});
@@ -73,8 +77,8 @@ const BackendTile = React.createClass({
 		window.addEventListener("OpenContext", this.onOpenContext);
 		window.addEventListener("Escape",      this.onEscape);
 
-		serverSocket.on("UpdateBackend",       this.onUpdate);
-		serverSocket.on("UpdateBackendFailed", this.onUpdateFailed);
+		base.serverSocket.on("UpdateBackend",       this.onUpdate);
+		base.serverSocket.on("UpdateBackendFailed", this.onUpdateFailed);
 
 		this.contextItems = {
 			"Delete": this.onRequestDelete,
@@ -86,8 +90,8 @@ const BackendTile = React.createClass({
 		window.removeEventListener("OpenContext", this.onOpenContext);
 		window.removeEventListener("Escape",      this.onEscape);
 
-		serverSocket.removeListener("UpdateBackend",       this.onUpdate);
-		serverSocket.removeListener("UpdateBackendFailed", this.onUpdateFailed);
+		base.serverSocket.removeListener("UpdateBackend",       this.onUpdate);
+		base.serverSocket.removeListener("UpdateBackendFailed", this.onUpdateFailed);
 	},
 
 	render: function () {
@@ -95,18 +99,18 @@ const BackendTile = React.createClass({
 
 		switch (this.state.mode) {
 			case BackendTileMode.Context:
-				content = <ContextBox items={this.contextItems}/>;
+				content = <base.ContextBox items={this.contextItems}/>;
 
 				break;
 
 			case BackendTileMode.Delete:
-				content = <ConfirmBox onConfirm={this.onConfirmDelete}/>;
+				content = <base.ConfirmBox onConfirm={this.onConfirmDelete}/>;
 
 				break;
 
 			case BackendTileMode.Rename:
 				content = (
-		           <InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
+		           <base.InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
 				);
 
 				break;
@@ -130,7 +134,7 @@ const BackendTile = React.createClass({
 				break;
 		}
 
-		return <Tile>{content}</Tile>;
+		return <base.Tile>{content}</base.Tile>;
 	}
 });
 
@@ -142,7 +146,7 @@ const BackendContainer = React.createClass({
 	},
 
 	requestBackends: function () {
-		serverSocket.emit("ListBackends");
+		base.serverSocket.emit("ListBackends");
 	},
 
 	onListBackends: function (backends) {
@@ -152,24 +156,26 @@ const BackendContainer = React.createClass({
 	},
 
 	componentDidMount: function () {
-		serverSocket.on("ListBackends", this.onListBackends);
+		base.serverSocket.on("ListBackends", this.onListBackends);
 
 		this.requestBackends();
 	},
 
 	componentWillUnmount: function () {
-		serverSocket.removeListener("ListBackends", this.onListBackends);
+		base.serverSocket.removeListener("ListBackends", this.onListBackends);
 	},
 
 	render: function () {
 		const tiles = this.state.backends.map(
-			backend => <BackendTile key={"backend-tile-" + backend.id} info={backend}/>
+			backend => <bBackendTile key={"backend-tile-" + backend.id} info={backend}/>
 		);
 
 		return (
-			<Container>
+			<base.Container>
 				{tiles}
-			</Container>
+			</base.Container>
 		);
 	}
 });
+
+module.exports = BackendContainer;

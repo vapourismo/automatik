@@ -1,3 +1,7 @@
+const GroupContainer   = require("./groups");
+const BackendContainer = require("./backends");
+const base             = require("./base");
+
 const Notification = React.createClass({
 	render: function () {
 		return (
@@ -52,43 +56,17 @@ function displayError(message) {
 	});
 }
 
-var loadedScripts = {};
-serverSocket.on("AttachScript", function (url) {
-	if (url in loadedScripts)
-		return;
+base.serverSocket.on("DisplayError", displayError);
 
-	var scriptElement = document.createElement("script");
-	scriptElement.src = url;
-
-	loadedScripts[url] = scriptElement;
-	document.head.appendChild(scriptElement);
-});
-
-var loadedStyles = {};
-serverSocket.on("AttachStyle", function (url) {
-	if (url in loadedStyles)
-		return;
-
-	var linkElement = document.createElement("link");
-	linkElement.href = url;
-	linkElement.type = "text/css";
-	linkElement.rel = "stylesheet";
-
-	loadedStyles[url] = linkElement;
-	document.head.appendChild(linkElement);
-});
-
-serverSocket.on("DisplayError", displayError);
-
-serverSocket.on("error", function (err) {
+base.serverSocket.on("error", function (err) {
 	console.error(err);
 });
 
-serverSocket.on("disconnect", function () {
+base.serverSocket.on("disconnect", function () {
 	displayError("Lost connection to server");
 });
 
-serverSocket.on("reconnect", function () {
+base.serverSocket.on("reconnect", function () {
 	displayError("Successfully reconnected");
 });
 

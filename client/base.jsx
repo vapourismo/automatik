@@ -108,3 +108,14 @@ const WaitingBox = React.createClass({
 		);
 	}
 });
+
+module.exports = {
+	Tile:         Tile,
+	Container:    Container,
+	InputBox:     InputBox,
+	ContextBox:   ContextBox,
+	ConfirmBox:   ConfirmBox,
+	WaitingBox:   WaitingBox,
+
+	serverSocket: serverSocket
+};
