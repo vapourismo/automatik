@@ -2,6 +2,8 @@ build_dir      = build
 modules        = base groups backends
 entry          = index
 
+source_files   = $(modules:%=%.jsx) $(entry:%=%.jsx)
+
 bundle_entry   = $(entry:%=$(build_dir)/%.js)
 bundle_modules = $(modules:%=$(build_dir)/%.js)
 bundle_output  = static/index.js
@@ -18,7 +20,7 @@ $(build_dir)/%.js: %.jsx $(build_dir)
 	babel $< -d $(build_dir)
 
 watch: all
-	babel -w $(bundle_modules) $(bundle_entry) -d $(build_dir) &
+	babel -w $(source_files) -d $(build_dir) &
 	webpack -w $(bundle_entry) $(bundle_output)
 
 clean:
