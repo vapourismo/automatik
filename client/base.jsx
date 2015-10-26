@@ -1,3 +1,5 @@
+const React = require("react");
+
 const serverSocket = io();
 
 window.dispatchEventEasily = function (tag, attach) {

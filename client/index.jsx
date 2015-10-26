@@ -1,3 +1,6 @@
+const React            = require("react");
+const ReactDOM         = require("react-dom");
+const page             = require("page");
 const GroupContainer   = require("./groups");
 const BackendContainer = require("./backends");
 const base             = require("./base");

@@ -1,4 +1,5 @@
-const base = require("./base");
+const React = require("react");
+const base  = require("./base");
 
 const BackendTileMode = {
 	Normal:  1,
