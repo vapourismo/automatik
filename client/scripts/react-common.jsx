@@ -27,14 +27,14 @@ const Container = React.createClass({
 });
 
 const InputBox = React.createClass({
-	onSubmit(ev) {
+	submitInput(ev) {
 		this.props.onSubmit(this.refs.input.value);
 
 		if (ev) ev.preventDefault();
 		return false;
 	},
 
-	onCancel(ev) {
+	cancelInput(ev) {
 		if (this.props.onCancel)
 			this.props.onCancel(this.refs.input.value);
 
@@ -43,27 +43,19 @@ const InputBox = React.createClass({
 	},
 
 	componentDidMount() {
-		Events.on("OpenContext", this.onCancel);
-		Events.on("Escape",      this.onCancel);
-
 		this.refs.input.select();
-	},
-
-	componentWillUnmount() {
-		Events.off("OpenContext", this.onCancel);
-		Events.off("Escape",      this.onCancel);
-	},
-
-	render() {
-		return (
-			<form className="box input" onSubmit={this.onSubmit}>
-				<input ref="input" type="text" defaultValue={this.props.defaultValue} onBlur={this.onCancel}/>
-			</form>
-		);
 	},
 
 	componentDidUpdate() {
 		this.refs.input.select();
+	},
+
+	render() {
+		return (
+			<form className="box input" onSubmit={this.submitInput}>
+				<input ref="input" type="text" defaultValue={this.props.defaultValue} onBlur={this.cancelInput}/>
+			</form>
+		);
 	}
 });
 

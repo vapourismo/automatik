@@ -101,27 +101,32 @@ const GroupTile = React.createClass({
 		return {mode: GroupTileMode.Normal};
 	},
 
-	onContextMenu(ev) {
-		ev.preventDefault();
-
-		this.setState({mode: GroupTileMode.Context});
-		Events.emit("OpenContext", {sender: this});
+	restoreNormal() {
+		this.setState({mode: GroupTileMode.Normal});
 	},
 
-	onRequestDelete() {
+	displayContextMenu(ev) {
+		this.setState({mode: GroupTileMode.Context});
+		Events.emit("OpenContext", {sender: this});
+
+		if (ev) ev.preventDefault();
+		return false;
+	},
+
+	requestDelete() {
 		this.setState({mode: GroupTileMode.Delete});
 	},
 
-	onConfirmDelete() {
+	performDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
 		Network.emit("DeleteGroup", this.props.info.id);
 	},
 
-	onRequestRename() {
+	requestRename() {
 		this.setState({mode: GroupTileMode.Rename});
 	},
 
-	onSubmitRename(name) {
+	performRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
 
 		Network.emit("RenameGroup", {
@@ -130,52 +135,52 @@ const GroupTile = React.createClass({
 		});
 	},
 
-	onOpenContext(ev) {
+	anotherContextMenuOpened(ev) {
 		if (ev.sender != this) this.setState({mode: GroupTileMode.Normal});
 	},
 
-	onEscape() {
+	cancelInteraction() {
 		if (this.state.mode > GroupTileMode.Waiting)
-			this.setState({mode: GroupTileMode.Normal});
+			this.restoreNormal();
 	},
 
-	onUpdateFailed(info) {
+	updateSucceeded(id) {
+		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting)
+			this.restoreNormal();
+	},
+
+	updateFailed(info) {
 		if (info.id == this.props.info.id) {
 			Notifier.displayError(info.message);
 
 			if (this.state.mode == GroupTileMode.Waiting)
-				this.setState({mode: GroupTileMode.Normal});
+				this.restoreNormal();
 		}
 	},
 
-	onUpdate(id) {
-		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting)
-			this.setState({mode: GroupTileMode.Normal});
-	},
-
-	onClick() {
+	openGroup() {
 		page("/groups/" + this.props.info.id);
 	},
 
 	componentDidMount() {
-		Events.on("OpenContext", this.onOpenContext);
-		Events.on("Escape",      this.onEscape);
+		Events.on("OpenContext", this.anotherContextMenuOpened);
+		Events.on("Escape",      this.cancelInteraction);
 
-		Network.on("UpdateGroup",       this.onUpdate);
-		Network.on("UpdateGroupFailed", this.onUpdateFailed);
+		Network.on("UpdateGroup",       this.updateSucceeded);
+		Network.on("UpdateGroupFailed", this.updateFailed);
 
 		this.contextItems = {
-			"Delete": this.onRequestDelete,
-			"Rename": this.onRequestRename
+			"Delete": this.requestDelete,
+			"Rename": this.requestRename
 		};
 	},
 
 	componentWillUnmount() {
-		Events.off("OpenContext", this.onOpenContext);
-		Events.off("Escape",      this.onEscape);
+		Events.off("OpenContext", this.anotherContextMenuOpened);
+		Events.off("Escape",      this.cancelInteraction);
 
-		Network.off("UpdateGroup",       this.onUpdate);
-		Network.off("UpdateGroupFailed", this.onUpdateFailed);
+		Network.off("UpdateGroup",       this.updateSucceeded);
+		Network.off("UpdateGroupFailed", this.updateFailed);
 	},
 
 	render() {
@@ -188,13 +193,15 @@ const GroupTile = React.createClass({
 				break;
 
 			case GroupTileMode.Delete:
-				content = <ReactCommon.ConfirmBox onConfirm={this.onConfirmDelete}/>;
+				content = <ReactCommon.ConfirmBox onConfirm={this.performDelete}/>;
 
 				break;
 
 			case GroupTileMode.Rename:
 				content = (
-		           <ReactCommon.InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
+		           <ReactCommon.InputBox defaultValue={this.props.info.name}
+		                                 onSubmit={this.performRename}
+		                                 onCancel={this.restoreNormal}/>
 				);
 
 				break;
@@ -206,7 +213,8 @@ const GroupTile = React.createClass({
 
 			default:
 				content = (
-					<div className="box normal" onContextMenu={this.onContextMenu} onClick={this.onClick}>
+					<div className="box normal" onContextMenu={this.displayContextMenu}
+					                            onClick={this.openGroup}>
 						{this.props.info.name}
 					</div>
 				);
