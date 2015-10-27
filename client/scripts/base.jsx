@@ -24,8 +24,21 @@ window.addEventListener("click", function (ev) {
 });
 
 const Tile = React.createClass({
-	render: function () {
-		return <div className="tile">{this.props.children}</div>;
+	adjustHeight() {
+		this.refs.tile.style.height = this.refs.tile.offsetWidth;
+	},
+
+	componentDidMount() {
+		window.addEventListener("resize", this.adjustHeight);
+		this.adjustHeight();
+	},
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.adjustHeight);
+	},
+
+	render() {
+		return <div ref="tile" className="tile">{this.props.children}</div>;
 	}
 });
 
