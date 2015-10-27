@@ -81,7 +81,6 @@ body {
 	.tile {
 		padding: 5px;
 		width: 20%;
-		/*height: 10em;*/
 
 		.box {
 			@extend .unselectable;
@@ -160,6 +159,7 @@ body {
 				border: none;
 				margin: 0;
 				background: transparent;
+				font-size: 1.15em;
 				text-align: center;
 				font-family: "Roboto";
 				color: #fff;
