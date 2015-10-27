@@ -36,7 +36,7 @@ const AddElementTile = React.createClass({
 	},
 
 	createGroup(name) {
-		Network.emit("CreateGroup", {name: name, parent: this.props.parent});
+		Network.createGroup(name, this.props.parent);
 		this.restoreNormal();
 	},
 
@@ -112,7 +112,10 @@ const GroupTile = React.createClass({
 
 	performDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
-		Network.emit("DeleteGroup", this.props.info.id);
+		Network.deleteGroup(this.props.info.id).then(
+			this.requestNormal,
+			error => Notifier.displayError(error.message)
+		);
 	},
 
 	requestRename() {
@@ -121,11 +124,10 @@ const GroupTile = React.createClass({
 
 	performRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
-
-		Network.emit("RenameGroup", {
-			id: this.props.info.id,
-			name: name
-		});
+		Network.renameGroup(this.props.info.id, name).then(
+			this.restoreNormal,
+			error => Notifier.displayError(error.message)
+		);
 	},
 
 	anotherContextMenuOpened(ev) {
@@ -137,20 +139,6 @@ const GroupTile = React.createClass({
 			this.restoreNormal();
 	},
 
-	updateSucceeded(id) {
-		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting)
-			this.restoreNormal();
-	},
-
-	updateFailed(info) {
-		if (info.id == this.props.info.id) {
-			Notifier.displayError(info.message);
-
-			if (this.state.mode == GroupTileMode.Waiting)
-				this.restoreNormal();
-		}
-	},
-
 	openGroup() {
 		page("/groups/" + this.props.info.id);
 	},
@@ -158,9 +146,6 @@ const GroupTile = React.createClass({
 	componentDidMount() {
 		Events.on("OpenContext", this.anotherContextMenuOpened);
 		Events.on("Escape",      this.cancelInteraction);
-
-		Network.on("UpdateGroup",       this.updateSucceeded);
-		Network.on("UpdateGroupFailed", this.updateFailed);
 
 		this.contextItems = {
 			"Delete": this.requestDelete,
@@ -171,9 +156,6 @@ const GroupTile = React.createClass({
 	componentWillUnmount() {
 		Events.off("OpenContext", this.anotherContextMenuOpened);
 		Events.off("Escape",      this.cancelInteraction);
-
-		Network.off("UpdateGroup",       this.updateSucceeded);
-		Network.off("UpdateGroupFailed", this.updateFailed);
 	},
 
 	render() {
@@ -245,40 +227,36 @@ const GroupContainer = React.createClass({
 	},
 
 	requestInfo() {
-		Network.emit("GetGroupInfo", this.props.group);
+		Network.getGroupInfo(this.props.group).then(
+			info => {
+				this.setState({
+					name: info.name,
+					parent: info.parent,
+					subGroups: info.subGroups.sort((a, b) => a.name.localeCompare(b.name))
+				});
+			},
+			error => Notifier.displayError(error.message)
+		);
 	},
 
-	receiveInfo(info) {
-		if (info.id != this.props.group)
-			return;
-
-		this.setState({
-			name: info.name,
-			parent: info.parent,
-			subGroups: info.subGroups.sort((a, b) => a.name.localeCompare(b.name))
-		});
-	},
-
-	updateGroup(id) {
+	refreshGroup(id) {
 		if (id == this.props.group)
 			this.requestInfo();
 	},
 
 	componentDidMount() {
-		Network.on("GetGroupInfo", this.receiveInfo);
-		Network.on("UpdateGroup",  this.updateGroup);
+		Network.on("refreshGroup", this.refreshGroup);
 
 		this.requestInfo();
 	},
 
 	componentWillUnmount() {
-		Network.off("GetGroupInfo", this.receiveInfo);
-		Network.off("UpdateGroup",  this.updateGroup);
+		Network.off("refreshGroup", this.refreshGroup);
 	},
 
 	render() {
 		const tiles = this.state.subGroups.map(
-			group => <GroupTile key={"group-tile-" + group.id} info={group}/>
+			group => <GroupTile key={group.id} info={group}/>
 		);
 
 		const back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
@@ -287,7 +265,7 @@ const GroupContainer = React.createClass({
 			<ReactCommon.Container>
 				{back}
 				{tiles}
-				<AddElementTile key="add-group" parent={this.props.group}/>
+				<AddElementTile parent={this.props.group}/>
 			</ReactCommon.Container>
 		);
 	}

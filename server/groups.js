@@ -110,10 +110,15 @@ const table = new db.Table("groups", "id", ["name", "parent"]);
 module.exports = {
 	load: function* () {
 		const rows = yield table.load();
-		rows.map(function (row) {
+
+		const loaded = rows.map(function (row) {
 			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
 			return groups[row.data.id] = new Group(row);
-		}).forEach(g => g.attachToParent());
+		});
+
+		loaded.forEach(g => g.attachToParent());
+
+		return loaded;
 	}.async,
 
 	create: function* (name, parent) {
@@ -125,8 +130,9 @@ module.exports = {
 
 			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
 			const group = groups[row.data.id] = new Group(row);
-
 			group.attachToParent();
+
+			return group;
 		} catch (err) {
 			util.error("groups", "Failed to create", err.stack);
 
