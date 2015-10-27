@@ -6,17 +6,6 @@ import Notifier    from "./notifier.jsx";
 import Events      from "./events.jsx";
 import ReactCommon from "./react-common.jsx"
 
-const AddGroupBox = React.createClass({
-	onSubmit(name) {
-		Network.emit("CreateGroup", {name: name, parent: this.props.parent});
-		this.props.onSubmit();
-	},
-
-	render() {
-		return <ReactCommon.InputBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
-	}
-});
-
 const AddElementTileMode = {
 	Normal:    1,
 	Context:   2,
@@ -29,35 +18,40 @@ const AddElementTile = React.createClass({
 		return {mode: AddElementTileMode.Normal};
 	},
 
-	onRequestNormal() {
+	restoreNormal() {
 		this.setState({mode: AddElementTileMode.Normal});
 	},
 
-	onOpenContext(ev) {
-		if (ev.sender != this) this.onRequestNormal();
+	anotherContextMenuOpened(ev) {
+		if (ev.sender != this) this.restoreNormal();
 	},
 
-	onRequestContext() {
+	displayContextMenu() {
 		Events.emit("OpenContext", {sender: this});
 		this.setState({mode: AddElementTileMode.Context});
 	},
 
-	onRequestGroup() {
+	requestAddGroup() {
 		this.setState({mode: AddElementTileMode.Group});
 	},
 
+	createGroup(name) {
+		Network.emit("CreateGroup", {name: name, parent: this.props.parent});
+		this.restoreNormal();
+	},
+
 	componentDidMount() {
-		Events.on("OpenContext", this.onOpenContext);
-		Events.on("Escape",      this.onRequestNormal);
+		Events.on("OpenContext", this.anotherContextMenuOpened);
+		Events.on("Escape",      this.restoreNormal);
 
 		this.contextItems = {
-			"Group": this.onRequestGroup
+			"Group": this.requestAddGroup
 		};
 	},
 
 	componentWillUnmount() {
-		Events.off("OpenContext", this.onOpenContext);
-		Events.off("Escape",      this.onRequestNormal);
+		Events.off("OpenContext", this.anotherContextMenuOpened);
+		Events.off("Escape",      this.restoreNormal);
 	},
 
 	render() {
@@ -66,9 +60,8 @@ const AddElementTile = React.createClass({
 		switch (this.state.mode) {
 			case AddElementTileMode.Group:
 				content = (
-					<AddGroupBox parent={this.props.parent}
-					             onSubmit={this.onRequestNormal}
-					             onCancel={this.onRequestNormal}/>
+					<ReactCommon.InputBox onSubmit={this.createGroup}
+					                      onCancel={this.restoreNormal}/>
 				);
 
 				break;
@@ -79,7 +72,7 @@ const AddElementTile = React.createClass({
 				break;
 
 			default:
-				content = <ReactCommon.PlusBox onClick={this.onRequestContext}/>
+				content = <ReactCommon.PlusBox onClick={this.displayContextMenu}/>
 
 				break;
 		}
@@ -251,11 +244,11 @@ const GroupContainer = React.createClass({
 		};
 	},
 
-	requestSubGroups() {
+	requestInfo() {
 		Network.emit("GetGroupInfo", this.props.group);
 	},
 
-	onGetGroupInfo(info) {
+	receiveInfo(info) {
 		if (info.id != this.props.group)
 			return;
 
@@ -266,21 +259,21 @@ const GroupContainer = React.createClass({
 		});
 	},
 
-	onUpdateGroup(id) {
+	updateGroup(id) {
 		if (id == this.props.group)
-			this.requestSubGroups();
+			this.requestInfo();
 	},
 
 	componentDidMount() {
-		Network.on("GetGroupInfo", this.onGetGroupInfo);
-		Network.on("UpdateGroup",  this.onUpdateGroup);
+		Network.on("GetGroupInfo", this.receiveInfo);
+		Network.on("UpdateGroup",  this.updateGroup);
 
-		this.requestSubGroups();
+		this.requestInfo();
 	},
 
 	componentWillUnmount() {
-		Network.off("GetGroupInfo", this.onGetGroupInfo);
-		Network.off("UpdateGroup",  this.onUpdateGroup);
+		Network.off("GetGroupInfo", this.receiveInfo);
+		Network.off("UpdateGroup",  this.updateGroup);
 	},
 
 	render() {
