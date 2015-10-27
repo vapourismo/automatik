@@ -24,10 +24,6 @@ class BrowserClient {
 		this.client.on("ListBackends",  this.onListBackends.bind(this));
 		this.client.on("RenameBackend", this.onRenameBackend.bind(this));
 		this.client.on("DeleteBackend", this.onDeleteBackend.bind(this));
-
-		// Send all client attachments
-		clientStyles.forEach(url => this.attachStyle(url));
-		clientScripts.forEach(url => this.attachScript(url));
 	}
 
 	onGetGroupInfo(id) {
@@ -160,14 +156,6 @@ class BrowserClient {
 
 	displayError(err) {
 		this.client.emit("DisplayError", err);
-	}
-
-	attachScript(url) {
-		this.client.emit("AttachScript", url);
-	}
-
-	attachStyle(url) {
-		this.client.emit("AttachStyle", url);
 	}
 };
 

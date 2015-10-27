@@ -1,6 +1,7 @@
-const React = require("react");
-const page  = require("page");
-const base  = require("./base.jsx");
+const React     = require("react");
+const page      = require("page");
+const base      = require("./base.jsx");
+const Notifier  = require("./notifier.jsx");
 
 const AddGroupBox = React.createClass({
 	onSubmit: function (name) {
@@ -152,9 +153,7 @@ const GroupTile = React.createClass({
 
 	onUpdateFailed: function (info) {
 		if (info.id == this.props.info.id) {
-			window.dispatchEventEasily("DisplayError", {
-				message: info.message
-			});
+			Notifier.displayError(info.message);
 
 			if (this.state.mode == GroupTileMode.Waiting)
 				this.setState({mode: GroupTileMode.Normal});
