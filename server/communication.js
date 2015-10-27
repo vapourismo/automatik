@@ -4,9 +4,6 @@ const util     = require("./utilities");
 const groups   = require("./groups");
 const backends = require("./backends");
 
-const clientScripts = {};
-const clientStyles = {};
-
 /*
  * Brower controller
  */
@@ -165,14 +162,6 @@ class BrowserClient {
 
 function Communication(server) {
 	server.on("connection", client => new BrowserClient(client));
-};
-
-Communication.attachClientScript = function (url) {
-	clientScripts[url] = null;
-};
-
-Communication.attachClientStyle = function (url) {
-	clientStyles[url] = null;
 };
 
 /*
