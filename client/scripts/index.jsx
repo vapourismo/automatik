@@ -1,23 +1,9 @@
-const React          = require("react");
-const ReactDOM       = require("react-dom");
-const page           = require("page");
-const GroupContainer = require("./groups.jsx");
-const Notifier       = require("./notifier.jsx");
-const base           = require("./base.jsx");
+import page           from "page";
+import React          from "react";
+import ReactDOM       from "react-dom";
 
-base.serverSocket.on("DisplayError", Notifier.displayError);
-
-base.serverSocket.on("error", function (err) {
-	console.error(err);
-});
-
-base.serverSocket.on("disconnect", function () {
-	Notifier.displayError("Lost connection to server");
-});
-
-base.serverSocket.on("reconnect", function () {
-	Notifier.displayInfo("Successfully reconnected");
-});
+import Notifier       from "./notifier.jsx";
+import GroupContainer from "./groups.jsx";
 
 function displayGroup(group) {
 	ReactDOM.render(
@@ -29,17 +15,12 @@ function displayGroup(group) {
 	);
 }
 
-page(/^\/groups\/(\d+)/, function (ctx) {
-	displayGroup(Number.parseInt(ctx.params[0]));
-});
+// Routes
+page(/^\/groups\/(\d+)/, ctx => displayGroup(Number.parseInt(ctx.params[0])));
+page("/",                ctx => displayGroup(null));
 
-page("/", function () {
-	displayGroup(null);
-});
-
-page(function () {
-	page.redirect("/");
-});
+// Default handler
+page(ctx => page.redirect("/"));
 
 window.addEventListener("load", function () {
 	page({click: false});

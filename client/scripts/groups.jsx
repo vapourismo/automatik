@@ -1,16 +1,19 @@
-const React     = require("react");
-const page      = require("page");
-const base      = require("./base.jsx");
-const Notifier  = require("./notifier.jsx");
+import page        from "page";
+import React       from "react";
+
+import Network     from "./network.jsx";
+import Notifier    from "./notifier.jsx";
+import Events      from "./events.jsx";
+import ReactCommon from "./react-common.jsx"
 
 const AddGroupBox = React.createClass({
-	onSubmit: function (name) {
-		base.serverSocket.emit("CreateGroup", {name: name, parent: this.props.parent});
+	onSubmit(name) {
+		Network.emit("CreateGroup", {name: name, parent: this.props.parent});
 		this.props.onSubmit();
 	},
 
-	render: function () {
-		return <base.InputBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
+	render() {
+		return <ReactCommon.InputBox onSubmit={this.onSubmit} onCancel={this.props.onCancel}/>
 	}
 });
 
@@ -22,53 +25,42 @@ const AddElementTileMode = {
 };
 
 const AddElementTile = React.createClass({
-	getInitialState: function () {
-		return {
-			mode: AddElementTileMode.Normal
-		};
+	getInitialState() {
+		return {mode: AddElementTileMode.Normal};
 	},
 
-	onRequestNormal: function () {
-		this.setState({
-			mode: AddElementTileMode.Normal
-		});
+	onRequestNormal() {
+		this.setState({mode: AddElementTileMode.Normal});
 	},
 
-	onOpenContext: function (ev) {
+	onOpenContext(ev) {
 		if (ev.sender != this) this.onRequestNormal();
 	},
 
-	onRequestContext: function () {
-		window.dispatchEventEasily("OpenContext", {
-			sender: this
-		});
-
-		this.setState({
-			mode: AddElementTileMode.Context
-		});
+	onRequestContext() {
+		Events.emit("OpenContext", {sender: this});
+		this.setState({mode: AddElementTileMode.Context});
 	},
 
-	onRequestGroup: function () {
-		this.setState({
-			mode: AddElementTileMode.Group
-		});
+	onRequestGroup() {
+		this.setState({mode: AddElementTileMode.Group});
 	},
 
-	componentDidMount: function () {
-		window.addEventListener("OpenContext", this.onOpenContext);
-		window.addEventListener("Escape",      this.onRequestNormal);
+	componentDidMount() {
+		Events.on("OpenContext", this.onOpenContext);
+		Events.on("Escape",      this.onRequestNormal);
 
 		this.contextItems = {
 			"Group": this.onRequestGroup
 		};
 	},
 
-	componentWillUnmount: function () {
-		window.removeEventListener("OpenContext", this.onOpenContext);
-		window.removeEventListener("Escape",      this.onRequestNormal);
+	componentWillUnmount() {
+		Events.off("OpenContext", this.onOpenContext);
+		Events.off("Escape",      this.onRequestNormal);
 	},
 
-	render: function () {
+	render() {
 		var content;
 
 		switch (this.state.mode) {
@@ -82,17 +74,17 @@ const AddElementTile = React.createClass({
 				break;
 
 			case AddElementTileMode.Context:
-				content = <base.ContextBox items={this.contextItems}/>;
+				content = <ReactCommon.ContextBox items={this.contextItems}/>;
 
 				break;
 
 			default:
-				content = <base.PlusBox onClick={this.onRequestContext}/>
+				content = <ReactCommon.PlusBox onClick={this.onRequestContext}/>
 
 				break;
 		}
 
-		return <base.Tile>{content}</base.Tile>
+		return <ReactCommon.Tile>{content}</ReactCommon.Tile>
 	}
 });
 
@@ -105,53 +97,49 @@ const GroupTileMode = {
 };
 
 const GroupTile = React.createClass({
-	getInitialState: function () {
-		return {
-			mode: GroupTileMode.Normal
-		};
+	getInitialState() {
+		return {mode: GroupTileMode.Normal};
 	},
 
-	onContextMenu: function (ev) {
+	onContextMenu(ev) {
 		ev.preventDefault();
-		this.setState({mode: GroupTileMode.Context});
 
-		window.dispatchEventEasily("OpenContext", {
-			sender: this
-		});
+		this.setState({mode: GroupTileMode.Context});
+		Events.emit("OpenContext", {sender: this});
 	},
 
-	onRequestDelete: function () {
+	onRequestDelete() {
 		this.setState({mode: GroupTileMode.Delete});
 	},
 
-	onConfirmDelete: function () {
+	onConfirmDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
-		base.serverSocket.emit("DeleteGroup", this.props.info.id);
+		Network.emit("DeleteGroup", this.props.info.id);
 	},
 
-	onRequestRename: function () {
+	onRequestRename() {
 		this.setState({mode: GroupTileMode.Rename});
 	},
 
-	onSubmitRename: function (name) {
+	onSubmitRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
 
-		base.serverSocket.emit("RenameGroup", {
+		Network.emit("RenameGroup", {
 			id: this.props.info.id,
 			name: name
 		});
 	},
 
-	onOpenContext: function (ev) {
+	onOpenContext(ev) {
 		if (ev.sender != this) this.setState({mode: GroupTileMode.Normal});
 	},
 
-	onEscape: function () {
+	onEscape() {
 		if (this.state.mode > GroupTileMode.Waiting)
 			this.setState({mode: GroupTileMode.Normal});
 	},
 
-	onUpdateFailed: function (info) {
+	onUpdateFailed(info) {
 		if (info.id == this.props.info.id) {
 			Notifier.displayError(info.message);
 
@@ -160,21 +148,21 @@ const GroupTile = React.createClass({
 		}
 	},
 
-	onUpdate: function (id) {
+	onUpdate(id) {
 		if (id == this.props.info.id && this.state.mode == GroupTileMode.Waiting)
 			this.setState({mode: GroupTileMode.Normal});
 	},
 
-	onClick: function () {
+	onClick() {
 		page("/groups/" + this.props.info.id);
 	},
 
-	componentDidMount: function () {
-		window.addEventListener("OpenContext", this.onOpenContext);
-		window.addEventListener("Escape",      this.onEscape);
+	componentDidMount() {
+		Events.on("OpenContext", this.onOpenContext);
+		Events.on("Escape",      this.onEscape);
 
-		base.serverSocket.on("UpdateGroup",       this.onUpdate);
-		base.serverSocket.on("UpdateGroupFailed", this.onUpdateFailed);
+		Network.on("UpdateGroup",       this.onUpdate);
+		Network.on("UpdateGroupFailed", this.onUpdateFailed);
 
 		this.contextItems = {
 			"Delete": this.onRequestDelete,
@@ -182,37 +170,37 @@ const GroupTile = React.createClass({
 		};
 	},
 
-	componentWillUnmount: function () {
-		window.removeEventListener("OpenContext", this.onOpenContext);
-		window.removeEventListener("Escape",      this.onEscape);
+	componentWillUnmount() {
+		Events.off("OpenContext", this.onOpenContext);
+		Events.off("Escape",      this.onEscape);
 
-		base.serverSocket.removeListener("UpdateGroup",       this.onUpdate);
-		base.serverSocket.removeListener("UpdateGroupFailed", this.onUpdateFailed);
+		Network.off("UpdateGroup",       this.onUpdate);
+		Network.off("UpdateGroupFailed", this.onUpdateFailed);
 	},
 
-	render: function () {
+	render() {
 		var content;
 
 		switch (this.state.mode) {
 			case GroupTileMode.Context:
-				content = <base.ContextBox items={this.contextItems}/>;
+				content = <ReactCommon.ContextBox items={this.contextItems}/>;
 
 				break;
 
 			case GroupTileMode.Delete:
-				content = <base.ConfirmBox onConfirm={this.onConfirmDelete}/>;
+				content = <ReactCommon.ConfirmBox onConfirm={this.onConfirmDelete}/>;
 
 				break;
 
 			case GroupTileMode.Rename:
 				content = (
-		           <base.InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
+		           <ReactCommon.InputBox defaultValue={this.props.info.name} onSubmit={this.onSubmitRename}/>
 				);
 
 				break;
 
 			case GroupTileMode.Waiting:
-				content = <base.WaitingBox />;
+				content = <ReactCommon.WaitingBox />;
 
 				break;
 
@@ -226,28 +214,28 @@ const GroupTile = React.createClass({
 				break;
 		}
 
-		return <base.Tile>{content}</base.Tile>;
+		return <ReactCommon.Tile>{content}</ReactCommon.Tile>;
 	}
 });
 
 const ParentGroupTile = React.createClass({
-	onClick: function () {
+	onClick() {
 		page("/groups/" + this.props.group);
 	},
 
-	render: function () {
+	render() {
 		return (
-			<base.Tile>
+			<ReactCommon.Tile>
 				<div className="box back" onClick={this.onClick}>
 					<i className="fa fa-arrow-left"></i>
 				</div>
-			</base.Tile>
+			</ReactCommon.Tile>
 		);
 	}
 });
 
 const GroupContainer = React.createClass({
-	getInitialState: function () {
+	getInitialState() {
 		return {
 			name: null,
 			parent: null,
@@ -255,11 +243,11 @@ const GroupContainer = React.createClass({
 		};
 	},
 
-	requestSubGroups: function () {
-		base.serverSocket.emit("GetGroupInfo", this.props.group);
+	requestSubGroups() {
+		Network.emit("GetGroupInfo", this.props.group);
 	},
 
-	onGetGroupInfo: function (info) {
+	onGetGroupInfo(info) {
 		if (info.id != this.props.group)
 			return;
 
@@ -270,24 +258,24 @@ const GroupContainer = React.createClass({
 		});
 	},
 
-	onUpdateGroup: function (id) {
+	onUpdateGroup(id) {
 		if (id == this.props.group)
 			this.requestSubGroups();
 	},
 
-	componentDidMount: function () {
-		base.serverSocket.on("GetGroupInfo", this.onGetGroupInfo);
-		base.serverSocket.on("UpdateGroup",  this.onUpdateGroup);
+	componentDidMount() {
+		Network.on("GetGroupInfo", this.onGetGroupInfo);
+		Network.on("UpdateGroup",  this.onUpdateGroup);
 
 		this.requestSubGroups();
 	},
 
-	componentWillUnmount: function () {
-		base.serverSocket.removeListener("GetGroupInfo", this.onGetGroupInfo);
-		base.serverSocket.removeListener("UpdateGroup",  this.onUpdateGroup);
+	componentWillUnmount() {
+		Network.off("GetGroupInfo", this.onGetGroupInfo);
+		Network.off("UpdateGroup",  this.onUpdateGroup);
 	},
 
-	render: function () {
+	render() {
 		const tiles = this.state.subGroups.map(
 			group => <GroupTile key={"group-tile-" + group.id} info={group}/>
 		);
@@ -295,11 +283,11 @@ const GroupContainer = React.createClass({
 		const back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
 
 		return (
-			<base.Container>
+			<ReactCommon.Container>
 				{back}
 				{tiles}
 				<AddElementTile key="add-group" parent={this.props.group}/>
-			</base.Container>
+			</ReactCommon.Container>
 		);
 	}
 });

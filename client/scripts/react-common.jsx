@@ -1,27 +1,5 @@
-const React = require("react");
-
-const serverSocket = io();
-
-window.dispatchEventEasily = function (tag, attach) {
-	const event = new Event(tag);
-
-	if (attach instanceof Object) {
-		for (var key in attach)
-			event[key] = attach[key];
-	}
-
-	window.dispatchEvent(event);
-};
-
-window.addEventListener("keyup", function (ev) {
-	if (ev.keyCode == 27)
-		window.dispatchEventEasily("Escape");
-});
-
-window.addEventListener("click", function (ev) {
-	if (ev.target == document.body)
-		window.dispatchEventEasily("Escape");
-});
+import React  from "react";
+import Events from "./events.jsx";
 
 const Tile = React.createClass({
 	adjustHeight() {
@@ -43,24 +21,20 @@ const Tile = React.createClass({
 });
 
 const Container = React.createClass({
-	render: function () {
+	render() {
 		return <div className="container">{this.props.children}</div>;
 	}
 });
 
 const InputBox = React.createClass({
-	onRequestEditing: function () {
-		this.setState({editing: true});
-	},
-
-	onSubmit: function (ev) {
+	onSubmit(ev) {
 		this.props.onSubmit(this.refs.input.value);
 
 		if (ev) ev.preventDefault();
 		return false;
 	},
 
-	onCancel: function (ev) {
+	onCancel(ev) {
 		if (this.props.onCancel)
 			this.props.onCancel(this.refs.input.value);
 
@@ -68,19 +42,19 @@ const InputBox = React.createClass({
 		return false;
 	},
 
-	componentDidMount: function () {
-		window.addEventListener("OpenContext", this.onCancel);
-		window.addEventListener("Escape",      this.onCancel);
+	componentDidMount() {
+		Events.on("OpenContext", this.onCancel);
+		Events.on("Escape",      this.onCancel);
 
 		this.refs.input.select();
 	},
 
-	componentWillUnmount: function () {
-		window.removeEventListener("OpenContext", this.onCancel);
-		window.removeEventListener("Escape",      this.onCancel);
+	componentWillUnmount() {
+		Events.off("OpenContext", this.onCancel);
+		Events.off("Escape",      this.onCancel);
 	},
 
-	render: function () {
+	render() {
 		return (
 			<form className="box input" onSubmit={this.onSubmit}>
 				<input ref="input" type="text" defaultValue={this.props.defaultValue} onBlur={this.onCancel}/>
@@ -88,7 +62,7 @@ const InputBox = React.createClass({
 		);
 	},
 
-	componentDidUpdate: function () {
+	componentDidUpdate() {
 		this.refs.input.select();
 	}
 });
@@ -104,7 +78,7 @@ const PlusBox = React.createClass({
 });
 
 const ContextBox = React.createClass({
-	render: function () {
+	render() {
 		const items = [];
 
 		for (var name in this.props.items)
@@ -115,7 +89,7 @@ const ContextBox = React.createClass({
 });
 
 const ConfirmBox = React.createClass({
-	render: function () {
+	render() {
 		return (
 			<div className="box confirm" onClick={this.props.onConfirm}>
 				<span>Are you sure?</span>
@@ -125,7 +99,7 @@ const ConfirmBox = React.createClass({
 });
 
 const WaitingBox = React.createClass({
-	render: function () {
+	render() {
 		return (
 			<div className="box normal">
 				<i className="fa fa-refresh rotate"></i>
@@ -141,7 +115,5 @@ module.exports = {
 	PlusBox:      PlusBox,
 	ContextBox:   ContextBox,
 	ConfirmBox:   ConfirmBox,
-	WaitingBox:   WaitingBox,
-
-	serverSocket: serverSocket
+	WaitingBox:   WaitingBox
 };
