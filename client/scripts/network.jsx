@@ -1,4 +1,4 @@
-import Notifier from "./notifier.jsx";
+const Notifier = require("./notifier.jsx");
 
 const network = io();
 

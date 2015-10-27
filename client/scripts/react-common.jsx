@@ -1,5 +1,5 @@
-import React  from "react";
-import Events from "./events.jsx";
+const React  = require("react");
+const Events = require("./events.jsx");
 
 const Tile = React.createClass({
 	adjustHeight() {

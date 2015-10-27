@@ -1,10 +1,10 @@
-import page        from "page";
-import React       from "react";
+const page        = require("page");
+const React       = require("react");
 
-import Network     from "./network.jsx";
-import Notifier    from "./notifier.jsx";
-import Events      from "./events.jsx";
-import ReactCommon from "./react-common.jsx"
+const Network     = require("./network.jsx");
+const Notifier    = require("./notifier.jsx");
+const Events      = require("./events.jsx");
+const ReactCommon = require("./react-common.jsx");
 
 const AddElementTileMode = {
 	Normal:    1,

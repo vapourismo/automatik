@@ -1,9 +1,9 @@
-import page           from "page";
-import React          from "react";
-import ReactDOM       from "react-dom";
+const page           = require("page");
+const React          = require("react");
+const ReactDOM       = require("react-dom");
 
-import Notifier       from "./notifier.jsx";
-import GroupContainer from "./groups.jsx";
+const Notifier       = require("./notifier.jsx");
+const GroupContainer = require("./groups.jsx");
 
 function displayGroup(group) {
 	ReactDOM.render(
