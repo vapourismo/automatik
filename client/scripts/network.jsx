@@ -8,13 +8,12 @@ const network = io();
 network.on("disconnect", () => Notifier.displayError("Lost connection to server"));
 network.on("reconnect", () => Notifier.displayInfo("Successfully reconnected"));
 
-// Protocol events
-network.on("DisplayError", Notifier.displayError);
-
 let sinkCounter = 0;
 const sinkTimeout = 10000;
 
-network.invoke = function (name, ...args) {
+function invoke(name, ...args) {
+	name = "invoke:" + name;
+
 	return new Promise(function (accept, reject) {
 		const sink = sinkCounter++;
 
@@ -41,17 +40,27 @@ network.invoke = function (name, ...args) {
 			reject(new Error("Invocation for '" + name + "' timed out"));
 		}, sinkTimeout);
 	});
+}
+
+function bindNetworkFunction(name) {
+	return function (...args) {
+		return invoke(name, ...args);
+	};
+}
+
+function on(name, callback) {
+	network.on("event:" + name, callback);
+}
+
+function off(name, callback) {
+	network.off("event:" + name, callback);
+}
+
+module.exports = {
+	getGroupInfo: bindNetworkFunction("getGroupInfo"),
+	createGroup:  bindNetworkFunction("createGroup"),
+	deleteGroup:  bindNetworkFunction("deleteGroup"),
+	renameGroup:  bindNetworkFunction("renameGroup"),
+	on:           on,
+	off:          off
 };
-
-const networkFunctions = [
-	"getGroupInfo",
-	"createGroup",
-	"deleteGroup",
-	"renameGroup"
-];
-
-networkFunctions.forEach(function (name) {
-	network[name] = function (...args) { return network.invoke(name, ...args); };
-});
-
-module.exports = network;

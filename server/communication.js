@@ -9,11 +9,13 @@ const backends = require("./backends");
  */
 
 function bindFunction(client, name, callback) {
+	name = "invoke:" + name;
+
 	client.on(name, function (sink, ...args) {
 		const self = {
 			reply: (...retargs) => client.emit(name, sink, null, ...retargs),
 			reject: reason => client.emit(name, sink, reason),
-			__proto__: client
+			trigger: (name, ...args) => client.server.emit("event:" + name, ...args)
 		};
 
 		callback.call(self, ...args);
@@ -56,7 +58,7 @@ function createGroup(name, parent) {
 
 	groups.create(name, parent).then(
 		val => {
-			this.server.emit("refreshGroup", val.parent);
+			this.trigger("refreshGroup", val.parent);
 			this.reply();
 		},
 		err => this.reject({message: err.message})
@@ -75,8 +77,8 @@ function deleteGroup(id) {
 		grp.delete().then(
 			val => {
 				console.log();
-				this.server.emit("refreshGroup", grp.parent);
-				this.server.emit("deleteGroup", id);
+				this.trigger("refreshGroup", grp.parent);
+				this.trigger("deleteGroup", id);
 				this.reply();
 			},
 			err => this.reject({message: err.message})
@@ -98,7 +100,7 @@ function renameGroup(id, name) {
 	if (grp) {
 		grp.rename(name).then(
 			val => {
-				this.server.emit("refreshGroup", grp.parent);
+				this.trigger("refreshGroup", grp.parent);
 				this.reply();
 			},
 			err => this.reject({message: err.message})
