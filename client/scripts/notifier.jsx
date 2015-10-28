@@ -8,9 +8,9 @@ const Notification = React.createClass({
 	},
 
 	hide() {
-		$(this.refs.pane).animate({opacity: 0}, 1000, () => {
+		$(this.refs.pane).animate({opacity: 0}, 400, () => {
 			this.marked = true;
-			$(this.refs.pane).slideUp(1000, this.props.onDecay);
+			$(this.refs.pane).slideUp(400, this.props.onDecay);
 		});
 	},
 
