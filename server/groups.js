@@ -141,7 +141,7 @@ module.exports = {
 			throw new GroupError("Group name has to contain at least one character");
 
 		try {
-			const row = yield table.insert({name: name, parent: parent});
+			const row = yield table.insert({name, parent});
 
 			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
 			const group = groups[row.data.id] = new Group(row);

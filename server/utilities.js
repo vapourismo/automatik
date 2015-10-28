@@ -137,8 +137,8 @@ Object.defineProperty(Object.prototype, "map", {
  */
 
 module.exports = {
-	iterateFiles: iterateFiles,
-	abort:        abort
+	iterateFiles,
+	abort
 };
 
 Object.assign(module.exports, loggers);

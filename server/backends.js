@@ -119,10 +119,10 @@ Backend.prototype.delete = function* () {
 const table = new db.Table("backends", "id", ["name", "driver", "config"]);
 
 module.exports = {
-	Driver: Driver,
-	DatapointInterface: DatapointInterface,
+	Driver,
+	DatapointInterface,
 
-	registerDriver: function (clazz) {
+	registerDriver (clazz) {
 		const name = clazz.name;
 
 		if (name in drivers)
@@ -147,13 +147,13 @@ module.exports = {
 		if (!(driver in drivers))
 			throw new Error("Driver '" + this.driver + "' does not exist");
 
-		const row = yield table.insert({name: name, driver: driver, config: config});
+		const row = yield table.insert({name, driver, config});
 
 		util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 		backends[row.data.id] = new Backend(row);
 	}.async,
 
-	find: function (id) {
+	find(id) {
 		const backend = backends[id];
 		return backend instanceof Backend ? backend : null;
 	}

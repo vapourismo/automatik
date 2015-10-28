@@ -16,7 +16,7 @@ class Datapoint {
 
 		this.interface = this.backend.createInterface(row.data.value, row.data.config);
 		this.interface.listen(value => {
-			this.row.update({value: value}).catch(
+			this.row.update({value}).catch(
 				error => util.error("datapoints", "Failed to update #" + this.row.id, error)
 			);
 		});
@@ -61,7 +61,7 @@ module.exports = {
 	create: function* (name, backend, config, value) {
 		// TODO: Validate parameters
 
-		const row = yield table.insert({name: name, backend: backend, config: config, value: value});
+		const row = yield table.insert({name, backend, config, value});
 
 		util.inform("datapoint: " + row.data.id, "Registering '" + row.data.name + "'");
 		datapoints[row.data.id] = new Datapoint(row);
