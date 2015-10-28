@@ -5,6 +5,48 @@ const knxclient     = require("knxclient");
 const backends      = require("../backends");
 const Communication = require("../communication");
 
+class Datapoint extends backends.DatapointInterface {
+	constructor(backend, address, value) {
+		super();
+
+		this.value = value;
+		this.backend = backend;
+		this.address = address;
+
+		this.backend.hooks.on(this.address, this.listener = msg => {
+			this.value = this.unwrap(msg);
+			this.emit(this.value);
+		});
+	}
+
+	delete() {
+		this.backend.hooks.off(this.address, this.listener);
+	}
+
+	read() {
+		return this.value;
+	}
+
+	write(value) {
+		this.value = value;
+		this.backend.client.send(0, this.address, this.wrap());
+		this.emit(value);
+	}
+
+	unwrap(msg) {}
+	wrap() {}
+};
+
+class Bool extends Datapoint {
+	unwrap(msg) { return msg.asBool(); }
+	wrap() { return knxclient.makeBool(this.value); }
+}
+
+class Float16 extends Datapoint {
+	unwrap(msg) { return msg.asFloat16(); }
+	wrap() { return knxclient.makeFloat16(this.value); }
+}
+
 class KNXRouter extends backends.Driver {
 	constructor(config) {
 		super();
@@ -17,35 +59,10 @@ class KNXRouter extends backends.Driver {
 		});
 	}
 
-	attachToDatapoint(config, datapoint) {
+	createInterface(value, config) {
 		switch (config.type) {
-			case 1:
-				datapoint.on("commit", value => {
-					this.client.send(0, config.address, knxclient.makeBool(value));
-				});
-
-				this.hooks.on(config.address, function (message) {
-					datapoint.value = message.asBool();
-				});
-
-				if (datapoint.value == null)
-					datapoint.value = false;
-
-				break;
-
-			case 9:
-				datapoint.on("commit", value => {
-					this.client.send(0, config.address, knxclient.makeFloat16(value));
-				});
-
-				this.hooks.on(config.address, function (message) {
-					datapoint.value = message.asFloat16();
-				});
-
-				if (datapoint.value == null)
-					datapoint.value = 0.0;
-
-				break;
+			case 1: return new Bool(this, config.address, value);
+			case 9: return new Float16(this, config.address, value);
 		}
 	}
 }

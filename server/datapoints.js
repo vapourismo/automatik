@@ -1,74 +1,72 @@
 "use strict";
 
-const EventEmitter = require("events");
 const backends     = require("./backends");
 const util         = require("./utilities");
 const db           = require("./database");
 
 const datapoints = {};
 
-class Datapoint extends EventEmitter {
-	constructor(value) {
-		super();
+class Datapoint {
+	constructor(row) {
+		this.row = row;
 
-		if (value !== undefined && value !== null)
-			this.value = value;
+		this.backend = backends.find(row.data.backend);
+		if (!this.backend)
+			throw new Error("Backend #" + row.data.backend + " does not exist");
+
+		this.interface = this.backend.createInterface(row.data.value, row.data.config);
+		this.interface.listen(value => {
+			util.inform("datapoint: " + row.data.id, "value =", value);
+
+			this.row.update({value: value}).catch(
+				error => util.error("datapoints", "Failed to update #" + this.row.id, error)
+			);
+		});
 	}
 
-	set value(value) {
-		this._value = value;
-		this.emit("update", value);
+	get id() {
+		return this.rows.data.id;
+	}
+
+	get name() {
+		return this.rows.data.name;
 	}
 
 	get value() {
-		return this._value;
+		return this.interface.read();
 	}
 
-	commit(value) {
-		if (value !== undefined)
-			this.value = value;
-
-		this.emit("commit", this.value);
+	set value(value) {
+		this.interface.write(value);
 	}
-}
 
-class DatapointHandle {
-	constructor(row) {
-		Object.assign(this, row);
+	listen(callback) {
+		this.interface.listen(callback);
+	}
 
-		const backend = backends.find(this.backend);
-		if (!backend) throw new Error("Backend #" + this.backend + " does not exist");
-
-		this.datapoint = new Datapoint(row.value);
-		backend.attachToDatapoint(this.config, this.datapoint);
-
-		this.datapoint.on("update", function* (value) {
-			try {
-				yield db.queryAsync("UPDATE datapints SET value = $1 WHERE id = $2", [value, row.id]);
-			} catch (error) {
-				util.error("datapoints", "Failed to update #" + row.id, error);
-			}
-		}.async);
+	mute(callback) {
+		this.interface.mute(callback);
 	}
 }
+
+const table = new db.Table("datapoints", "id", ["name", "backend", "config", "value"]);
 
 module.exports = {
 	load: function* () {
-		const datapointsResult = yield db.queryAsync("SELECT * FROM datapoints");
-		datapointsResult.rows.forEach(function (row) {
-			util.inform("datapoints", "Registering '" + row.name + "'");
-			datapoints[row.id] = new DatapointHandle(row);
+		const rows = yield table.load();
+		rows.forEach(function (row) {
+			util.inform("datapoint: " + row.data.id, "Registering '" + row.data.name + "'");
+			datapoints[row.data.id] = new Datapoint(row);
 		});
 	}.async,
 
 	create: function* (name, backend, config, value) {
 		// TODO: Validate parameters
 
-		const insertResult = yield db.queryAsync("INSERT INTO datapoints (name, backend, config, value) VALUES ($1, $2, $3, $3)", [name, backend, config, value]);
-		insertResult.rows.forEach(function (row) {
-			util.inform("datapoints", "Registering '" + row.name + "'");
-			datapoints[row.id] = new DatapointHandle(row);
-		})
+		const row = yield table.insert({name: name, backend: backend, config: config, value: value});
+
+		util.inform("datapoint: " + row.data.id, "Registering '" + row.data.name + "'");
+		datapoints[row.data.id] = new Datapoint(row);
 	}.async,
 
 	find: function (id) {

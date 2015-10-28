@@ -1,8 +1,8 @@
 "use strict";
-
-const path = require("path");
-const util = require("./utilities");
-const db   = require("./database");
+const EventEmitter = require("events");
+const path         = require("path");
+const util         = require("./utilities");
+const db           = require("./database");
 
 const drivers = {};
 const backends = {};
@@ -10,14 +10,43 @@ const backends = {};
 class BackendError extends Error {
 	constructor(message, cause) {
 		super(message);
-
 		this.cause = cause;
 	}
 }
 
+class DatapointInterface {
+	constructor() {
+		this._emitter = new EventEmitter();
+	}
+
+	write(value) {
+		throw new Error("DatapointInterface.write is not implemented");
+	}
+
+	read() {
+		throw new Error("DatapointInterface.read is not implemented");
+	}
+
+	emit(value) {
+		this._emitter.emit("update", value);
+	}
+
+	listen(callback) {
+		this._emitter.on("update", callback);
+	}
+
+	mute(callback) {
+		this._emitter.off("update", callback);
+	}
+
+	delete() {
+		throw new Error("DatapointInterface.delete is not implemented");
+	}
+}
+
 class Driver {
-	attachToDatapoint(config, datapoint) {
-		throw new Error("Driver.attachToDatapoint is not implemented");
+	createInterface(value, config) {
+		throw new Error("Driver.createInterface is not implemented");
 	}
 }
 
@@ -43,8 +72,13 @@ class Backend {
 		return this.row.data.config;
 	}
 
-	attachToDatapoint(config, datapoint) {
-		this.driver.attachToDatapoint(config, datapoint);
+	createInterface(value, config) {
+		const iface = this.driver.createInterface(value, config);
+
+		if (!(iface instanceof DatapointInterface))
+			throw new Error("Backend driver '" + this.row.data.driver + "' returned an invalid datapoint interface");
+
+		return iface;
 	}
 }
 
@@ -86,7 +120,7 @@ const table = new db.Table("backends", "id", ["name", "driver", "config"]);
 
 module.exports = {
 	Driver: Driver,
-	all: backends,
+	DatapointInterface: DatapointInterface,
 
 	registerDriver: function (clazz) {
 		const name = clazz.name;
@@ -104,7 +138,7 @@ module.exports = {
 	load: function* () {
 		const rows = yield table.load();
 		rows.forEach(function (row) {
-			util.inform("backends", "Registering '" + row.data.name + "'");
+			util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 			backends[row.data.id] = new Backend(row);
 		});
 	}.async,
@@ -115,7 +149,7 @@ module.exports = {
 
 		const row = yield table.insert({name: name, driver: driver, config: config});
 
-		util.inform("backends", "Registering '" + row.data.name + "'");
+		util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 		backends[row.data.id] = new Backend(row);
 	}.async,
 
