@@ -12,15 +12,19 @@ network.on("reconnect", () => Notifier.displayInfo("Successfully reconnected"));
 network.on("DisplayError", Notifier.displayError);
 
 let sinkCounter = 0;
+const sinkTimeout = 10000;
 
 network.invoke = function (name, ...args) {
 	return new Promise(function (accept, reject) {
 		const sink = sinkCounter++;
 
+		let timeout;
+
 		const callee = function (retsink, error, ...retargs) {
 			if (retsink != sink)
 				return;
 
+			clearTimeout(timeout);
 			network.off(name, callee);
 
 			if (error == null)
@@ -31,6 +35,11 @@ network.invoke = function (name, ...args) {
 
 		network.on(name, callee);
 		network.emit(name, sink, ...args);
+
+		timeout = setTimeout(function () {
+			network.off(name, callee);
+			reject(new Error("Invocation for '" + name + "' timed out"));
+		}, sinkTimeout);
 	});
 };
 
