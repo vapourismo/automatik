@@ -226,6 +226,13 @@ const GroupContainer = React.createClass({
 		};
 	},
 
+	openParent() {
+		if (typeof(this.state.parent) == "number")
+			page("/groups/" + this.state.parent);
+		else
+			page("/");
+	},
+
 	requestInfo() {
 		Network.getGroupInfo(this.props.group).then(
 			info => {
@@ -235,7 +242,9 @@ const GroupContainer = React.createClass({
 					subGroups: info.subGroups.sort((a, b) => a.name.localeCompare(b.name))
 				});
 			},
-			error => Notifier.displayError(error.message)
+			error => {
+				this.openParent();
+			}
 		);
 	},
 
@@ -244,14 +253,26 @@ const GroupContainer = React.createClass({
 			this.requestInfo();
 	},
 
+	deleteGroup(id) {
+		if (id != this.props.group)
+			return;
+
+		if (typeof(this.state.name) == "string")
+			Notifier.displayError("Group '" + this.state.name + "' has been removed");
+
+		this.openParent();
+	},
+
 	componentDidMount() {
 		Network.on("refreshGroup", this.refreshGroup);
+		Network.on("deleteGroup",  this.deleteGroup);
 
 		this.requestInfo();
 	},
 
 	componentWillUnmount() {
 		Network.off("refreshGroup", this.refreshGroup);
+		Network.off("deleteGroup",  this.deleteGroup);
 	},
 
 	render() {

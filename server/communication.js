@@ -2,7 +2,6 @@
 
 const util     = require("./utilities");
 const groups   = require("./groups");
-const backends = require("./backends");
 
 /**
  * Utilities
@@ -15,11 +14,14 @@ function bindFunction(client, name, callback) {
 		const self = {
 			reply: (...retargs) => client.emit(name, sink, null, ...retargs),
 			reject: reason => client.emit(name, sink, reason),
-			trigger: (name, ...args) => client.server.emit("event:" + name, ...args)
 		};
 
 		callback.call(self, ...args);
 	});
+}
+
+function triggerEvent(server, name, ...args) {
+	server.emit("event:" + name, ...args);
 }
 
 /*
@@ -46,7 +48,7 @@ function getGroupInfo(id) {
 		this.reply(gatherGroupInfo(grp));
 	} else {
 		util.error("communication", "Cannot find group #" + id);
-		this.reject({message: "A group with that ID does not exist"});
+		this.reject({message: "Cannot find group #" + id});
 	}
 }
 
@@ -58,7 +60,6 @@ function createGroup(name, parent) {
 
 	groups.create(name, parent).then(
 		val => {
-			this.trigger("refreshGroup", val.parent);
 			this.reply();
 		},
 		err => this.reject({message: err.message})
@@ -76,9 +77,6 @@ function deleteGroup(id) {
 	if (grp) {
 		grp.delete().then(
 			val => {
-				console.log();
-				this.trigger("refreshGroup", grp.parent);
-				this.trigger("deleteGroup", id);
 				this.reply();
 			},
 			err => this.reject({message: err.message})
@@ -99,10 +97,7 @@ function renameGroup(id, name) {
 
 	if (grp) {
 		grp.rename(name).then(
-			val => {
-				this.trigger("refreshGroup", grp.parent);
-				this.reply();
-			},
+			val => this.reply(grp.name),
 			err => this.reject({message: err.message})
 		);
 	} else {
@@ -121,5 +116,21 @@ module.exports = function (server) {
 		bindFunction(client, "createGroup",  createGroup);
 		bindFunction(client, "deleteGroup",  deleteGroup);
 		bindFunction(client, "renameGroup",  renameGroup);
+	});
+
+	groups.events.on("attach", function (grp, mem) {
+		triggerEvent(server, "refreshGroup", grp.id);
+	});
+
+	groups.events.on("detach", function (grp, mem) {
+		triggerEvent(server, "refreshGroup", grp.id);
+	});
+
+	groups.events.on("delete", function (gid) {
+		triggerEvent(server, "deleteGroup", gid);
+	});
+
+	groups.events.on("rename", function (grp) {
+		triggerEvent(server, "refreshGroup", grp.parent);
 	});
 };

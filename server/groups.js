@@ -1,7 +1,8 @@
 "use strict";
 
-const db   = require("./database");
-const util = require("./utilities");
+const EventEmitter = require("events");
+const db           = require("./database");
+const util         = require("./utilities");
 
 class GroupError extends Error {
 	constructor(message, cause) {
@@ -11,12 +12,15 @@ class GroupError extends Error {
 	}
 }
 
+const eventHub = new EventEmitter();
 const groups = {};
 
 class Group {
 	constructor(row) {
 		this.row = row;
 		this.subGroups = [];
+
+		eventHub.emit("create", this);
 	}
 
 	get id() {
@@ -42,12 +46,16 @@ class Group {
 	}
 
 	attach(grp) {
-		if (this.subGroups.every(g => g != grp))
-			this.subGroups.push(grp);
+		if (this.subGroups.some(g => g == grp))
+			return;
+
+		this.subGroups.push(grp);
+		eventHub.emit("attach", this, grp);
 	}
 
 	detach(grp) {
 		this.subGroups = this.subGroups.filter(g => g != grp);
+		eventHub.emit("detach", this, grp);
 	}
 }
 
@@ -56,6 +64,8 @@ Group.prototype.rename = function* (name) {
 
 	try {
 		yield this.row.update({name: name});
+
+		eventHub.emit("rename", this);
 		util.inform(tag, "Renamed to '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to rename", err);
@@ -73,10 +83,13 @@ Group.prototype.delete = function* () {
 	yield* this.subGroups.map(g => g.delete());
 
 	try {
+		const id = this.id;
+
 		this.detachFromParent();
-		delete groups[this.id];
+		delete groups[id];
 		yield this.row.delete();
 
+		eventHub.emit("delete", id);
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to delete", err);
@@ -108,6 +121,8 @@ groups[null] = new BaseGroup();
 const table = new db.Table("groups", "id", ["name", "parent"]);
 
 module.exports = {
+	events: eventHub,
+
 	load: function* () {
 		const rows = yield table.load();
 
