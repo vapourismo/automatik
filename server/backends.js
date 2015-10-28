@@ -115,8 +115,8 @@ module.exports = {
 
 		const row = yield table.insert({name: name, driver: driver, config: config});
 
-		util.inform("backends", "Registering '" + row.name + "'");
-		backends[row.id] = new Backend(row);
+		util.inform("backends", "Registering '" + row.data.name + "'");
+		backends[row.data.id] = new Backend(row);
 	}.async,
 
 	find: function (id) {
