@@ -48,8 +48,7 @@ body {
 }
 
 .fade-out {
-	animation-name: fade-out;
-	animation-duration: 15s;
+	animation: fade-out 15s ease-in;
 }
 
 /* Helpers */

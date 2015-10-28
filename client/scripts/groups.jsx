@@ -36,8 +36,10 @@ const AddElementTile = React.createClass({
 	},
 
 	createGroup(name) {
-		Network.createGroup(name, this.props.parent);
-		this.restoreNormal();
+		Network.createGroup(name, this.props.parent).then(
+			this.restoreNormal,
+			error => Notifier.displayError(error.message)
+		);
 	},
 
 	componentDidMount() {

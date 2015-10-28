@@ -1,9 +1,37 @@
 const React = require("react");
+const $ = require("jquery");
+require("jquery-ui");
 
 const Notification = React.createClass({
+	componentDidMount() {
+		this.startTimer();
+	},
+
+	hide() {
+		$(this.refs.pane).animate({opacity: 0}, 1000, () => {
+			this.marked = true;
+			$(this.refs.pane).slideUp(1000, this.props.onDecay);
+		});
+	},
+
+	stopTimer() {
+		if (!this.marked)
+			$(this.refs.pane).stop(true).animate({opacity: 1});
+
+		clearTimeout(this.timeout);
+	},
+
+	startTimer() {
+		this.timeout = setTimeout(this.hide, 5000);
+	},
+
 	render() {
 		return (
-			<div className="notification fade-out">
+			<div ref="pane"
+			     className={this.props.isError ? "notification error" : "notification info"}
+			     onMouseEnter={this.stopTimer}
+			     onMouseLeave={this.startTimer}
+			     onClick={this.hide}>
 				{this.props.children}
 			</div>
 		);
@@ -15,13 +43,11 @@ var self = undefined;
 const Notifier = React.createClass({
 	statics: {
 		displayError(contents) {
-			if (!self) return;
-
-			self.appendNotification(contents);
+			if (self) self.appendNotification(true, contents);
 		},
 
 		displayInfo(contents) {
-			this.displayError(contents);
+			if (self) self.appendNotification(false, contents);
 		}
 	},
 
@@ -31,18 +57,24 @@ const Notifier = React.createClass({
 		};
 	},
 
-	appendNotification(contents) {
+	removeItem(key) {
 		this.setState({
-			notifications: this.state.notifications.concat([
-				<Notification key={this.counter++}>
-					{contents}
-				</Notification>
-			])
+			notifications: this.state.notifications.filter(item => item.key != key)
 		});
+	},
 
-		setTimeout(() => {
-			this.setState({notifications: this.state.notifications.slice(1)});
-		}, 15000);
+	appendNotification(error, contents) {
+		const key = this.counter++;
+
+		let item = (
+			<Notification key={key} isError={error} onDecay={() => this.removeItem(key)}>
+				{contents}
+			</Notification>
+		);
+
+		this.setState({
+			notifications: this.state.notifications.concat([item])
+		});
 	},
 
 	componentDidMount() {
