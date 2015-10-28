@@ -202,12 +202,18 @@ body {
 	align-items: flex-end;
 
 	.notification {
-		background-color: #333;
 		padding: 15px;
 		margin: 5px 5px 0px 0px;
 		font-size: 14px;
 		text-align: right;
-		background-color: #663333;
 		border: solid 1px rgba(255, 255, 255, 0.2);
+
+		&.error {
+			background-color: #663333;
+		}
+
+		&.info {
+			background-color: #222;
+		}
 	}
 }
