@@ -16,8 +16,6 @@ class Datapoint {
 
 		this.interface = this.backend.createInterface(row.data.value, row.data.config);
 		this.interface.listen(value => {
-			util.inform("datapoint: " + row.data.id, "value =", value);
-
 			this.row.update({value: value}).catch(
 				error => util.error("datapoints", "Failed to update #" + this.row.id, error)
 			);
