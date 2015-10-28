@@ -43,7 +43,7 @@ Row.prototype.update = function* (data) {
 		if (!(column in data))
 			return;
 
-		params.push(this.data[column] = data[column]);
+		params.push(data[column]);
 		values.push(sanitizeName(column) + " = $" + params.length);
 	});
 
