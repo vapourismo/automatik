@@ -128,7 +128,10 @@ const GroupTile = React.createClass({
 		this.setState({mode: GroupTileMode.Waiting});
 		Network.renameGroup(this.props.info.id, name).then(
 			this.restoreNormal,
-			error => Notifier.displayError(error.message)
+			error => {
+				Notifier.displayError(error.message);
+				this.requestRename();
+			}
 		);
 	},
 
