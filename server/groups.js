@@ -103,7 +103,7 @@ Group.prototype.delete = function* () {
 
 class BaseGroup extends Group {
 	constructor() {
-		super(new db.Row(null, {parent: null, name: null}));
+		super(new db.Row(null, {id: null, parent: null, name: null}));
 	}
 }
 
