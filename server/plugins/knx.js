@@ -73,9 +73,6 @@ backends.registerDriver(KNXRouter);
 class Switch extends components.Type {
 	constructor(config, slots) {
 		super();
-
-		util.debug("switch", config);
-		util.debug("switch", slots);
 	}
 }
 
