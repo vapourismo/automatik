@@ -86,7 +86,7 @@ Backend.prototype.rename = function* (name) {
 	const tag = "backend: " + this.id;
 
 	try {
-		yield this.row.update({name: name});
+		yield this.row.update({name});
 		util.inform(tag, "Renamed to '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to rename", err);
@@ -102,8 +102,8 @@ Backend.prototype.delete = function* () {
 	const tag = "backend: " + this.id;
 
 	try {
-		delete backends[this.id];
 		yield this.row.delete();
+		delete backends[this.id];
 
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
@@ -122,7 +122,7 @@ module.exports = {
 	Driver,
 	DatapointInterface,
 
-	registerDriver (clazz) {
+	registerDriver(clazz) {
 		const name = clazz.name;
 
 		if (name in drivers)
