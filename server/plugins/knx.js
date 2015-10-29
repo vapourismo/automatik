@@ -1,9 +1,10 @@
 "use strict";
 
-const EventEmitter  = require("events");
-const knxclient     = require("knxclient");
-const backends      = require("../backends");
-const Communication = require("../communication");
+const EventEmitter = require("events");
+const knxclient    = require("knxclient");
+const util         = require("../utilities");
+const backends     = require("../backends");
+const components   = require("../components");
 
 class Datapoint extends backends.DatapointInterface {
 	constructor(backend, address, value) {
@@ -68,3 +69,14 @@ class KNXRouter extends backends.Driver {
 }
 
 backends.registerDriver(KNXRouter);
+
+class Switch extends components.Type {
+	constructor(config, slots) {
+		super();
+
+		util.debug("switch", config);
+		util.debug("switch", slots);
+	}
+}
+
+components.registerType(Switch);

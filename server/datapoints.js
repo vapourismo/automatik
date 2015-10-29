@@ -1,8 +1,8 @@
 "use strict";
 
-const backends     = require("./backends");
-const util         = require("./utilities");
-const db           = require("./database");
+const db       = require("./database");
+const util     = require("./utilities");
+const backends = require("./backends");
 
 const datapoints = {};
 
@@ -29,22 +29,6 @@ class Datapoint {
 	get name() {
 		return this.rows.data.name;
 	}
-
-	get value() {
-		return this.interface.read();
-	}
-
-	set value(value) {
-		this.interface.write(value);
-	}
-
-	listen(callback) {
-		this.interface.listen(callback);
-	}
-
-	mute(callback) {
-		this.interface.mute(callback);
-	}
 }
 
 const table = new db.Table("datapoints", "id", ["name", "backend", "config", "value"]);
@@ -69,6 +53,6 @@ module.exports = {
 
 	find: function (id) {
 		const datapoint = datapoints[id];
-		return datapoint instanceof DatapointHandle ? datapoint : null;
+		return datapoint instanceof Datapoint ? datapoint : null;
 	}
 }

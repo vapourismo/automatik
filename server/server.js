@@ -1,6 +1,7 @@
 const path       = require("path");
 const datapoints = require("./datapoints");
 const backends   = require("./backends");
+const components = require("./components");
 const groups     = require("./groups");
 const util       = require("./utilities");
 
@@ -24,6 +25,7 @@ require("./communication")(server);
 	try {
 		yield backends.load();
 		yield datapoints.load();
+		yield components.load();
 		yield groups.load();
 
 		server.listen(3001);
