@@ -114,9 +114,13 @@ const GroupTile = React.createClass({
 
 	performDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
+
 		Network.deleteGroup(this.props.info.id).then(
 			this.requestNormal,
-			error => Notifier.displayError(error.message)
+			error => {
+				Notifier.displayError(error.message);
+				this.requestNormal();
+			}
 		);
 	},
 
@@ -126,6 +130,7 @@ const GroupTile = React.createClass({
 
 	performRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
+
 		Network.renameGroup(this.props.info.id, name).then(
 			this.restoreNormal,
 			error => {
