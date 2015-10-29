@@ -107,6 +107,26 @@ Table.prototype.insert = function* (data) {
 	return new Row(this, results.rows.pop());
 }.async;
 
+Table.prototype.find = function* (criteria) {
+	const clauses = [];
+	const params = [];
+
+	this.columns.forEach(function (column) {
+		if (!(column in criteria))
+			return;
+
+		params.push(criteria[column]);
+		clauses.push(sanitizeName(column) + " = $" + params.length);
+	});
+
+	const result = yield db.queryAsync(
+		"SELECT * FROM " + sanitizeName(this.name) + " WHERE " + clauses.join(", "),
+		params
+	);
+
+	return result.rows.map(row => new Row(this, row));
+}.async;
+
 db.Row = Row;
 db.Table = Table;
 
