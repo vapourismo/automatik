@@ -231,13 +231,6 @@ const GroupContainer = React.createClass({
 		};
 	},
 
-	openParent() {
-		if (typeof(this.state.parent) == "number")
-			page("/groups/" + this.state.parent);
-		else
-			page("/");
-	},
-
 	requestInfo() {
 		Network.getGroupInfo(this.props.group).then(
 			info => {
@@ -248,16 +241,22 @@ const GroupContainer = React.createClass({
 				});
 			},
 			error => {
-				this.openParent();
+				if (typeof(this.state.parent) == "number")
+					page("/groups/" + this.state.parent);
+				else
+					page("/");
 			}
 		);
 	},
 
-	deleteGroup() {
+	deleteGroup(origin) {
 		if (typeof(this.state.name) == "string")
 			Notifier.displayError("Group '" + this.state.name + "' has been removed");
 
-		this.openParent();
+		if (typeof(origin) == "number")
+			page("/groups/" + origin);
+		else
+			page("/");
 	},
 
 	componentDidMount() {

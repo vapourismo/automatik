@@ -142,8 +142,8 @@ module.exports = function (server) {
 		triggerGroupEvent(server, grp.id, "refresh");
 	});
 
-	groups.events.on("delete", function (gid) {
-		triggerGroupEvent(server, gid, "delete");
+	groups.events.on("delete", function (gid, origin) {
+		triggerGroupEvent(server, gid, "delete", origin);
 	});
 
 	groups.events.on("rename", function (grp) {

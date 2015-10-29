@@ -77,10 +77,12 @@ Group.prototype.rename = function* (name) {
 	}
 }.async;
 
-Group.prototype.delete = function* () {
+Group.prototype.delete = function* (origin) {
 	const tag = "group: " + this.id;
 
-	yield* this.subGroups.map(g => g.delete());
+	origin = origin || this.parent;
+
+	yield* this.subGroups.map(g => g.delete(origin));
 
 	try {
 		const id = this.id;
@@ -89,7 +91,7 @@ Group.prototype.delete = function* () {
 		delete groups[id];
 		yield this.row.delete();
 
-		eventHub.emit("delete", id);
+		eventHub.emit("delete", id, origin);
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to delete", err);
