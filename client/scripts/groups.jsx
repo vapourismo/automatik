@@ -253,15 +253,7 @@ const GroupContainer = React.createClass({
 		);
 	},
 
-	refreshGroup(id) {
-		if (id == this.props.group)
-			this.requestInfo();
-	},
-
-	deleteGroup(id) {
-		if (id != this.props.group)
-			return;
-
+	deleteGroup() {
 		if (typeof(this.state.name) == "string")
 			Notifier.displayError("Group '" + this.state.name + "' has been removed");
 
@@ -269,15 +261,15 @@ const GroupContainer = React.createClass({
 	},
 
 	componentDidMount() {
-		Network.on("refreshGroup", this.refreshGroup);
-		Network.on("deleteGroup",  this.deleteGroup);
+		Network.onGroupEvent(this.props.group, "refresh", this.requestInfo);
+		Network.onGroupEvent(this.props.group, "delete",  this.deleteGroup);
 
 		this.requestInfo();
 	},
 
 	componentWillUnmount() {
-		Network.off("refreshGroup", this.refreshGroup);
-		Network.off("deleteGroup",  this.deleteGroup);
+		Network.offGroupEvent(this.props.group, "refresh", this.requestInfo);
+		Network.offGroupEvent(this.props.group, "delete",  this.deleteGroup);
 	},
 
 	render() {

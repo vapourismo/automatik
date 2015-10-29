@@ -1,7 +1,7 @@
 "use strict";
 
-const util     = require("./utilities");
-const groups   = require("./groups");
+const util   = require("./utilities");
+const groups = require("./groups");
 
 /**
  * Utilities
@@ -20,8 +20,18 @@ function bindFunction(client, name, callback) {
 	});
 }
 
-function triggerEvent(server, name, ...args) {
-	server.emit("event:" + name, ...args);
+function triggerEvent(server, channel, event, ...args) {
+	server.to("channel:" + channel).emit("event:" + channel + ":" + event, ...args);
+}
+
+function bindEventSystem(client) {
+	client.on("subscribe", function (channel) {
+		client.join("channel:" + channel);
+	});
+
+	client.on("leave", function (channel) {
+		client.leave("channel:" + channel);
+	})
 }
 
 /*
@@ -35,6 +45,10 @@ function gatherGroupInfo(grp) {
 		parent: grp.parent,
 		subGroups: grp.subGroups.map(g => ({id: g.id, name: g.name}))
 	};
+}
+
+function triggerGroupEvent(server, gid, event, ...args) {
+	triggerEvent(server, "group/" + gid, event, ...args);
 }
 
 /*
@@ -116,21 +130,23 @@ module.exports = function (server) {
 		bindFunction(client, "createGroup",  createGroup);
 		bindFunction(client, "deleteGroup",  deleteGroup);
 		bindFunction(client, "renameGroup",  renameGroup);
+
+		bindEventSystem(client);
 	});
 
 	groups.events.on("attach", function (grp, mem) {
-		triggerEvent(server, "refreshGroup", grp.id);
+		triggerGroupEvent(server, grp.id, "refresh");
 	});
 
 	groups.events.on("detach", function (grp, mem) {
-		triggerEvent(server, "refreshGroup", grp.id);
+		triggerGroupEvent(server, grp.id, "refresh");
 	});
 
 	groups.events.on("delete", function (gid) {
-		triggerEvent(server, "deleteGroup", gid);
+		triggerGroupEvent(server, gid, "delete");
 	});
 
 	groups.events.on("rename", function (grp) {
-		triggerEvent(server, "refreshGroup", grp.parent);
+		triggerGroupEvent(server, grp.parent, "refresh");
 	});
 };

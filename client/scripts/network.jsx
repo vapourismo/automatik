@@ -8,6 +8,36 @@ const network = io();
 network.on("disconnect", () => Notifier.displayError("Lost connection to server"));
 network.on("reconnect", () => Notifier.displayInfo("Successfully reconnected"));
 
+const channels = {};
+
+function subscribe(channel) {
+	if (channel in channels) {
+		if (++channels[channel] == 1)
+			network.emit("subscribe", channel);
+	} else {
+		channels[channel] = 1;
+		network.emit("subscribe", channel);
+	}
+}
+
+function unsubscribe(channel) {
+	if (!(channel in channels))
+		return;
+
+	if (--channels[channel] == 0)
+		network.emit("unsubscribe", channel);
+}
+
+function on(channel, event, callback) {
+	subscribe(channel);
+	network.on("event:" + channel + ":" + event, callback);
+}
+
+function off(channel, event, callback) {
+	network.off("event:" + channel + ":" + event, callback);
+	unsubscribe(channel);
+}
+
 let sinkCounter = 0;
 const sinkTimeout = 10000;
 
@@ -48,19 +78,17 @@ function bindNetworkFunction(name) {
 	};
 }
 
-function on(name, callback) {
-	network.on("event:" + name, callback);
-}
-
-function off(name, callback) {
-	network.off("event:" + name, callback);
-}
-
 module.exports = {
 	getGroupInfo: bindNetworkFunction("getGroupInfo"),
 	createGroup:  bindNetworkFunction("createGroup"),
 	deleteGroup:  bindNetworkFunction("deleteGroup"),
 	renameGroup:  bindNetworkFunction("renameGroup"),
-	on:           on,
-	off:          off
+
+	onGroupEvent(gid, event, callback) {
+		on("group/" + gid, event, callback);
+	},
+
+	offGroupEvent(gid, event, callback) {
+		off("group/" + gid, event, callback);
+	}
 };
