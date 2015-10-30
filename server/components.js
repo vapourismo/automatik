@@ -12,7 +12,9 @@ class Type {
 }
 
 class Component {
-	constructor(row) {
+	constructor(ns, row) {
+		this.namespace = ns;
+		this.channel = ns.create("component/" + row.data.id);
 		this.row = row;
 
 		if (!(row.data.type in types))
@@ -34,7 +36,7 @@ class Component {
 				slots[slot.name] = datapoint.interface;
 			});
 
-			this.instance = new types[row.data.type](row.data.config, slots);
+			this.instance = new types[row.data.type](this.channel, row.data.config, slots);
 		}.async).call(this).catch(function (error) {
 			util.error("component: " + row.data.id, "Error while loading slots", error.stack);
 		});
@@ -50,6 +52,10 @@ class Component {
 
 	get name() {
 		return this.row.data.name;
+	}
+
+	get type() {
+		return this.row.data.type;
 	}
 };
 
@@ -71,11 +77,11 @@ module.exports = {
 		types[name] = clazz;
 	},
 
-	load: function* () {
+	load: function* (ns) {
 		const rows = yield table.load();
 		rows.forEach(function (row) {
 			util.inform("component: " + row.data.id, "Registering '" + row.data.name + "'");
-			components[row.data.id] = new Component(row);
+			components[row.data.id] = new Component(ns, row);
 		});
 	}.async
 };

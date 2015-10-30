@@ -147,14 +147,18 @@ class Namespace {
 		});
 
 		this.namespace.on("reject", (sink, reason) => {
-			if (!(sink in this.sinks))
-				return;
-
-			clearTimeout(this.sinks[sink].timeout);
-			this.sinks[sink].reject(reason);
-
-			delete this.sinks[sink];
+			this.processReject(sink, reason);
 		});
+	}
+
+	processReject(sink, reason) {
+		if (!(sink in this.sinks))
+			return;
+
+		clearTimeout(this.sinks[sink].timeout);
+		this.sinks[sink].reject(reason);
+
+		delete this.sinks[sink];
 	}
 
 	subscribe(name) {
@@ -180,7 +184,7 @@ class Namespace {
 		return new Promise((reply, reject) => {
 			const sink = this.sinkCounter++;
 			const timeout = setTimeout(() => {
-				this.reject(sink, new Error("Sink #" + sink + " timed out"));
+				this.processReject(sink, new Error("Sink #" + sink + " timed out"));
 			}, 10000);
 
 			this.sinks[sink] = {reply, reject, timeout};

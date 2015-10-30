@@ -57,7 +57,7 @@ class Group {
 				name:       this.name,
 				parent:     this.parent,
 				subGroups:  this.subGroups.map(g => ({id: g.id, name: g.name})),
-				components: this.components.map(c => ({id: c.id, name: c.name}))
+				components: this.components.map(c => ({id: c.id, name: c.name, type: c.type}))
 			});
 		});
 	}

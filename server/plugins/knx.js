@@ -71,8 +71,20 @@ class KNXRouter extends backends.Driver {
 backends.registerDriver(KNXRouter);
 
 class Switch extends components.Type {
-	constructor(config, slots) {
+	constructor(channel, config, slots) {
 		super();
+		Object.assign(this, slots);
+
+		this.channel = channel;
+		this.config = config;
+
+		this.channel.register("getCurrentValue", (reply, reject) => {
+			reply(this.state.read());
+		});
+
+		this.status.listen(value => {
+			this.channel.trigger("update", value);
+		});
 	}
 }
 

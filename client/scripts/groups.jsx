@@ -116,7 +116,7 @@ const GroupTile = React.createClass({
 	performDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
 
-		this.subscription.invoke("delete").then(
+		this.channel.invoke("delete").then(
 			this.requestNormal,
 			error => {
 				Notifier.displayError(error.message);
@@ -132,7 +132,7 @@ const GroupTile = React.createClass({
 	performRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
 
-		this.subscription.invoke("rename", name).then(
+		this.channel.invoke("rename", name).then(
 			this.restoreNormal,
 			error => {
 				Notifier.displayError(error.message);
@@ -158,7 +158,7 @@ const GroupTile = React.createClass({
 		Events.on("OpenContext", this.anotherContextMenuOpened);
 		Events.on("Escape",      this.cancelInteraction);
 
-		this.subscription = Namespace.subscribe("group/" + this.props.info.id);
+		this.channel = Namespace.subscribe("group/" + this.props.info.id);
 
 		this.contextItems = {
 			"Delete": this.requestDelete,
@@ -170,7 +170,7 @@ const GroupTile = React.createClass({
 		Events.off("OpenContext", this.anotherContextMenuOpened);
 		Events.off("Escape",      this.cancelInteraction);
 
-		this.subscription.unsubscribe();
+		this.channel.unsubscribe();
 	},
 
 	render() {
@@ -243,7 +243,7 @@ const GroupContainer = React.createClass({
 	},
 
 	requestInfo() {
-		this.subscription.invoke("describe").then(
+		this.channel.invoke("describe").then(
 			info => {
 				this.setState({
 					name:       info.name,
@@ -272,17 +272,17 @@ const GroupContainer = React.createClass({
 	},
 
 	componentDidMount() {
-		this.subscription = Namespace.subscribe("group/" + this.props.group);
-		this.subscription.on("refresh", this.requestInfo);
-		this.subscription.on("delete", this.deleteGroup);
+		this.channel = Namespace.subscribe("group/" + this.props.group);
+		this.channel.on("refresh", this.requestInfo);
+		this.channel.on("delete", this.deleteGroup);
 
 		this.requestInfo();
 	},
 
 	componentWillUnmount() {
-		this.subscription.off("refresh", this.requestInfo);
-		this.subscription.off("delete", this.deleteGroup);
-		this.subscription.unsubscribe();
+		this.channel.off("refresh", this.requestInfo);
+		this.channel.off("delete", this.deleteGroup);
+		this.channel.unsubscribe();
 	},
 
 	render() {
