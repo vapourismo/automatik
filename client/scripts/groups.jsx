@@ -1,9 +1,9 @@
 const page        = require("page");
 const React       = require("react");
 
-const Network     = require("./network.jsx");
-const Notifier    = require("./notifier.jsx");
 const Events      = require("./events.jsx");
+const Notifier    = require("./notifier.jsx");
+const Namespace  =  require("./namespace.jsx");
 const ReactCommon = require("./react-common.jsx");
 
 const AddElementTileMode = {
@@ -36,7 +36,7 @@ const AddElementTile = React.createClass({
 	},
 
 	createGroup(name) {
-		Network.createGroup(name, this.props.parent).then(
+		Namespace.with("group/" + this.props.parent).invoke("create", name).then(
 			this.restoreNormal,
 			error => Notifier.displayError(error.message)
 		);
@@ -115,7 +115,7 @@ const GroupTile = React.createClass({
 	performDelete() {
 		this.setState({mode: GroupTileMode.Waiting});
 
-		Network.deleteGroup(this.props.info.id).then(
+		this.subscription.invoke("delete").then(
 			this.requestNormal,
 			error => {
 				Notifier.displayError(error.message);
@@ -131,7 +131,7 @@ const GroupTile = React.createClass({
 	performRename(name) {
 		this.setState({mode: GroupTileMode.Waiting});
 
-		Network.renameGroup(this.props.info.id, name).then(
+		this.subscription.invoke("rename", name).then(
 			this.restoreNormal,
 			error => {
 				Notifier.displayError(error.message);
@@ -157,6 +157,8 @@ const GroupTile = React.createClass({
 		Events.on("OpenContext", this.anotherContextMenuOpened);
 		Events.on("Escape",      this.cancelInteraction);
 
+		this.subscription = Namespace.subscribe("group/" + this.props.info.id);
+
 		this.contextItems = {
 			"Delete": this.requestDelete,
 			"Rename": this.requestRename
@@ -166,6 +168,8 @@ const GroupTile = React.createClass({
 	componentWillUnmount() {
 		Events.off("OpenContext", this.anotherContextMenuOpened);
 		Events.off("Escape",      this.cancelInteraction);
+
+		this.subscription.unsubscribe();
 	},
 
 	render() {
@@ -237,7 +241,7 @@ const GroupContainer = React.createClass({
 	},
 
 	requestInfo() {
-		Network.getGroupInfo(this.props.group).then(
+		this.subscription.invoke("describe").then(
 			info => {
 				this.setState({
 					name: info.name,
@@ -265,15 +269,17 @@ const GroupContainer = React.createClass({
 	},
 
 	componentDidMount() {
-		Network.onGroupEvent(this.props.group, "refresh", this.requestInfo);
-		Network.onGroupEvent(this.props.group, "delete",  this.deleteGroup);
+		this.subscription = Namespace.subscribe("group/" + this.props.group);
+		this.subscription.on("refresh", this.requestInfo);
+		this.subscription.on("delete", this.deleteGroup);
 
 		this.requestInfo();
 	},
 
 	componentWillUnmount() {
-		Network.offGroupEvent(this.props.group, "refresh", this.requestInfo);
-		Network.offGroupEvent(this.props.group, "delete",  this.deleteGroup);
+		this.subscription.off("refresh", this.requestInfo);
+		this.subscription.off("delete", this.deleteGroup);
+		this.subscription.unsubscribe();
 	},
 
 	render() {

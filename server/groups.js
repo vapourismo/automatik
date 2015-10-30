@@ -12,15 +12,52 @@ class GroupError extends Error {
 	}
 }
 
-const eventHub = new EventEmitter();
 const groups = {};
+const table = new db.Table("groups", "id", ["name", "parent"]);
 
 class Group {
-	constructor(row) {
+	constructor(ns, row) {
+		this.namespace = ns;
+		this.channel = ns.create("group/" + row.data.id);
 		this.row = row;
+
 		this.subGroups = [];
 
-		eventHub.emit("create", this);
+		this.channel.register("create", (reply, reject, name) => {
+			if (typeof(name) != "string")
+				return reject({message: "Parameter 'name' should be a string"});
+
+			this.create(name).then(
+				value => reply(),
+				error => reject({message: error.message})
+			);
+		});
+
+		this.channel.register("delete", (reply, reject) => {
+			this.delete().then(
+				value => reply(),
+				error => reject({message: error.message})
+			);
+		});
+
+		this.channel.register("rename", (reply, reject, name) => {
+			if (typeof(name) != "string")
+				return reject({message: "Parameter 'name' should be a string"});
+
+			this.rename(name).then(
+				value => reply(),
+				error => reject({message: error.message})
+			);
+		});
+
+		this.channel.register("describe", (reply, reject) => {
+			reply({
+				id:        this.id,
+				name:      this.name,
+				parent:    this.parent,
+				subGroups: this.subGroups.map(g => ({id: g.id, name: g.name}))
+			});
+		});
 	}
 
 	get id() {
@@ -50,23 +87,52 @@ class Group {
 			return;
 
 		this.subGroups.push(grp);
-		eventHub.emit("attach", this, grp);
+		this.channel.trigger("refresh");
 	}
 
 	detach(grp) {
 		this.subGroups = this.subGroups.filter(g => g != grp);
-		eventHub.emit("detach", this, grp);
+		this.channel.trigger("refresh");
 	}
 }
+
+Group.prototype.create = function* (name) {
+	if (name.length < 1)
+		throw new GroupError("Group name has to contain at least one character");
+
+	try {
+		const row = yield table.insert({name, parent: this.id});
+
+		util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
+		const group = groups[row.data.id] = new Group(this.namespace, row);
+
+		this.attach(group);
+
+		return group;
+	} catch (err) {
+		util.error("groups", "Failed to create", err.stack);
+
+		if (err.code == 23505 && (err.constraint == "groups_name_parent_unique" || err.constraint == "groups_name_unique"))
+			throw new GroupError("A group with that name already exists", err);
+		else if (err.code == 23503 && err.constraint == "groups_parent_fkey")
+			throw new GroupError("Parent group does no longer exist", err);
+		else if (err.code == 22001)
+			throw new GroupError("Group name is too long", err);
+		else
+			throw new GroupError("Unknown error, check logs", err);
+	}
+}.async;
 
 Group.prototype.rename = function* (name) {
 	const tag = "group: " + this.id;
 
 	try {
-		yield this.row.update({name: name});
-
-		eventHub.emit("rename", this);
+		yield this.row.update({name});
 		util.inform(tag, "Renamed to '" + this.name + "'");
+
+		if (this.parent in groups)
+			groups[this.parent].channel.trigger("refresh");
+
 	} catch (err) {
 		util.error(tag, "Failed to rename", err);
 
@@ -80,18 +146,16 @@ Group.prototype.rename = function* (name) {
 Group.prototype.delete = function* (origin) {
 	const tag = "group: " + this.id;
 
-	origin = origin || this.parent;
+	origin = origin === undefined ? this.parent : origin;
 
 	yield* this.subGroups.map(g => g.delete(origin));
 
 	try {
-		const id = this.id;
-
 		this.detachFromParent();
-		delete groups[id];
+		delete groups[this.id];
 		yield this.row.delete();
 
-		eventHub.emit("delete", id, origin);
+		this.channel.trigger("delete", origin);
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to delete", err);
@@ -104,8 +168,8 @@ Group.prototype.delete = function* (origin) {
 }.async;
 
 class BaseGroup extends Group {
-	constructor() {
-		super(new db.Row(null, {id: null, parent: null, name: null}));
+	constructor(ns) {
+		super(ns, new db.Row(null, {id: null, parent: null, name: null}));
 	}
 }
 
@@ -117,51 +181,19 @@ BaseGroup.prototype.delete = function* () {
 	return util.error(tag, "Cannot delete root group");
 };
 
-// Setup root group
-groups[null] = new BaseGroup();
-
-const table = new db.Table("groups", "id", ["name", "parent"]);
-
 module.exports = {
-	events: eventHub,
-
-	load: function* () {
+	load: function* (ns) {
+		groups[null] = new BaseGroup(ns);
 		const rows = yield table.load();
 
 		const loaded = rows.map(function (row) {
 			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
-			return groups[row.data.id] = new Group(row);
+			return groups[row.data.id] = new Group(ns, row);
 		});
 
 		loaded.forEach(g => g.attachToParent());
 
 		return loaded;
-	}.async,
-
-	create: function* (name, parent) {
-		if (name.length < 1)
-			throw new GroupError("Group name has to contain at least one character");
-
-		try {
-			const row = yield table.insert({name, parent});
-
-			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
-			const group = groups[row.data.id] = new Group(row);
-			group.attachToParent();
-
-			return group;
-		} catch (err) {
-			util.error("groups", "Failed to create", err.stack);
-
-			if (err.code == 23505 && (err.constraint == "groups_name_parent_unique" || err.constraint == "groups_name_unique"))
-				throw new GroupError("A group with that name already exists", err);
-			else if (err.code == 23503 && err.constraint == "groups_parent_fkey")
-				throw new GroupError("Parent group does no longer exist", err);
-			else if (err.code == 22001)
-				throw new GroupError("Group name is too long", err);
-			else
-				throw new GroupError("Unknown error, check logs", err);
-		}
 	}.async,
 
 	find: function (id) {
