@@ -22,6 +22,7 @@ class Group {
 		this.row = row;
 
 		this.subGroups = [];
+		this.components = [];
 
 		this.channel.register("create", (reply, reject, name) => {
 			if (typeof(name) != "string")
@@ -52,10 +53,11 @@ class Group {
 
 		this.channel.register("describe", (reply, reject) => {
 			reply({
-				id:        this.id,
-				name:      this.name,
-				parent:    this.parent,
-				subGroups: this.subGroups.map(g => ({id: g.id, name: g.name}))
+				id:         this.id,
+				name:       this.name,
+				parent:     this.parent,
+				subGroups:  this.subGroups.map(g => ({id: g.id, name: g.name})),
+				components: this.components.map(c => ({id: c.id, name: c.name}))
 			});
 		});
 	}
@@ -74,15 +76,15 @@ class Group {
 
 	attachToParent() {
 		if (this.parent in groups)
-			groups[this.parent].attach(this);
+			groups[this.parent].attachGroup(this);
 	}
 
 	detachFromParent() {
 		if (this.parent in groups)
-			groups[this.parent].detach(this);
+			groups[this.parent].detachGroup(this);
 	}
 
-	attach(grp) {
+	attachGroup(grp) {
 		if (this.subGroups.some(g => g == grp))
 			return;
 
@@ -90,8 +92,21 @@ class Group {
 		this.channel.trigger("refresh");
 	}
 
-	detach(grp) {
+	detachGroup(grp) {
 		this.subGroups = this.subGroups.filter(g => g != grp);
+		this.channel.trigger("refresh");
+	}
+
+	attachComponent(com) {
+		if (this.components.some(c => c == com))
+			return;
+
+		this.components.push(com);
+		this.channel.trigger("refresh");
+	}
+
+	detachComponent(com) {
+		this.components = this.components.filter(c => c != com);
 		this.channel.trigger("refresh");
 	}
 }
@@ -106,7 +121,7 @@ Group.prototype.create = function* (name) {
 		util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
 		const group = groups[row.data.id] = new Group(this.namespace, row);
 
-		this.attach(group);
+		this.attachGroup(group);
 
 		return group;
 	} catch (err) {

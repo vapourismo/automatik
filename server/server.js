@@ -23,10 +23,11 @@ const ns = require("./namespace")(server);
 // Load from database
 (function* () {
 	try {
+		yield groups.load(ns);
+
 		yield backends.load();
 		yield datapoints.load();
-		yield components.load();
-		yield groups.load(ns);
+		yield components.load(ns);
 
 		server.listen(3001);
 	} catch (error) {

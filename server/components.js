@@ -2,13 +2,13 @@
 
 const db         = require("./database");
 const util       = require("./utilities");
+const groups     = require("./groups");
 const datapoints = require("./datapoints");
 
 const types = {};
 const components = {};
 
 class Type {
-
 }
 
 class Component {
@@ -38,6 +38,10 @@ class Component {
 		}.async).call(this).catch(function (error) {
 			util.error("component: " + row.data.id, "Error while loading slots", error.stack);
 		});
+
+		const parent = groups.find(this.row.data.parent);
+		if (parent)
+			parent.attachComponent(this);
 	}
 
 	get id() {

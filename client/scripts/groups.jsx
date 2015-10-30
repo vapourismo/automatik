@@ -3,8 +3,9 @@ const React       = require("react");
 
 const Events      = require("./events.jsx");
 const Notifier    = require("./notifier.jsx");
-const Namespace  =  require("./namespace.jsx");
+const Namespace   = require("./namespace.jsx");
 const ReactCommon = require("./react-common.jsx");
+const Component   = require("./components.jsx");
 
 const AddElementTileMode = {
 	Normal:    1,
@@ -236,7 +237,8 @@ const GroupContainer = React.createClass({
 		return {
 			name: null,
 			parent: null,
-			subGroups: []
+			subGroups: [],
+			components: []
 		};
 	},
 
@@ -244,9 +246,10 @@ const GroupContainer = React.createClass({
 		this.subscription.invoke("describe").then(
 			info => {
 				this.setState({
-					name: info.name,
-					parent: info.parent,
-					subGroups: info.subGroups.sort((a, b) => a.name.localeCompare(b.name))
+					name:       info.name,
+					parent:     info.parent,
+					subGroups:  info.subGroups.sort((a, b) => a.name.localeCompare(b.name)),
+					components: info.components.sort((a, b) => a.name.localeCompare(b.name))
 				});
 			},
 			error => {
@@ -283,8 +286,12 @@ const GroupContainer = React.createClass({
 	},
 
 	render() {
-		const tiles = this.state.subGroups.map(
-			group => <GroupTile key={group.id} info={group}/>
+		const groups = this.state.subGroups.map(
+			group => <GroupTile key={"g" + group.id} info={group}/>
+		);
+
+		const components = this.state.components.map(
+			com => <Component key={"c" + com.id} info={com}/>
 		);
 
 		const back = this.props.group != null ? <ParentGroupTile group={this.state.parent}/> : null;
@@ -292,7 +299,8 @@ const GroupContainer = React.createClass({
 		return (
 			<ReactCommon.Container>
 				{back}
-				{tiles}
+				{groups}
+				{components}
 				<AddElementTile parent={this.props.group}/>
 			</ReactCommon.Container>
 		);
