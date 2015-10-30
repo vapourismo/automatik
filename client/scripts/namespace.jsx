@@ -11,8 +11,6 @@ network.on("disconnect", function () {
 
 network.on("reconnect", function () {
 	Notifier.displayInfo("Successfully reconnected");
-
-	// TODO: Reissue all subscriptions
 });
 
 class Channel {
@@ -33,8 +31,10 @@ class Channel {
 	}
 
 	unsubscribe() {
-		if (--this.subscribers == 0)
+		if (--this.subscribers == 0) {
 			this.namespace.emit("unsubscribe", this.name);
+			this.callbacks = {};
+		}
 	}
 
 	resendSubscription() {
@@ -62,7 +62,7 @@ class Channel {
 		return new Promise((reply, reject) => {
 			const sink = this.sinkCounter++;
 			const timeout = setTimeout(() => {
-				this.reject(sink, new Error("Sink #" + sink + " timed out"));
+				this.processReject(sink, new Error("Sink #" + sink + " timed out"));
 			}, 10000);
 
 			this.sinks[sink] = {reply, reject, timeout};
@@ -167,6 +167,13 @@ class Namespace {
 			channel.subscribe();
 			return channel
 		}
+	}
+
+	with(name) {
+		if (name in this.channels)
+			return this.channels[name];
+		else
+			return this.channels[name] = new Channel(name, this.namespace);
 	}
 
 	invoke(name, ...args) {

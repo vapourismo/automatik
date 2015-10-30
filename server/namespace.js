@@ -1,11 +1,19 @@
 "use strict";
 
 class Channel {
-	constructor(name, room) {
+	constructor(name, ns) {
 		this.name = name;
-		this.room = room;
+		this.namespace = ns;
 
 		this.methods = {};
+	}
+
+	attach(client) {
+		client.join(this.name);
+	}
+
+	detach(client) {
+		client.leave(this.name);
 	}
 
 	register(name, callback) {
@@ -13,7 +21,7 @@ class Channel {
 	}
 
 	send(method, ...args) {
-		this.room.emit("route", this.name, method, ...args);
+		this.namespace.to(this.name).emit("route", this.name, method, ...args);
 	}
 
 	direct(client, method, ...args) {
@@ -69,11 +77,17 @@ class Namespace {
 			});
 
 			client.on("subscribe", channel => {
-				client.join(channel);
+				if (!(channel in this.channels))
+					return;
+
+				this.channels[channel].attach(client);
 			});
 
 			client.on("unsubscribe", channel => {
-				client.leave(channel);
+				if (!(channel in this.channels))
+					return;
+
+				this.channels[channel].detach(client);
 			});
 		});
 	}
@@ -82,7 +96,7 @@ class Namespace {
 		if (name in this.channels)
 			return this.channels[name];
 		else
-			return this.channels[name] = new Channel(name, this.namespace.to(name));
+			return this.channels[name] = new Channel(name, this.namespace);
 	}
 
 	register(name, callback) {
@@ -90,4 +104,4 @@ class Namespace {
 	}
 }
 
-module.exports = Namespace;
+module.exports = ns => new Namespace(ns);

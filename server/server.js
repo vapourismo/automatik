@@ -18,7 +18,7 @@ util.iterateFiles(pluginDirectory, function (file) {
 
 // WebSocket server
 const server = require("socket.io")();
-require("./communication")(server);
+const ns = require("./namespace")(server);
 
 // Load from database
 (function* () {
@@ -26,7 +26,7 @@ require("./communication")(server);
 		yield backends.load();
 		yield datapoints.load();
 		yield components.load();
-		yield groups.load();
+		yield groups.load(ns);
 
 		server.listen(3001);
 	} catch (error) {
