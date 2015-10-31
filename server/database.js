@@ -23,11 +23,34 @@ function sanitizeName(name) {
 	return '"' + name.replace('"', "") + '"';
 }
 
+/**
+ * Database row
+ */
 class Row {
+	/**
+	 * @constructor
+	 * @param {Table}  table Containing table
+	 * @param {Object} data  Row data
+	 */
 	constructor(table, data) {
 		this.table = table;
 		this.data = data;
 	}
+
+	// Documentation placeholders
+
+	/**
+	 * Update the data connected to this row.
+	 * @returns {Promise}
+	 * @param {Object} data Incremental row data
+	 */
+	update(data) {}
+
+	/**
+	 * Delete this row from the table.
+	 * @returns {Promise}
+	 */
+	delete() {}
 }
 
 Row.prototype.update = function* (data) {
@@ -72,12 +95,43 @@ Row.prototype.delete = function* () {
 	});
 }.async;
 
+/**
+ * Database table
+ */
 class Table {
+	/**
+	 * @constructor
+	 * @param {String}        name    Table name
+	 * @param {String}        key     Primary key name
+	 * @param {Array<String>} columns Column names
+	 */
 	constructor(name, key, columns) {
 		this.name = name;
 		this.key = key;
 		this.columns = columns;
 	}
+
+	// Documentation placeholders
+
+	/**
+	 * Load the entire data set.
+	 * @returns {Promise<Array<Row>>} Array of all rows
+	 */
+	load() {}
+
+	/**
+	 * Insert a new row with the given data.
+	 * @param {Object} data Row data
+	 * @returns {Promise<Row>} Newly inserted row
+	 */
+	insert(data) {}
+
+	/**
+	 * Find a row with the given criteria.
+	 * @param {Object} criteria Search criteria
+	 * @returns {Promise<Array<Row>>} Found rows
+	 */
+	find(criteria) {}
 }
 
 Table.prototype.load = function* () {
