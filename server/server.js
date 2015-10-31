@@ -4,6 +4,7 @@ const backends   = require("./backends");
 const components = require("./components");
 const groups     = require("./groups");
 const util       = require("./utilities");
+const Namespace  = require("./namespace");
 
 // Traverse 'plugins/' directory and load each file
 const pluginDirectory = path.join(path.dirname(module.filename), "plugins");
@@ -17,8 +18,7 @@ util.iterateFiles(pluginDirectory, function (file) {
 });
 
 // WebSocket server
-const server = require("socket.io")();
-const ns = require("./namespace")(server);
+const ns = new Namespace();
 
 // Load from database
 (function* () {
@@ -29,7 +29,7 @@ const ns = require("./namespace")(server);
 		yield datapoints.load();
 		yield components.load(ns);
 
-		server.listen(3001);
+		ns.listen(3001);
 	} catch (error) {
 		util.abort("data", error instanceof Error ? error.stack : error);
 	}
