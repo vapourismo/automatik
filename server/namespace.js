@@ -1,12 +1,14 @@
 "use strict";
 
-const util = require("./utilities");
+const EventEmitter = require("events");
+const util         = require("./utilities");
 
 class Channel {
 	constructor(name, ns) {
 		this.name = name;
 		this.namespace = ns;
 
+		this.events = new EventEmitter();
 		this.methods = {};
 	}
 
@@ -34,11 +36,22 @@ class Channel {
 		this.send("trigger", event, ...args);
 	}
 
+	on(event, callback) {
+		this.events.on(event, callback);
+	}
+
+	off(event, callback) {
+		this.events.off(event, callback);
+	}
+
 	process(client, method, ...args) {
 		switch (method) {
 			case "invoke":
 				this.processInvoke(client, ...args);
+				break;
 
+			case "trigger":
+				this.processTrigger(client, ...args);
 				break;
 		}
 	}
@@ -51,6 +64,10 @@ class Channel {
 		const reject = reason => this.direct(client, "reject", sink, reason);
 
 		this.methods[name](reply, reject, ...args);
+	}
+
+	processTrigger(client, event, ...args) {
+		this.events.emit(event, ...args);
 	}
 }
 

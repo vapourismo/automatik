@@ -42,6 +42,10 @@ class Channel {
 			this.namespace.emit("subscribe", this.name);
 	}
 
+	send(method, ...args) {
+		this.namespace.emit("route", this.name, method, ...args);
+	}
+
 	on(event, callback) {
 		if (event in this.callbacks)
 			this.callbacks[event].push(callback);
@@ -54,10 +58,6 @@ class Channel {
 			this.callbacks[event] = this.callbacks[event].filter(f => f != callback);
 	}
 
-	send(method, ...args) {
-		this.namespace.emit("route", this.name, method, ...args);
-	}
-
 	invoke(name, ...args) {
 		return new Promise((reply, reject) => {
 			const sink = this.sinkCounter++;
@@ -68,6 +68,10 @@ class Channel {
 			this.sinks[sink] = {reply, reject, timeout};
 			this.send("invoke", sink, name, ...args);
 		});
+	}
+
+	trigger(event, ...args) {
+		this.send("trigger", event, ...args);
 	}
 
 	process(method, ...args) {
