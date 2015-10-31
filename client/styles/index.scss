@@ -190,6 +190,14 @@ body {
 				background-color: #663333;
 			}
 		}
+
+		.knx-switch {
+			@extend .normal;
+
+			.value {
+				margin-top: 15px;
+			}
+		}
 	}
 }
 

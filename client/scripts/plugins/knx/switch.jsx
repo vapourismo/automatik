@@ -20,6 +20,10 @@ const Switch = React.createClass({
 		this.setState({value: !!value});
 	},
 
+	toggle() {
+		this.props.channel.trigger("switch", !this.state.value);
+	},
+
 	componentDidMount() {
 		this.props.channel.subscribe();
 		this.props.channel.on("update", this.updateValue);
@@ -33,7 +37,19 @@ const Switch = React.createClass({
 	},
 
 	render() {
-		return null;
+		let stateElem;
+
+		if (this.state.value)
+			stateElem = <i className="fa fa-circle"></i>;
+		else
+			stateElem = <i className="fa fa-circle-o"></i>;
+
+		return (
+			<div className="box knx-switch" onClick={this.toggle}>
+				<div className="name">{this.props.name}</div>
+				<div className="value">{stateElem}</div>
+			</div>
+		);
 	}
 });
 

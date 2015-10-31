@@ -82,6 +82,10 @@ class Switch extends components.Type {
 			reply(this.status.read());
 		});
 
+		this.channel.on("switch", value => {
+			this.control.write(!!value);
+		});
+
 		this.status.listen(value => {
 			this.channel.trigger("update", value);
 		});

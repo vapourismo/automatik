@@ -16,7 +16,7 @@ const ComponentTile = React.createClass({
 			return null;
 	},
 
-	componentDidMount() {
+	componentWillMount() {
 		this.channel = Namespace.subscribe("component/" + this.props.info.id);
 	},
 
