@@ -79,7 +79,7 @@ class Switch extends components.Type {
 		this.config = config;
 
 		this.channel.register("getCurrentValue", (reply, reject) => {
-			reply(this.state.read());
+			reply(this.status.read());
 		});
 
 		this.status.listen(value => {
