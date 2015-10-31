@@ -171,6 +171,8 @@ Group.prototype.delete = function* (origin) {
 		yield this.row.delete();
 
 		this.channel.trigger("delete", origin);
+		this.channel.destroy();
+
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
 		util.error(tag, "Failed to delete", err);

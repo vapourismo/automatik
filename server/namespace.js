@@ -4,9 +4,10 @@ const EventEmitter = require("events");
 const util         = require("./utilities");
 
 class Channel {
-	constructor(name, ns) {
+	constructor(name, parent) {
 		this.name = name;
-		this.namespace = ns;
+		this.parent = parent;
+		this.namespace = parent.namespace;
 
 		this.events = new EventEmitter();
 		this.methods = {};
@@ -42,6 +43,16 @@ class Channel {
 
 	off(event, callback) {
 		this.events.off(event, callback);
+	}
+
+	destroy() {
+		if (this.name in this.parent.channels)
+			delete this.parent.channels[this.name];
+
+		for (let key in this.methods)
+			delete this.methods[key];
+
+		this.events.removeAllListeners();
 	}
 
 	process(client, method, ...args) {
@@ -119,7 +130,7 @@ class Namespace {
 		if (name in this.channels)
 			return this.channels[name];
 		else
-			return this.channels[name] = new Channel(name, this.namespace);
+			return this.channels[name] = new Channel(name, this);
 	}
 
 	register(name, callback) {
