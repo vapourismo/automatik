@@ -1,5 +1,7 @@
 "use strict";
 
+const util = require("./utilities");
+
 class Channel {
 	constructor(name, ns) {
 		this.name = name;
@@ -59,6 +61,10 @@ class Namespace {
 		this.methods = {};
 
 		this.namespace.on("connection", client => {
+			client.on("error", error => {
+				util.error("namespace", error instanceof Error ? error.stack : error);
+			});
+
 			client.on("route", (channel, ...args) => {
 				if (!(channel in this.channels))
 					return;
