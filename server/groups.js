@@ -15,6 +15,9 @@ class GroupError extends Error {
 const groups = {};
 const table = new db.Table("groups", "id", ["name", "parent"]);
 
+/**
+ * Group handle
+ */
 class Group {
 	constructor(ns, row) {
 		this.namespace = ns;
@@ -62,28 +65,50 @@ class Group {
 		});
 	}
 
+	/**
+	 * ID
+	 * @type {Number}
+	 */
 	get id() {
 		return this.row.data.id;
 	}
 
+	/**
+	 * Name
+	 * @type {String}
+	 */
 	get name() {
 		return this.row.data.name;
 	}
 
+	/**
+	 * Parent group ID
+	 * @type {Number}
+	 */
 	get parent() {
 		return this.row.data.parent;
 	}
 
+	/**
+	 * Attach to parent group.
+	 */
 	attachToParent() {
 		if (this.parent in groups)
 			groups[this.parent].attachGroup(this);
 	}
 
+	/**
+	 * Detach from parent group.
+	 */
 	detachFromParent() {
 		if (this.parent in groups)
 			groups[this.parent].detachGroup(this);
 	}
 
+	/**
+	 * Attach a sub-group.
+	 * @param {Group} grp Group to be attached
+	 */
 	attachGroup(grp) {
 		if (this.subGroups.some(g => g == grp))
 			return;
@@ -92,11 +117,19 @@ class Group {
 		this.channel.trigger("refresh");
 	}
 
+	/**
+	 * Detach a sub-group.
+	 * @param {Group} grp Group to be detached
+	 */
 	detachGroup(grp) {
 		this.subGroups = this.subGroups.filter(g => g != grp);
 		this.channel.trigger("refresh");
 	}
 
+	/**
+	 * Attach a component.
+	 * @param {Component} com Component to be attached
+	 */
 	attachComponent(com) {
 		if (this.components.some(c => c == com))
 			return;
@@ -105,10 +138,34 @@ class Group {
 		this.channel.trigger("refresh");
 	}
 
+	/**
+	 * Detach a component.
+	 * @param {Component} com Component to be detached
+	 */
 	detachComponent(com) {
 		this.components = this.components.filter(c => c != com);
 		this.channel.trigger("refresh");
 	}
+
+	// Documentation placeholders
+
+	/**
+	 * Create a sub-group.
+	 * @param {String} name Group name
+	 * @returns {Group} Newly created "Group"
+	 */
+	create(name) {}
+
+	/**
+	 * Rename this group.
+	 * @param {String} name New group name
+	 */
+	rename(name) {}
+
+	/**
+	 * Delete this group.
+	 */
+	delete() {}
 }
 
 Group.prototype.create = function* (name) {
@@ -199,7 +256,7 @@ BaseGroup.prototype.delete = function* () {
 };
 
 module.exports = {
-	load: function* (ns) {
+	load: function* load(ns) {
 		groups[null] = new BaseGroup(ns);
 		const rows = yield table.load();
 
@@ -213,7 +270,7 @@ module.exports = {
 		return loaded;
 	}.async,
 
-	find: function (id) {
+	find(id) {
 		const grp = groups[id];
 
 		if (grp instanceof Group)
