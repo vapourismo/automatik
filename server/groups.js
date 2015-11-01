@@ -255,11 +255,11 @@ class BaseGroup extends Group {
 
 BaseGroup.prototype.rename = function* () {
 	return util.error(tag, "Cannot rename root group");
-};
+}.async;
 
 BaseGroup.prototype.delete = function* () {
 	return util.error(tag, "Cannot delete root group");
-};
+}.async;
 
 module.exports = {
 	load: function* load(ns) {
