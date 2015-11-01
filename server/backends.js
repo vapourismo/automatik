@@ -231,7 +231,7 @@ const load = function* () {
 		util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 		return backends[row.data.id] = new Backend(row);
 	});
-}.async
+}.async;
 
 /**
  * Create a new backend.
@@ -247,7 +247,7 @@ const create = function* (name, driver, config) {
 
 	util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 	backends[row.data.id] = new Backend(row);
-}.async
+}.async;
 
 /**
  * Find a backend using its ID.
