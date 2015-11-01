@@ -24,8 +24,8 @@ class Group {
 		this.channel = ns.create("group/" + row.data.id);
 		this.row = row;
 
-		this.subGroups = [];
-		this.components = [];
+		this.subGroups = new Set();
+		this.components = new Set();
 
 		this.channel.register("create", (reply, reject, name) => {
 			if (typeof(name) != "string")
@@ -110,11 +110,11 @@ class Group {
 	 * @param {Group} grp Group to be attached
 	 */
 	attachGroup(grp) {
-		if (this.subGroups.some(g => g == grp))
-			return;
+		const len = this.subGroups.length;
+		this.subGroups.add(grp);
 
-		this.subGroups.push(grp);
-		this.channel.trigger("refresh");
+		if (len < this.subGroups.length)
+			this.channel.trigger("refresh");
 	}
 
 	/**
@@ -122,8 +122,11 @@ class Group {
 	 * @param {Group} grp Group to be detached
 	 */
 	detachGroup(grp) {
-		this.subGroups = this.subGroups.filter(g => g != grp);
-		this.channel.trigger("refresh");
+		const len = this.subGroups.length;
+		this.subGroups.delete(grp);
+
+		if (len > this.subGroups.length)
+			this.channel.trigger("refresh");
 	}
 
 	/**
@@ -131,11 +134,11 @@ class Group {
 	 * @param {Component} com Component to be attached
 	 */
 	attachComponent(com) {
-		if (this.components.some(c => c == com))
-			return;
+		const len = this.components.length;
+		this.components.add(com);
 
-		this.components.push(com);
-		this.channel.trigger("refresh");
+		if (len < this.components.length)
+			this.channel.trigger("refresh");
 	}
 
 	/**
@@ -143,8 +146,11 @@ class Group {
 	 * @param {Component} com Component to be detached
 	 */
 	detachComponent(com) {
-		this.components = this.components.filter(c => c != com);
-		this.channel.trigger("refresh");
+		const len = this.components.length;
+		this.components.delete(com);
+
+		if (len > this.components.length)
+			this.channel.trigger("refresh");
 	}
 
 	// Documentation placeholders
