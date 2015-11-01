@@ -70,11 +70,9 @@ class DatapointInterface {
 
 	/**
 	 * Remove this datapoint.
-	 * @internal Datapoint drivers must implement this.
+	 * @internal Datapoint drivers may implement this.
 	 */
-	delete() {
-		throw new Error("DatapointInterface.delete is not implemented");
-	}
+	delete() {}
 }
 
 /**
