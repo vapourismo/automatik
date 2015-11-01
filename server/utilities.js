@@ -4,10 +4,11 @@ const fs     = require("fs");
 const path   = require("path");
 const config = require("./config");
 
-/*
- * Files
+/**
+ * Interate over every file in a directory.
+ * @param {String}   base     Directory path
+ * @param {Function} callback Interator function
  */
-
 function iterateFiles(base, callback) {
 	fs.readdirSync(base).forEach(function (entry) {
 		entry = path.join(base, entry);
@@ -22,7 +23,7 @@ function iterateFiles(base, callback) {
 }
 
 /*
- * Logging
+ * Logging functions
  */
 
 function informColor(tag, ...msg) {
@@ -61,13 +62,17 @@ function debugPlain(tag, ...msg) {
 var loggers = config.colorLogging ? {error: errorColor, warn: warnColor, inform: informColor, debug: debugColor}
                                   : {error: errorPlain, warn: warnPlain, inform: informPlain, debug: debugPlain};
 
+/**
+ * Log an error and exit the process.
+ * @param {String} tag Log tag
+ */
 function abort(tag, ...args) {
 	loggers.error(tag, ...args);
 	process.exit(1);
 }
 
 /*
- * Generators
+ * Generator utilities
  */
 
 const GeneratorProto = (function* () {}).__proto__;
@@ -95,6 +100,7 @@ function serve(iter, step, accept, reject) {
 	}
 }
 
+// GeneratorFunction#async property
 Object.defineProperty(GeneratorProto, "async", {
 	get: function () {
 		const generator = this;
@@ -112,6 +118,8 @@ Object.defineProperty(GeneratorProto, "async", {
 /*
  * Object utilities
  */
+
+// Object#forEach method
 Object.defineProperty(Object.prototype, "forEach", {
 	value: function (callback) {
 		for (let key in this) callback(key, this[key]);
@@ -119,6 +127,7 @@ Object.defineProperty(Object.prototype, "forEach", {
 	enumerable: false
 });
 
+// Object#map method
 Object.defineProperty(Object.prototype, "map", {
 	value: function (callback) {
 		let newObject = {};
