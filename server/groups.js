@@ -64,8 +64,8 @@ class Group {
 				id:         this.id,
 				name:       this.name,
 				parent:     this.parent,
-				subGroups:  this.subGroups.map(g => ({id: g.id, name: g.name})),
-				components: this.components.map(c => ({id: c.id, name: c.name, type: c.type}))
+				subGroups:  Array.from(this.subGroups).map(g => ({id: g.id, name: g.name})),
+				components: Array.from(this.components).map(c => ({id: c.id, name: c.name, type: c.type}))
 			});
 		});
 	}
@@ -115,10 +115,10 @@ class Group {
 	 * @param {Group} grp Group to be attached
 	 */
 	attachGroup(grp) {
-		const len = this.subGroups.length;
+		const len = this.subGroups.size;
 		this.subGroups.add(grp);
 
-		if (len < this.subGroups.length)
+		if (len < this.subGroups.size)
 			this.channel.trigger("refresh");
 	}
 
@@ -127,10 +127,10 @@ class Group {
 	 * @param {Group} grp Group to be detached
 	 */
 	detachGroup(grp) {
-		const len = this.subGroups.length;
+		const len = this.subGroups.size;
 		this.subGroups.delete(grp);
 
-		if (len > this.subGroups.length)
+		if (len > this.subGroups.size)
 			this.channel.trigger("refresh");
 	}
 
@@ -139,10 +139,10 @@ class Group {
 	 * @param {Component} com Component to be attached
 	 */
 	attachComponent(com) {
-		const len = this.components.length;
+		const len = this.components.size;
 		this.components.add(com);
 
-		if (len < this.components.length)
+		if (len < this.components.size)
 			this.channel.trigger("refresh");
 	}
 
@@ -151,10 +151,10 @@ class Group {
 	 * @param {Component} com Component to be detached
 	 */
 	detachComponent(com) {
-		const len = this.components.length;
+		const len = this.components.size;
 		this.components.delete(com);
 
-		if (len > this.components.length)
+		if (len > this.components.size)
 			this.channel.trigger("refresh");
 	}
 
@@ -233,7 +233,7 @@ Group.prototype.delete = function* (origin) {
 
 	origin = origin === undefined ? this.parent : origin;
 
-	yield* this.subGroups.map(g => g.delete(origin));
+	yield* Array.from(this.subGroups).map(g => g.delete(origin));
 
 	try {
 		this.detachFromParent();
