@@ -82,6 +82,7 @@ class DatapointInterface {
  */
 class Driver {
 	/**
+	 * Create an interface to a datapoint.
 	 * @internal Backend drivers must implement this.
 	 * @param {*} value  Previously recorded value
 	 * @param {*} config Backend configuration
@@ -89,6 +90,12 @@ class Driver {
 	createInterface(value, config) {
 		throw new Error("Driver.createInterface is not implemented");
 	}
+
+	/**
+	 * Delete this backend driver instance.
+	 * @internal Backend drivers may implement this.
+	 */
+	delete() {}
 }
 
 /**
@@ -183,10 +190,10 @@ Backend.prototype.delete = function* () {
 	const tag = "backend: " + this.id;
 
 	try {
+		this.driver.delete();
 		yield this.row.delete();
-		delete backends[this.id];
 
-		// TODO: Inform backend driver of deletion
+		delete backends[this.id];
 
 		util.inform(tag, "Deleted '" + this.name + "'");
 	} catch (err) {
@@ -242,7 +249,7 @@ const create = function* (name, driver, config) {
 
 	util.inform("backend: " + row.data.id, "Registering '" + row.data.name + "'");
 	backends[row.data.id] = new Backend(row);
-}.async,
+}.async
 
 /**
  * Find a backend using its ID.
