@@ -19,6 +19,11 @@ const table = new db.Table("groups", "id", ["name", "parent"]);
  * Group handle
  */
 class Group {
+	/**
+	 * @constructor
+	 * @param {Namespace} ns  Namespace where the group channel will be created
+	 * @param {Row}       row Database row
+	 */
 	constructor(ns, row) {
 		this.namespace = ns;
 		this.channel = ns.create("group/" + row.data.id);
@@ -158,18 +163,20 @@ class Group {
 	/**
 	 * Create a sub-group.
 	 * @param {String} name Group name
-	 * @returns {Group} Newly created "Group"
+	 * @returns {Promise<Group>} Newly created "Group"
 	 */
 	create(name) {}
 
 	/**
 	 * Rename this group.
 	 * @param {String} name New group name
+	 * @returns {Promise}
 	 */
 	rename(name) {}
 
 	/**
 	 * Delete this group.
+	 * @returns {Promise}
 	 */
 	delete() {}
 }
@@ -247,6 +254,9 @@ Group.prototype.delete = function* (origin) {
 	}
 }.async;
 
+/**
+ * Class for the root group
+ */
 class BaseGroup extends Group {
 	constructor(ns) {
 		super(ns, new db.Row(null, {id: null, parent: null, name: null}));
@@ -261,27 +271,40 @@ BaseGroup.prototype.delete = function* () {
 	return util.error(tag, "Cannot delete root group");
 }.async;
 
+/**
+ * Load all groups.
+ * @param {Namespace} ns
+ * @returns {Promise<Array<Group>>} All loaded groups
+ */
+const load = function* (ns) {
+	groups[null] = new BaseGroup(ns);
+	const rows = yield table.load();
+
+	const loaded = rows.map(function (row) {
+		util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
+		return groups[row.data.id] = new Group(ns, row);
+	});
+
+	loaded.forEach(g => g.attachToParent());
+
+	return loaded;
+}.async;
+
+/**
+ * Find a group using its ID.
+ * @param {Number} id Group identifier
+ * @returns {Group} Matching group or null if the group could not be found
+ */
+function find(id) {
+	const grp = groups[id];
+
+	if (grp instanceof Group)
+		return grp;
+	else
+		return null;
+}
+
 module.exports = {
-	load: function* load(ns) {
-		groups[null] = new BaseGroup(ns);
-		const rows = yield table.load();
-
-		const loaded = rows.map(function (row) {
-			util.inform("group: " + row.data.id, "Registering '" + row.data.name + "'");
-			return groups[row.data.id] = new Group(ns, row);
-		});
-
-		loaded.forEach(g => g.attachToParent());
-
-		return loaded;
-	}.async,
-
-	find(id) {
-		const grp = groups[id];
-
-		if (grp instanceof Group)
-			return grp;
-		else
-			return null;
-	}
+	load,
+	find
 };
