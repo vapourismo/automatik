@@ -1,7 +1,0 @@
-{
-	"source": "./server",
-	"destination": "./docs/server",
-	"title": "automatik",
-	"unexportIdentifier": true,
-	"undocumentIdentifier": false
-}
