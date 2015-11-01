@@ -65,6 +65,42 @@ ALTER SEQUENCE backends_id_seq OWNED BY backends.id;
 
 
 --
+-- Name: components; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+--
+
+CREATE TABLE components (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    parent integer,
+    type character varying(255) NOT NULL,
+    config json
+);
+
+
+ALTER TABLE components OWNER TO automatik;
+
+--
+-- Name: components_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
+--
+
+CREATE SEQUENCE components_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE components_id_seq OWNER TO automatik;
+
+--
+-- Name: components_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
+--
+
+ALTER SEQUENCE components_id_seq OWNED BY components.id;
+
+
+--
 -- Name: datapoints; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
 --
 
@@ -128,6 +164,41 @@ CREATE TABLE groups (
 ALTER TABLE groups OWNER TO automatik;
 
 --
+-- Name: slots; Type: TABLE; Schema: public; Owner: automatik; Tablespace: 
+--
+
+CREATE TABLE slots (
+    id integer NOT NULL,
+    component integer NOT NULL,
+    name character varying(255) NOT NULL,
+    datapoint integer NOT NULL
+);
+
+
+ALTER TABLE slots OWNER TO automatik;
+
+--
+-- Name: slots_id_seq; Type: SEQUENCE; Schema: public; Owner: automatik
+--
+
+CREATE SEQUENCE slots_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE slots_id_seq OWNER TO automatik;
+
+--
+-- Name: slots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: automatik
+--
+
+ALTER SEQUENCE slots_id_seq OWNED BY slots.id;
+
+
+--
 -- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
 --
 
@@ -138,7 +209,21 @@ ALTER TABLE ONLY backends ALTER COLUMN id SET DEFAULT nextval('backends_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
 --
 
+ALTER TABLE ONLY components ALTER COLUMN id SET DEFAULT nextval('components_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
+--
+
 ALTER TABLE ONLY datapoints ALTER COLUMN id SET DEFAULT nextval('datapoints_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: automatik
+--
+
+ALTER TABLE ONLY slots ALTER COLUMN id SET DEFAULT nextval('slots_id_seq'::regclass);
 
 
 --
@@ -155,6 +240,22 @@ ALTER TABLE ONLY backends
 
 ALTER TABLE ONLY backends
     ADD CONSTRAINT backends_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: components_name_parent_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+--
+
+ALTER TABLE ONLY components
+    ADD CONSTRAINT components_name_parent_key UNIQUE (name, parent);
+
+
+--
+-- Name: components_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+--
+
+ALTER TABLE ONLY components
+    ADD CONSTRAINT components_pkey PRIMARY KEY (id);
 
 
 --
@@ -182,6 +283,22 @@ ALTER TABLE ONLY groups
 
 
 --
+-- Name: slots_component_name_key; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+--
+
+ALTER TABLE ONLY slots
+    ADD CONSTRAINT slots_component_name_key UNIQUE (component, name);
+
+
+--
+-- Name: slots_pkey; Type: CONSTRAINT; Schema: public; Owner: automatik; Tablespace: 
+--
+
+ALTER TABLE ONLY slots
+    ADD CONSTRAINT slots_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: groups_name_parent_unique; Type: INDEX; Schema: public; Owner: automatik; Tablespace: 
 --
 
@@ -193,6 +310,14 @@ CREATE UNIQUE INDEX groups_name_parent_unique ON groups USING btree (name, paren
 --
 
 CREATE UNIQUE INDEX groups_name_unique ON groups USING btree (name) WHERE (parent IS NULL);
+
+
+--
+-- Name: components_parent_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
+--
+
+ALTER TABLE ONLY components
+    ADD CONSTRAINT components_parent_fkey FOREIGN KEY (parent) REFERENCES groups(id);
 
 
 --
@@ -209,6 +334,22 @@ ALTER TABLE ONLY datapoints
 
 ALTER TABLE ONLY groups
     ADD CONSTRAINT groups_parent_fkey FOREIGN KEY (parent) REFERENCES groups(id);
+
+
+--
+-- Name: slots_component_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
+--
+
+ALTER TABLE ONLY slots
+    ADD CONSTRAINT slots_component_fkey FOREIGN KEY (component) REFERENCES components(id);
+
+
+--
+-- Name: slots_datapoint_fkey; Type: FK CONSTRAINT; Schema: public; Owner: automatik
+--
+
+ALTER TABLE ONLY slots
+    ADD CONSTRAINT slots_datapoint_fkey FOREIGN KEY (datapoint) REFERENCES datapoints(id);
 
 
 --
