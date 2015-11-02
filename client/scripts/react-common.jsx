@@ -2,22 +2,20 @@ const React  = require("react");
 const Events = require("./events.jsx");
 
 const Tile = React.createClass({
-	adjustHeight() {
-		this.refs.tile.style.height = this.refs.tile.offsetWidth;
-	},
-
 	componentDidMount() {
-		window.addEventListener("resize", this.adjustHeight);
-		this.adjustHeight();
-	},
-
-	componentWillUnmount() {
-		window.removeEventListener("resize", this.adjustHeight);
+		this.refs.tile.style.height = this.refs.tile.offsetWidth;
 	},
 
 	render() {
 		return <div ref="tile" className="tile">{this.props.children}</div>;
 	}
+});
+
+window.addEventListener("resize", function () {
+	const tiles = document.querySelectorAll(".tile");
+
+	for (let i = 0; i < tiles.length; i++)
+		tiles[i].style.height = tiles[i].offsetWidth;
 });
 
 const Container = React.createClass({
