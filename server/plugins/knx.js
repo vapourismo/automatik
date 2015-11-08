@@ -15,7 +15,7 @@ class Datapoint extends backends.DatapointInterface {
 		this.address = address;
 
 		this.backend.hooks.on(this.address, this.listener = msg => {
-			this.value = this.unwrap(msg);
+			this.value = this.unpack(msg);
 			this.emit(this.value);
 		});
 	}
@@ -30,33 +30,41 @@ class Datapoint extends backends.DatapointInterface {
 
 	write(value) {
 		this.value = value;
-		this.backend.client.send(0, this.address, this.wrap());
+		this.backend.client.write(0, this.address, this.wrap());
 		this.emit(value);
 	}
 
-	unwrap(msg) {}
+	unpack(msg) {}
 	wrap() {}
 };
 
 class Bool extends Datapoint {
-	unwrap(msg) { return msg.asBool(); }
-	wrap() { return knxclient.makeBool(this.value); }
+	unpack(msg) { return knxclient.unpackBool(msg); }
+	wrap() { return knxclient.packBool(this.value); }
 }
 
 class Float16 extends Datapoint {
-	unwrap(msg) { return msg.asFloat16(); }
-	wrap() { return knxclient.makeFloat16(this.value); }
+	unpack(msg) { return knxclient.unpackFloat16(msg); }
+	wrap() { return knxclient.packFloat16(this.value); }
 }
 
 class KNXRouter extends backends.Driver {
 	constructor(config) {
 		super();
 
-		this.hooks = new EventEmitter();
-		this.client = new knxclient.RouterClient(config);
+		config = config || {};
 
-		this.client.listen((sender, message) => {
-			this.hooks.emit(message.destination, message);
+		this.hooks = new EventEmitter();
+		this.client = new knxclient.Router(config.host, config.port);
+
+		this.client.on("indication", (src, dest, tpdu) => {
+			if (tpdu.tpci != knxclient.NumberedData || tpdu.tpci != knxclient.UnnumberedData)
+				return;
+
+			if (tpdu.apci != knxclient.GroupValueResponse || tpdu.apci != knxclient.GroupValueWrite)
+				return;
+
+			this.hooks.emit(dest, tpdu.payload);
 		});
 	}
 
