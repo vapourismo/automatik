@@ -76,7 +76,38 @@ class KNXRouter extends backends.Driver {
 	}
 }
 
+class KNXTunnel extends backends.Driver {
+	constructor(config) {
+		super();
+
+		config = config || {};
+
+		this.hooks = new EventEmitter();
+		this.client = new knxclient.Tunnel(config.host, config.port);
+
+		this.client.on("indication", (src, dest, tpdu) => {
+			if (tpdu.tpci != knxclient.NumberedData || tpdu.tpci != knxclient.UnnumberedData)
+				return;
+
+			if (tpdu.apci != knxclient.GroupValueResponse || tpdu.apci != knxclient.GroupValueWrite)
+				return;
+
+			this.hooks.emit(dest, tpdu.payload);
+		});
+
+		this.client.connect();
+	}
+
+	createInterface(value, config) {
+		switch (config.type) {
+			case 1: return new Bool(this, config.address, value);
+			case 9: return new Float16(this, config.address, value);
+		}
+	}
+}
+
 backends.registerDriver(KNXRouter);
+backends.registerDriver(KNXTunnel);
 
 class Switch extends components.Type {
 	constructor(channel, config, slots) {
