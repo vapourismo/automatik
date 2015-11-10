@@ -1,11 +1,11 @@
-const React       = require("react");
-
-const Notifier    = require("./notifier.jsx");
-const Namespace   = require("./namespace.jsx");
-const ReactCommon = require("./react-common.jsx");
+const React         = require("react");
+const Notifier      = require("./notifier.jsx");
+const Namespace     = require("./namespace.jsx");
+const ReactCommon   = require("./react-common.jsx");
+const DefaultPlugin = require("./plugins/default.jsx");
 
 const types = {
-	Switch: require("./plugins/knx/switch.jsx")
+	Switch: DefaultPlugin.Switch
 };
 
 const ComponentTile = React.createClass({

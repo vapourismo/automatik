@@ -1,6 +1,6 @@
 const React       = require("react");
-const Notifier    = require("../../notifier.jsx");
-const ReactCommon = require("../../react-common.jsx");
+const Notifier    = require("../notifier.jsx");
+const ReactCommon = require("../react-common.jsx");
 
 const Switch = React.createClass({
 	getInitialState() {
